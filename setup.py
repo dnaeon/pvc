@@ -24,6 +24,7 @@ setup(
     package_dir={'': 'src'},
     packages=find_packages('src'),
     scripts=[
+        'src/pvc-tui',
     ],
     install_requires=[
         'pyvmomi >= 5.5.0-2014.1.1',

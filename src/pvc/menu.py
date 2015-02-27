@@ -29,34 +29,51 @@ class MenuItem(object):
             raise GenericException('Need a callable for item callback')
 
     def selected(self):
-        self.on_select(*self.on_select_args)
+        if self.on_select_args:
+            return self.on_select(*self.on_select_args)
+        else:
+            return self.on_select()
+
 
 class Menu(object):
-    def __init__(self, text, items, dialog):
+    def __init__(self, items, dialog, title='', text='', height=0, width=0):
         """
         Menu class
 
         Args:
-            text             (str): Text to display in the menu box
             items           (list): List of MenuItem instances
             dialog (dialog.Dialog): Dialog instance
+            title            (str): Title for the menu box
+            text             (str): Text to display in the menu box
+            height           (int): Height of the menu box
+            width            (int): Width of the menu box
 
         """
         self.text = text
+        self.title = title
         self.items = items
         self.dialog = dialog
+        self.height = height
+        self.width = width
         self.choices = [(item.tag, item.description) for item in self.items]
         self._registry = {item.tag: item for item in items}
 
     def display(self):
         while True:
             code, tag = self.dialog.menu(
+                title=self.title,
                 text=self.text,
-                choices=self.choices
+                choices=self.choices,
+                height=self.height,
+                width=self.width
             )
 
             if code in (self.dialog.CANCEL, self.dialog.ESC):
                 break
 
             item = self._registry.get(tag)
-            item.selected()
+
+            if not item.on_select:
+                self.dialog.msgbox('Not implemented')
+            else:
+                item.selected()

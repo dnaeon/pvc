@@ -75,7 +75,7 @@ class Inventory(object):
             MenuItem(
                 tag=vm['name'],
                 description=vm['runtime.powerState'],
-                on_select=pvc.virtualmachine.VirtualMachine,
+                on_select=pvc.virtualmachine.VirtualMachineMainMenu,
                 on_select_args=(vm['obj'], self.dialog)
             ) for vm in properties
         ]

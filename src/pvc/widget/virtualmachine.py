@@ -8,10 +8,10 @@ import pyVmomi
 from pvc.widget.menu import Menu, MenuItem
 from pvc.widget.form import Form, FormElement
 
-__all__ = ['VirtualMachineMainMenu']
+__all__ = ['VirtualMachineWidget']
 
 
-class VirtualMachineMainMenu(object):
+class VirtualMachineWidget(object):
     def __init__(self, agent, dialog, obj):
         """
         Inventory menu
@@ -25,9 +25,9 @@ class VirtualMachineMainMenu(object):
         self.agent = agent
         self.dialog = dialog
         self.obj = obj
-        self.menu()
+        self.display()
 
-    def menu(self):
+    def display(self):
         items = [
             MenuItem(
                 tag='General',

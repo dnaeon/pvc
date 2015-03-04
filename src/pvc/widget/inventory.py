@@ -4,17 +4,17 @@ Docstring should go here
 """
 
 import pyVmomi
-import pvc.virtualmachine
 
-from pvc.menu import Menu, MenuItem
+from pvc.widget.menu import Menu, MenuItem
+from pvc.widget.virtualmachine import VirtualMachineWidget
 
-__all__ = ['Inventory']
+__all__ = ['InventoryWidget']
 
 
-class Inventory(object):
+class InventoryWidget(object):
     def __init__(self, agent, dialog):
         """
-        Inventory menu
+        Inventory widget
 
         Args:
             agent (VConnector): A VConnector instance
@@ -24,7 +24,7 @@ class Inventory(object):
         self.agent = agent
         self.dialog = dialog
 
-    def menu(self):
+    def display(self):
         items = [
             MenuItem(
                 tag='Hosts and Clusters',
@@ -75,7 +75,7 @@ class Inventory(object):
             MenuItem(
                 tag=vm['name'],
                 description=vm['runtime.powerState'],
-                on_select=pvc.virtualmachine.VirtualMachineMainMenu,
+                on_select=VirtualMachineWidget,
                 on_select_args=(self.agent, self.dialog, vm['obj'])
             ) for vm in properties
         ]
@@ -86,4 +86,5 @@ class Inventory(object):
             items=items,
             dialog=self.dialog
         )
-        menu.display()
+
+        return menu.display()

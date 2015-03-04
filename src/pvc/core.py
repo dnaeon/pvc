@@ -7,8 +7,8 @@ from dialog import Dialog
 from vconnector.core import VConnector
 
 from pvc import __version__
-from pvc.menu import Menu, MenuItem
-from pvc.inventory import Inventory
+from pvc.widget.menu import Menu, MenuItem
+from pvc.widget.inventory import InventoryWidget
 
 __all__ = ['MainApp']
 
@@ -96,10 +96,10 @@ class MainApp(object):
         if not self.login():
             return
 
-        inventory = Inventory(
+        inventory = InventoryWidget(
             agent=self.agent,
             dialog=self.dialog
         )
 
-        inventory.menu()
+        inventory.display()
         self.agent.disconnect()

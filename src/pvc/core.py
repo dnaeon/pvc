@@ -7,6 +7,7 @@ from dialog import Dialog
 from vconnector.core import VConnector
 
 from pvc import __version__
+from pvc.widget.form import Form, FormElement
 from pvc.widget.menu import Menu, MenuItem
 from pvc.widget.inventory import InventoryWidget
 
@@ -30,47 +31,61 @@ class MainApp(object):
         self.agent = None
 
     def about(self):
-        welcome = 'Welcome to PVC - Python vSphere Client version {}'.format(__version__)
-        self.dialog.msgbox(text=welcome, width=60)
+        welcome = (
+            'Welcome to the Python vSphere Client version {}.\n\n'
+            'PVC is hosted on Github. Please contribute by reporting '
+            'issues, suggesting features and sending patches using '
+            'pull requests.\n\n'
+            'https://github.com/dnaeon/py-pvc'
+        )
+
+        text = welcome.format(__version__)
+        self.dialog.msgbox(text=text, height=15, width=60)
 
     def login(self):
         """
         docstring
 
         """
-        elements = [
-            ('Hostname', 1, 1, '', 1, 20, 30, 40, 0),
-            ('Username', 2, 1, '', 2, 20, 30, 40, 0),
-            ('Password', 3, 1, '', 3, 20, 30, 40, 1)
+        form_text = (
+            'Enter IP address or DNS name '
+            'of the vSphere host you wish '
+            'to connect to.\n'
+        )
+        form_elements = [
+            FormElement(label='Hostname'),
+            FormElement(label='Username'),
+            FormElement(label='Password', attributes=0x1),
         ]
+        form = Form(
+            dialog=self.dialog,
+            form_elements=form_elements,
+            title='Login details',
+            text=form_text,
+            mixed_form=True
+        )
 
         while True:
-            code, fields = self.dialog.mixedform(
-                title='Login details',
-                text='Enter the IP address or DNS name of the VMware vSphere host you wish to connect to.\n',
-                elements=elements,
-            )
-
+            code, fields = form.display()
             if code in (self.dialog.CANCEL, self.dialog.ESC):
                 return False
 
-            if not all(fields):
+            if not all(fields.values()):
                 self.dialog.msgbox(
                     text='Invalid login details, please try again.',
                     width=45
                 )
                 continue
 
-            host, user, pwd = fields
             self.dialog.infobox(
-                text='Connecting to {} ...'.format(host),
+                text='Connecting to {} ...'.format(fields['Hostname']),
                 width=40
             )
 
             self.agent = VConnector(
-                host=host,
-                user=user,
-                pwd=pwd
+                host=fields['Hostname'],
+                user=fields['Username'],
+                pwd=fields['Password'],
             )
 
             try:

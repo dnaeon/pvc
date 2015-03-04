@@ -9,7 +9,7 @@ __all__ = ['Form', 'FormElement']
 
 
 class FormElement(object):
-    def __init__(self, label, item, xi=20, field_length=20, input_length=0):
+    def __init__(self, label, item, xi=20, field_length=60, input_length=0):
         """
         docstring
 

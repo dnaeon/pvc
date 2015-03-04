@@ -90,9 +90,12 @@ class MainApp(object):
 
             try:
                 self.agent.connect()
-                background_title = '{} - {} - Python vSphere Client version {}'.format(self.agent.host,
-                                                                                       self.agent.si.content.about.fullName,
-                                                                                       __version__)
+                text = '{} - {} - Python vSphere Client version {}'
+                background_title = text.format(
+                    self.agent.host,
+                    self.agent.si.content.about.fullName,
+                    __version__
+                )
                 self.dialog.set_background_title(background_title)
                 return True
             except Exception as e:

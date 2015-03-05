@@ -22,6 +22,9 @@ class VirtualMachineWidget(object):
             obj    (pyVmomi.vim.ManagedEntity): A VirtualMachine managed entity
 
         """
+        if not isinstance(obj, pyVmomi.vim.VirtualMachine):
+            raise TypeError('Need a vim.VirtualMachine instance')
+
         self.agent = agent
         self.dialog = dialog
         self.obj = obj

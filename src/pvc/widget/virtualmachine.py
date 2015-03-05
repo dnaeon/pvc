@@ -7,6 +7,7 @@ import pyVmomi
 
 from pvc.widget.menu import Menu, MenuItem
 from pvc.widget.form import Form, FormElement
+from pvc.widget.gauge import TaskGauge
 
 __all__ = ['VirtualMachineWidget']
 
@@ -43,8 +44,21 @@ class VirtualMachineWidget(object):
                 on_select=self.resources_info
             ),
             MenuItem(
+                tag='Power',
+                description='Virtual Machine Power Options',
+                on_select=self.power_menu,
+            ),
+            MenuItem(
                 tag='Configuration',
                 description='Virtual Machine settings'
+            ),
+            MenuItem(
+                tag='Tasks & Events',
+                description='View Tasks & Events'
+            ),
+            MenuItem(
+                tag='Alarms',
+                description='View triggered alarms'
             ),
         ]
 
@@ -203,3 +217,186 @@ class VirtualMachineWidget(object):
         )
 
         return form.display()
+
+    def power_menu(self):
+        """
+        Virtual Machine Power menu
+
+        """
+        items = [
+            MenuItem(
+                tag='Power On',
+                description='Power On Virtual Machine',
+                on_select=self.power_on
+            ),
+            MenuItem(
+                tag='Power Off',
+                description='Power Off Virtual Machine Off ',
+                on_select=self.power_off
+            ),
+            MenuItem(
+                tag='Suspend',
+                description='Suspend Virtual Machine',
+                on_select=self.suspend,
+            ),
+            MenuItem(
+                tag='Reset',
+                description='Reset Virtual Machine',
+                on_select=self.reset
+            ),
+            MenuItem(
+                tag='Shutdown',
+                description='Shutdown Guest System',
+                on_select=self.shutdown
+            ),
+            MenuItem(
+                tag='Reboot',
+                description='Reboot Guest System',
+                on_select=self.reboot
+            ),
+        ]
+
+        menu = Menu(
+            title=self.obj.name,
+            items=items,
+            dialog=self.dialog
+        )
+        menu.display()
+
+    def power_on(self):
+        """
+        Power on the virtual machine
+
+        """
+        if self.obj.runtime.powerState == pyVmomi.vim.VirtualMachinePowerState.poweredOn:
+            self.dialog.msgbox(
+                title=self.obj.name,
+                text='Virtual Machine is already powered on.'
+            )
+            return
+
+        task = self.obj.PowerOn()
+        gauge = TaskGauge(
+            title=self.obj.name,
+            text='Powering On Virtual Machine',
+            dialog=self.dialog,
+            task=task
+        )
+        gauge.display()
+
+    def power_off(self):
+        """
+        Power off the virtual machine
+
+        """
+        if self.obj.runtime.powerState == pyVmomi.vim.VirtualMachinePowerState.poweredOff:
+            self.dialog.msgbox(
+                title=self.obj.name,
+                text='Virtual Machine is already powered off.'
+            )
+            return
+
+        task = self.obj.PowerOff()
+        gauge = TaskGauge(
+            title=self.obj.name,
+            text='Powering Off Virtual Machine',
+            dialog=self.dialog,
+            task=task
+        )
+        gauge.display()
+
+    def suspend(self):
+        """
+        Suspend the virtual machine
+
+        """
+        if self.obj.runtime.powerState != pyVmomi.vim.VirtualMachinePowerState.poweredOn:
+            self.dialog.msgbox(
+                title=self.obj.name,
+                text='Virtual Machine is not powered on, cannot suspend.'
+            )
+            return
+
+        task = self.obj.Suspend()
+        gauge = TaskGauge(
+            title=self.obj.name,
+            text='Suspending Virtual Machine',
+            dialog=self.dialog,
+            task=task
+        )
+        gauge.display()
+
+    def reset(self):
+        """
+        Reset the virtual machine
+
+        """
+        if self.obj.runtime.powerState != pyVmomi.vim.VirtualMachinePowerState.poweredOn:
+            self.dialog.msgbox(
+                title=self.obj.name,
+                text='Virtual Machine is not powered on, cannot reset.'
+            )
+            return
+
+        task = self.obj.Reset()
+        gauge = TaskGauge(
+            title=self.obj.name,
+            text='Resetting Virtual Machine',
+            dialog=self.dialog,
+            task=task
+        )
+        gauge.display()
+
+    def shutdown(self):
+        """
+        Shutdown the virtual machine
+
+        For a proper guest shutdown we need VMware Tools running
+
+        """
+        if self.obj.runtime.powerState != pyVmomi.vim.VirtualMachinePowerState.poweredOn:
+            self.dialog.msgbox(
+                title=self.obj.name,
+                text='Virtual Machine is not powered on, cannot shutdown.'
+            )
+            return
+
+        if self.obj.guest.toolsRunningStatus != pyVmomi.vim.VirtualMachineToolsRunningStatus.guestToolsRunning:
+            self.dialog.msgbox(
+                title=self.obj.name,
+                text='VMware Tools is not running, cannot shutdown system'
+            )
+            return
+
+        self.dialog.infobox(
+            title=self.obj.name,
+            text='Shutting down guest system ...'
+        )
+        task = self.obj.ShutdownGuest()
+
+    def reboot(self):
+        """
+        Reboot the virtual machine
+
+        For a proper guest reboot we need VMware Tools running
+
+        """
+        if self.obj.runtime.powerState != pyVmomi.vim.VirtualMachinePowerState.poweredOn:
+            self.dialog.msgbox(
+                title=self.obj.name,
+                text='Virtual Machine is not powered on, cannot reboot.'
+            )
+            return
+
+        if self.obj.guest.toolsRunningStatus != pyVmomi.vim.VirtualMachineToolsRunningStatus.guestToolsRunning:
+            self.dialog.msgbox(
+                title=self.obj.name,
+                text='VMware Tools is not running, cannot reboot system'
+            )
+            return
+
+        self.dialog.infobox(
+            title=self.obj.name,
+            text='Rebooting guest system ...'
+        )
+        task = self.obj.RebootGuest()

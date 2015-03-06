@@ -120,4 +120,7 @@ class MainApp(object):
         )
 
         inventory.display()
+        self.dialog.infobox(
+            text='Disconnecting from {} ...'.format(self.agent.host)
+        )
         self.agent.disconnect()

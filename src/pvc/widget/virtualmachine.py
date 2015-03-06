@@ -5,6 +5,7 @@ Docstring should go here
 
 import pyVmomi
 
+from pvc.widget.alarm import AlarmWidget
 from pvc.widget.menu import Menu, MenuItem
 from pvc.widget.form import Form, FormElement
 from pvc.widget.gauge import TaskGauge
@@ -15,7 +16,7 @@ __all__ = ['VirtualMachineWidget']
 class VirtualMachineWidget(object):
     def __init__(self, agent, dialog, obj):
         """
-        Inventory menu
+        Virtual Machine Widget
 
         Args:
             agent                 (VConnector): A VConnector instance
@@ -58,7 +59,9 @@ class VirtualMachineWidget(object):
             ),
             MenuItem(
                 tag='Alarms',
-                description='View triggered alarms'
+                description='View triggered alarms',
+                on_select=AlarmWidget,
+                on_select_args=(self.obj.name, self.agent, self.dialog, self.obj.triggeredAlarmState)
             ),
         ]
 

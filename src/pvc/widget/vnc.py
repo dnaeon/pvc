@@ -38,7 +38,7 @@ class VncWidget(object):
         self.obj = obj
         self.display()
 
-    def _port_is_opened(self, host, port):
+    def _port_is_opened(self, host, port, timeout=3.0):
         """
         Probes a port to check if it is opened or not
 
@@ -47,6 +47,7 @@ class VncWidget(object):
 
         """
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(timeout)
         err_code = sock.connect_ex((host, port))
         sock.close()
 

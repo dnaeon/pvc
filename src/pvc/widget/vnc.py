@@ -295,6 +295,10 @@ class VncWidget(object):
         host = self.obj.runtime.host
         host_ip = host.config.network.vnic[0].spec.ip.ipAddress
 
+        self.dialog.infobox(
+            text='Launching console ...'
+        )
+
         if not self._port_is_opened(host=host_ip, port=int(port)):
             text = (
                 'Host {} with IP address {} is not reachable on port {}\n'
@@ -302,7 +306,7 @@ class VncWidget(object):
             )
             self.dialog.msgbox(
                 title=self.obj.name,
-                text=text.format(host, host_ip, port)
+                text=text.format(host.name, host_ip, port)
             )
             return
 
@@ -320,10 +324,6 @@ class VncWidget(object):
             )
             return
 
-        self.dialog.infobox(
-            text='Launching console ...'
-        )
-
         try:
             Popen(
                 args=['vncviewer', '-passwd', vncpasswd_file, '{}:{}'.format(host_ip, port)],
@@ -333,7 +333,7 @@ class VncWidget(object):
         except OSError as e:
             self.dialog.msgbox(
                 title=self.obj.name,
-                text='Cannot start vncviewer(1): \n{}\n'.format(e)
+                text='Cannot launch console: \n{}\n'.format(e)
             )
 
         time.sleep(3)

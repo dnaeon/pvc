@@ -9,6 +9,7 @@ from pvc.widget.alarm import AlarmWidget
 from pvc.widget.menu import Menu, MenuItem
 from pvc.widget.form import Form, FormElement
 from pvc.widget.gauge import TaskGauge
+from pvc.widget.vnc import VncWidget
 
 __all__ = ['VirtualMachineWidget']
 
@@ -63,6 +64,11 @@ class VirtualMachineWidget(object):
                 on_select=AlarmWidget,
                 on_select_args=(self.obj.name, self.agent, self.dialog, self.obj.triggeredAlarmState)
             ),
+            MenuItem(
+                tag='Console',
+                description='Launch Console',
+                on_select=self.console_menu
+            )
         ]
 
         menu = Menu(
@@ -256,6 +262,31 @@ class VirtualMachineWidget(object):
                 tag='Reboot',
                 description='Reboot Guest System',
                 on_select=self.reboot
+            ),
+        ]
+
+        menu = Menu(
+            title=self.obj.name,
+            items=items,
+            dialog=self.dialog
+        )
+        menu.display()
+
+    def console_menu(self):
+        """
+        Virtual Machine Console Menu
+
+        """
+        items = [
+            MenuItem(
+                tag='VNC',
+                description='Launch VNC Console',
+                on_select=VncWidget,
+                on_select_args=(self.dialog, self.obj)
+            ),
+            MenuItem(
+                tag='VMRC',
+                description='Launch VMRC Console '
             ),
         ]
 

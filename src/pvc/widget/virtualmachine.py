@@ -3,7 +3,11 @@ Docstring should go here
 
 """
 
+import time
+
 import pyVmomi
+
+from subprocess import Popen, PIPE
 
 from pvc.widget.alarm import AlarmWidget
 from pvc.widget.menu import Menu, MenuItem
@@ -285,8 +289,13 @@ class VirtualMachineWidget(object):
                 on_select_args=(self.dialog, self.obj)
             ),
             MenuItem(
+                tag='VMware Player',
+                description='Launch VMware Player Console',
+                on_select=self.vmplayer_console,
+            ),
+            MenuItem(
                 tag='VMRC',
-                description='Launch VMRC Console '
+                description='Launch VMRC Console',
             ),
         ]
 
@@ -434,3 +443,39 @@ class VirtualMachineWidget(object):
             text='Rebooting guest system ...'
         )
         task = self.obj.RebootGuest()
+
+    def vmplayer_console(self):
+        """
+        Launch a VMware Player console to the Virtual Machine
+
+        In order to establish a remote console session to the
+        Virtual Machine we run VMware Player this way:
+
+            $ vmplayer -h <hostname> -p <ticket> -M <managed-object-id>
+
+        Where <ticket> is an acquired ticket as returned by a
+        previous call to AcquireCloneTicket().
+
+        """
+        self.dialog.infobox(
+            title=self.obj.name,
+            text='Launching console ...'
+        )
+
+        ticket = self.agent.si.content.sessionManager.AcquireCloneTicket()
+
+        try:
+            p = Popen(
+                args=['vmplayer', '-h', self.agent.host, '-p', ticket, '-M', self.obj._moId],
+                stdout=PIPE,
+                stderr=PIPE
+            )
+        except OSError as e:
+            self.dialog.msgbox(
+                title=self.obj.name,
+                text='Cannot launch console: \n{}\n'.format(e)
+            )
+            return
+
+        # Give it some time to start up the console
+        time.sleep(3)

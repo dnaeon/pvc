@@ -19,14 +19,15 @@ setup(
     author='Marin Atanasov Nikolov',
     author_email='dnaeon@gmail.com',
     license='BSD',
-    url='https://github.com/dnaeon/py-pvc',
-    download_url='https://github.com/dnaeon/py-pvc/releases',
+    url='https://github.com/dnaeon/pvc',
+    download_url='https://github.com/dnaeon/pvc/releases',
     package_dir={'': 'src'},
     packages=find_packages('src'),
     scripts=[
         'src/pvc-tui',
     ],
     install_requires=[
+        'pythondialog >= 3.2.1',
         'pyvmomi >= 5.5.0-2014.1.1',
         'vconnector >= 0.3.7',
     ]

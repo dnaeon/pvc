@@ -1,5 +1,5 @@
-PVC - Python vSphere Client
-===========================
+PVC - Python vSphere Client with a dialog(1) interface
+======================================================
 
 TODO: Document me
 
@@ -11,7 +11,7 @@ TODO: Document me
 Contributions
 =============
 
-PVC is hosted on `Github <https://github.com/dnaeon/py-pvc>`_.
+PVC is hosted on `Github <https://github.com/dnaeon/pvc>`_.
 Please contribute by reporting issues, suggesting features or by
 sending patches using pull requests.
 
@@ -24,4 +24,4 @@ Bugs
 ====
 
 Probably. If you experience a bug issue, please report it to the
-`PVC issue tracker on Github <https://github.com/dnaeon/py-pvc/issues>`_.
+`PVC issue tracker on Github <https://github.com/dnaeon/pvc/issues>`_.

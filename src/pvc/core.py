@@ -36,7 +36,7 @@ class MainApp(object):
             'PVC is hosted on Github. Please contribute by reporting '
             'issues, suggesting features and sending patches using '
             'pull requests.\n\n'
-            'https://github.com/dnaeon/py-pvc'
+            'https://github.com/dnaeon/pvc'
         )
 
         text = welcome.format(__version__)

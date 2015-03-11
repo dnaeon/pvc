@@ -293,10 +293,6 @@ class VirtualMachineWidget(object):
                 description='Launch VMware Player Console',
                 on_select=self.vmplayer_console,
             ),
-            MenuItem(
-                tag='VMRC',
-                description='Launch VMRC Console',
-            ),
         ]
 
         menu = Menu(

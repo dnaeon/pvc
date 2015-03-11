@@ -9,7 +9,7 @@ from vconnector.core import VConnector
 from pvc import __version__
 from pvc.widget.form import Form, FormElement
 from pvc.widget.menu import Menu, MenuItem
-from pvc.widget.inventory import InventoryWidget
+from pvc.widget.home import HomeWidget
 
 __all__ = ['MainApp']
 
@@ -114,12 +114,12 @@ class MainApp(object):
         if not self.login():
             return
 
-        inventory = InventoryWidget(
+        home = HomeWidget(
             agent=self.agent,
             dialog=self.dialog
         )
+        home.display()
 
-        inventory.display()
         self.dialog.infobox(
             text='Disconnecting from {} ...'.format(self.agent.host)
         )

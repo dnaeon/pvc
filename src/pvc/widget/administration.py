@@ -37,7 +37,6 @@ class AdministrationWidget(object):
         menu = Menu(
             title='Administration',
             items=items,
-            dialog=self.dialog,
-            width=70,
+            dialog=self.dialog
         )
         menu.display()

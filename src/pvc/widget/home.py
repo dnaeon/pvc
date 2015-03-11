@@ -43,7 +43,6 @@ class HomeWidget(object):
         menu = Menu(
             title='Home',
             items=items,
-            dialog=self.dialog,
-            width=70,
+            dialog=self.dialog
         )
         menu.display()

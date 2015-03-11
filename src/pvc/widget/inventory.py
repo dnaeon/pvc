@@ -23,6 +23,7 @@ class InventoryWidget(object):
         """
         self.agent = agent
         self.dialog = dialog
+        self.display()
 
     def display(self):
         items = [

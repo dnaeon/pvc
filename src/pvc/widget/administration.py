@@ -4,6 +4,7 @@ Administration module
 """
 
 from pvc.widget.menu import Menu, MenuItem
+from pvc.widget.session import SessionWidget
 
 __all__ = ['AdministrationWidget']
 
@@ -32,11 +33,18 @@ class AdministrationWidget(object):
                 tag='Tasks',
                 description='View Tasks'
             ),
+            MenuItem(
+                tag='Sessions',
+                description='View Sessions',
+                on_select=SessionWidget,
+                on_select_args=(self.agent, self.dialog)
+            ),
         ]
 
         menu = Menu(
             title='Administration',
             items=items,
-            dialog=self.dialog
+            dialog=self.dialog,
+            width=70,
         )
         menu.display()

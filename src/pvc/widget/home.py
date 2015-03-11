@@ -30,19 +30,20 @@ class HomeWidget(object):
                 tag='Inventory',
                 description='Inventory Menu',
                 on_select=InventoryWidget,
-                on_select_args=((self.agent, self.dialog))
+                on_select_args=(self.agent, self.dialog)
             ),
             MenuItem(
                 tag='Administration',
                 description='Administration Menu',
                 on_select=AdministrationWidget,
-                on_select_args=((self.agent, self.dialog))
+                on_select_args=(self.agent, self.dialog)
             ),
         ]
 
         menu = Menu(
             title='Home',
             items=items,
-            dialog=self.dialog
+            dialog=self.dialog,
+            width=70
         )
         menu.display()

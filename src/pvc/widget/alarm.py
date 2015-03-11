@@ -81,10 +81,8 @@ class AlarmWidget(object):
                 on_select_args=(alarm,)
             ),
             MenuItem(
-                tag='Clear',
-                description='Clear Alarm',
-                on_select=self.clear,
-                on_select_args=(alarm,)
+                tag='Reset',
+                description='Reset Alarm'
             ),
         ]
 
@@ -143,7 +141,20 @@ class AlarmWidget(object):
         return form.display()
 
     def acknowledge(self, alarm):
-        pass
+        """
+        Acknowledge alarm
 
-    def clear(self, alarm):
-        pass
+        Args:
+            alarm (vim.AlarmState): A vim.AlarmState instance
+
+        """
+        self.dialog.infobox(
+            title=self.obj.name,
+            text='Acnowledging alarm ...'
+        )
+
+        am = self.agent.si.content.alarmManager
+        am.AcknowledgeAlarm(
+            alarm=alarm.alarm,
+            entity=alarm.entity
+        )

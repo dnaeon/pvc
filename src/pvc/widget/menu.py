@@ -56,6 +56,8 @@ class Menu(object):
         self.height = height
         self.width = width
         self.choices = [(item.tag, item.description) for item in self.items]
+
+        # TODO: Check for duplicate item tags
         self._registry = {item.tag: item for item in items}
 
     def display(self):

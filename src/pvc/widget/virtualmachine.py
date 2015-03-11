@@ -66,7 +66,7 @@ class VirtualMachineWidget(object):
                 tag='Alarms',
                 description='View triggered alarms',
                 on_select=AlarmWidget,
-                on_select_args=(self.obj.name, self.agent, self.dialog, self.obj.triggeredAlarmState)
+                on_select_args=(self.agent, self.dialog, self.obj)
             ),
             MenuItem(
                 tag='Console',

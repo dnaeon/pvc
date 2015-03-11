@@ -12,33 +12,34 @@ __all__ = ['AlarmWidget']
 
 
 class AlarmWidget(object):
-    def __init__(self, title, agent, dialog, alarms):
+    def __init__(self, agent, dialog, obj):
         """
         Inventory menu
 
         Args:
-            title            (str): Title for the menu box
-            agent     (VConnector): A VConnector instance
-            dialog (dialog.Dialog): A Dialog instance
-            alarms          (list): A list of vim.AlarmState objects
+            agent         (VConnector): A VConnector instance
+            dialog     (dialog.Dialog): A Dialog instance
+            obj    (vim.ManagedEntity): A vim.ManagedEntity object
 
         """
+        if not isinstance(obj, pyVmomi.vim.ManagedEntity):
+            raise TypeError('Need a vim.ManagedEntity instance')
+
         self.agent = agent
         self.dialog = dialog
-        self.alarms = alarms
-        self.title = title
+        self.obj = obj
         self.display()
 
     def display(self):
-        if not self.alarms:
+        if not self.obj.triggeredAlarmState:
             self.dialog.msgbox(
-                title=self.title,
+                title=self.obj.name,
                 text='No triggered alarms'
             )
             return
 
         self.dialog.infobox(
-            title=self.title,
+            title=self.obj.name,
             text='Retrieving Alarms ...'
         )
 
@@ -48,11 +49,11 @@ class AlarmWidget(object):
                 description=alarm.alarm.info.name,
                 on_select=self.alarm_menu,
                 on_select_args=(alarm,)
-            ) for alarm in self.alarms
+            ) for alarm in self.obj.triggeredAlarmState
         ]
 
         menu = Menu(
-            title=self.title,
+            title=self.obj.name,
             items=items,
             dialog=self.dialog
         )
@@ -66,9 +67,6 @@ class AlarmWidget(object):
             alarm (vim.AlarmState): A vim.AlarmState instance
 
         """
-        if not isinstance(alarm, pyVmomi.vim.AlarmState):
-            raise TypeError('Need a vim.AlarmState instance')
-
         items = [
             MenuItem(
                 tag='Details',
@@ -91,7 +89,7 @@ class AlarmWidget(object):
         ]
 
         menu = Menu(
-            title=self.title,
+            title=self.obj.name,
             items=items,
             dialog=self.dialog
         )
@@ -105,9 +103,6 @@ class AlarmWidget(object):
             alarm (vim.AlarmState): A vim.AlarmState instance
 
         """
-        if not isinstance(alarm, pyVmomi.vim.AlarmState):
-            raise TypeError('Need a vim.AlarmState instance')
-
         elements = [
             FormElement(
                 label='Entity',
@@ -140,7 +135,7 @@ class AlarmWidget(object):
         ]
 
         form = Form(
-            title=self.title,
+            title=self.obj.name,
             dialog=self.dialog,
             form_elements=elements
         )

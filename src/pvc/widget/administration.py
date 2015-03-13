@@ -5,6 +5,7 @@ Administration module
 
 from pvc.widget.menu import Menu, MenuItem
 from pvc.widget.session import SessionWidget
+from pvc.widget.motd import MOTDWidget
 
 __all__ = ['AdministrationWidget']
 
@@ -32,6 +33,12 @@ class AdministrationWidget(object):
             MenuItem(
                 tag='Tasks',
                 description='View Tasks'
+            ),
+            MenuItem(
+                tag='Message',
+                description='Message Of The Day',
+                on_select=MOTDWidget,
+                on_select_args=(self.agent, self.dialog)
             ),
             MenuItem(
                 tag='Sessions',

@@ -30,12 +30,15 @@ class MOTDWidget(object):
 
         sm = self.agent.si.content.sessionManager
         motd = sm.message
-        motd_file = tempfile.mkstemp(prefix='pvc_motd_')
+        fd, motd_file = tempfile.mkstemp(prefix='pvc_motd_')
 
         with open(motd_file, 'w') as f:
             f.write(motd)
 
-        code, text = self.dialog.editbox(filepath=motd_file)
+        code, text = self.dialog.editbox(
+            title='Message Of The Day',
+            filepath=motd_file
+        )
         os.unlink(motd_file)
 
         if code == self.dialog.OK:

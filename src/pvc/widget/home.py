@@ -25,6 +25,15 @@ class HomeWidget(object):
         self.dialog = dialog
 
     def display(self):
+        sm = self.agent.si.content.sessionManager
+        motd = sm.message
+
+        if motd:
+            self.dialog.msgbox(
+                title='Message Of The Day',
+                text=motd
+            )
+
         items = [
             MenuItem(
                 tag='Inventory',

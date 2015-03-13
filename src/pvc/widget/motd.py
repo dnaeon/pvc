@@ -29,7 +29,7 @@ class MOTDWidget(object):
         )
 
         sm = self.agent.si.content.sessionManager
-        motd = sm.message
+        motd = sm.message + '\n'
         fd, motd_file = tempfile.mkstemp(prefix='pvc_motd_')
 
         with open(motd_file, 'w') as f:
@@ -45,4 +45,4 @@ class MOTDWidget(object):
             self.dialog.infobox(
                 text='Setting message of the day ...'
             )
-            sm.UpdateServiceMessage(message=text)
+            sm.UpdateServiceMessage(message=text.rstrip())

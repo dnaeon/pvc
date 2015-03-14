@@ -105,6 +105,7 @@ class VirtualMachineWidget(object):
                 'config.version',
                 'config.hardware.numCPU',
                 'config.hardware.memoryMB',
+                'config.template',
                 'summary.quickStats.consumedOverheadMemory',
                 'runtime.powerState',
             ]
@@ -152,6 +153,10 @@ class VirtualMachineWidget(object):
             FormElement(
                 label='Host',
                 item=self.obj.runtime.host.name
+            ),
+            FormElement(
+                label='Template',
+                item=str(properties['config.template'])
             ),
         ]
 

@@ -472,7 +472,7 @@ class VirtualMachineWidget(object):
             title=self.obj.name,
             text='Rebooting guest system ...'
         )
-        task = self.obj.RebootGuest()
+        self.obj.RebootGuest()
 
     def vmplayer_console(self):
         """

@@ -59,6 +59,11 @@ class VirtualMachineWidget(object):
                 description='Virtual Machine settings'
             ),
             pvc.widget.menu.MenuItem(
+                tag='Network',
+                description='Virtual Machine Networking',
+                on_select=self.network_menu
+            ),
+            pvc.widget.menu.MenuItem(
                 tag='Tasks & Events',
                 description='View Tasks & Events'
             ),
@@ -304,6 +309,28 @@ class VirtualMachineWidget(object):
 
         menu = pvc.widget.menu.Menu(
             title=self.obj.name,
+            items=items,
+            dialog=self.dialog
+        )
+        menu.display()
+
+    def network_menu(self):
+        """
+        Virtual Machine Network Menu
+
+        """
+        items = [
+            pvc.widget.menu.MenuItem(
+                tag=network.name,
+                description='Accessible' if network.summary.accessible else 'Not Accessible',
+                on_select=pvc.widget.network.NetworkWidget,
+                on_select_args=(self.agent, self.dialog, network)
+            ) for network in self.obj.network
+        ]
+
+        menu = pvc.widget.menu.Menu(
+            title=self.obj.name,
+            text='Virtual Machine Networks',
             items=items,
             dialog=self.dialog
         )

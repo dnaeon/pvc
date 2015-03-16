@@ -7,6 +7,7 @@ import pyVmomi
 
 import pvc.widget.menu
 import pvc.widget.virtualmachine
+import pvc.widget.network
 
 __all__ = ['InventoryWidget']
 
@@ -42,7 +43,8 @@ class InventoryWidget(object):
             ),
             pvc.widget.menu.MenuItem(
                 tag='Networking',
-                description='Manage Networking'
+                description='Manage Networking',
+                on_select=self.network_menu
             ),
         ]
 
@@ -57,7 +59,7 @@ class InventoryWidget(object):
 
     def virtual_machine_menu(self):
         self.dialog.infobox(
-            text='Retrieving Virtual Machines ...',
+            text='Retrieving information ...',
             width=40
         )
 
@@ -88,4 +90,39 @@ class InventoryWidget(object):
             dialog=self.dialog
         )
 
+        menu.display()
+
+    def network_menu(self):
+        self.dialog.infobox(
+            text='Retrieving information ...',
+            width=40
+        )
+
+        view = self.agent.get_container_view(
+            obj_type=[pyVmomi.vim.Network]
+        )
+
+        properties = self.agent.collect_properties(
+            view_ref=view,
+            obj_type=pyVmomi.vim.Network,
+            path_set=['name', 'summary.accessible'],
+            include_mors=True
+        )
+        view.DestroyView()
+
+        items = [
+            pvc.widget.menu.MenuItem(
+                tag=network['name'],
+                description='Accessible' if network['summary.accessible'] else 'Not Accessible',
+                on_select=pvc.widget.network.NetworkWidget,
+                on_select_args=(self.agent, self.dialog, network['obj'])
+            ) for network in properties
+        ]
+
+        menu = pvc.widget.menu.Menu(
+            title='Networks',
+            text='Select a network from the menu that you wish to manage',
+            items=items,
+            dialog=self.dialog
+        )
         menu.display()

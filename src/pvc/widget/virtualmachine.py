@@ -445,7 +445,7 @@ class VirtualMachineWidget(object):
             title=self.obj.name,
             text='Shutting down guest system ...'
         )
-        task = self.obj.ShutdownGuest()
+        self.obj.ShutdownGuest()
 
     def reboot(self):
         """

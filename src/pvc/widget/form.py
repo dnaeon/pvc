@@ -3,8 +3,6 @@ Docstring should go here
 
 """
 
-from pvc.exceptions import GenericException
-
 __all__ = ['Form', 'FormElement']
 
 

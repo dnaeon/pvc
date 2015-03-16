@@ -5,8 +5,8 @@ Docstring should go here
 
 import pyVmomi
 
-from pvc.widget.form import Form, FormElement
-from pvc.widget.menu import Menu, MenuItem
+import pvc.widget.form
+import pvc.widget.menu
 
 __all__ = ['AlarmWidget']
 
@@ -44,7 +44,7 @@ class AlarmWidget(object):
         )
 
         items = [
-            MenuItem(
+            pvc.widget.menu.MenuItem(
                 tag=alarm.entity.name,
                 description=alarm.alarm.info.name,
                 on_select=self.alarm_menu,
@@ -52,7 +52,7 @@ class AlarmWidget(object):
             ) for alarm in self.obj.triggeredAlarmState
         ]
 
-        menu = Menu(
+        menu = pvc.widget.menu.Menu(
             title=self.obj.name,
             items=items,
             dialog=self.dialog
@@ -68,25 +68,25 @@ class AlarmWidget(object):
 
         """
         items = [
-            MenuItem(
+            pvc.widget.menu.MenuItem(
                 tag='Details',
                 description='View Alarm Details',
                 on_select=self.details,
                 on_select_args=(alarm,)
             ),
-            MenuItem(
+            pvc.widget.menu.MenuItem(
                 tag='Acknowledge',
                 description='Acknowledge Alarm',
                 on_select=self.acknowledge,
                 on_select_args=(alarm,)
             ),
-            MenuItem(
+            pvc.widget.menu.MenuItem(
                 tag='Reset',
                 description='Reset Alarm'
             ),
         ]
 
-        menu = Menu(
+        menu = pvc.widget.menu.Menu(
             title=self.obj.name,
             items=items,
             dialog=self.dialog
@@ -102,37 +102,37 @@ class AlarmWidget(object):
 
         """
         elements = [
-            FormElement(
+            pvc.widget.form.FormElement(
                 label='Entity',
                 item=alarm.entity.name
             ),
-            FormElement(
+            pvc.widget.form.FormElement(
                 label='Status',
                 item=alarm.overallStatus
             ),
-            FormElement(
+            pvc.widget.form.FormElement(
                 label='Name',
                 item=alarm.alarm.info.name
             ),
-            FormElement(
+            pvc.widget.form.FormElement(
                 label='Triggered',
                 item=str(alarm.time)
             ),
-            FormElement(
+            pvc.widget.form.FormElement(
                 label='Acknowledged',
                 item=str(alarm.acknowledged)
             ),
-            FormElement(
+            pvc.widget.form.FormElement(
                 label='Acknowledged At',
                 item=str(alarm.acknowledgedTime) if alarm.acknowledgedTime else ''
             ),
-            FormElement(
+            pvc.widget.form.FormElement(
                 label='Acknowledged By',
                 item=alarm.acknowledgedByUser if alarm.acknowledgedByUser else ''
             )
         ]
 
-        form = Form(
+        form = pvc.widget.form.Form(
             title=self.obj.name,
             dialog=self.dialog,
             form_elements=elements

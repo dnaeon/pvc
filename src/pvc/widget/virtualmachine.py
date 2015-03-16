@@ -6,14 +6,14 @@ Docstring should go here
 import time
 
 import pyVmomi
+import pvc.widget.alarm
+import pvc.widget.menu
+import pvc.widget.form
+import pvc.widget.gauge
+import pvc.widget.vnc
+import pvc.widget.network
 
 from subprocess import Popen, PIPE
-
-from pvc.widget.alarm import AlarmWidget
-from pvc.widget.menu import Menu, MenuItem
-from pvc.widget.form import Form, FormElement
-from pvc.widget.gauge import TaskGauge
-from pvc.widget.vnc import VncWidget
 
 __all__ = ['VirtualMachineWidget']
 
@@ -39,43 +39,43 @@ class VirtualMachineWidget(object):
 
     def display(self):
         items = [
-            MenuItem(
+            pvc.widget.menu.MenuItem(
                 tag='General',
                 description='General information',
                 on_select=self.general_info
             ),
-            MenuItem(
+            pvc.widget.menu.MenuItem(
                 tag='Resources',
                 description='Resources usage information ',
                 on_select=self.resources_info
             ),
-            MenuItem(
+            pvc.widget.menu.MenuItem(
                 tag='Power',
                 description='Virtual Machine Power Options',
                 on_select=self.power_menu,
             ),
-            MenuItem(
+            pvc.widget.menu.MenuItem(
                 tag='Configuration',
                 description='Virtual Machine settings'
             ),
-            MenuItem(
+            pvc.widget.menu.MenuItem(
                 tag='Tasks & Events',
                 description='View Tasks & Events'
             ),
-            MenuItem(
+            pvc.widget.menu.MenuItem(
                 tag='Alarms',
                 description='View triggered alarms',
-                on_select=AlarmWidget,
+                on_select=pvc.widget.alarm.AlarmWidget,
                 on_select_args=(self.agent, self.dialog, self.obj)
             ),
-            MenuItem(
+            pvc.widget.menu.MenuItem(
                 tag='Console',
                 description='Launch Console',
                 on_select=self.console_menu
             )
         ]
 
-        menu = Menu(
+        menu = pvc.widget.menu.Menu(
             title=self.obj.name,
             items=items,
             dialog=self.dialog
@@ -92,6 +92,7 @@ class VirtualMachineWidget(object):
             text='Retrieving general information ...'
         )
 
+        # TODO: Do we want a property collector for a single object?
         view = self.agent.get_list_view([self.obj])
         data = self.agent.collect_properties(
             view_ref=view,
@@ -114,60 +115,60 @@ class VirtualMachineWidget(object):
         properties = data.pop()
 
         elements = [
-            FormElement(
+            pvc.widget.form.FormElement(
                 label='Guest OS',
                 item=properties.get('config.guestFullName', 'Unknown')
             ),
-            FormElement(
+            pvc.widget.form.FormElement(
                 label='VM Version',
                 item=properties.get('config.version')
             ),
-            FormElement(
+            pvc.widget.form.FormElement(
                 label='CPU',
                 item='{} vCPU(s)'.format(properties.get('config.hardware.numCPU'))
             ),
-            FormElement(
+            pvc.widget.form.FormElement(
                 label='Memory',
                 item='{} MB'.format(properties.get('config.hardware.memoryMB'))
             ),
-            FormElement(
+            pvc.widget.form.FormElement(
                 label='Memory Overhead',
                 item='{} MB'.format(properties.get('summary.quickStats.consumedOverheadMemory'))
             ),
-            FormElement(
+            pvc.widget.form.FormElement(
                 label='VMware Tools',
                 item='{} ({})'.format(properties.get('guest.toolsRunningStatus'), properties.get('guest.toolsVersionStatus'))
             ),
-            FormElement(
+            pvc.widget.form.FormElement(
                 label='IP Address',
                 item=properties.get('guest.ipAddress', 'Unknown')
             ),
-            FormElement(
+            pvc.widget.form.FormElement(
                 label='DNS Name',
                 item=properties.get('guest.hostName', 'Unknown')
             ),
-            FormElement(
+            pvc.widget.form.FormElement(
                 label='State',
                 item=properties.get('runtime.powerState')
             ),
-            FormElement(
+            pvc.widget.form.FormElement(
                 label='Host',
                 item=self.obj.runtime.host.name
             ),
-            FormElement(
+            pvc.widget.form.FormElement(
                 label='Template',
                 item=str(properties['config.template'])
             ),
         ]
 
-        form = Form(
+        form = pvc.widget.form.Form(
             dialog=self.dialog,
             form_elements=elements,
             title=self.obj.name,
             text='\nVirtual Machine General Information\n'
         )
 
-        return form.display()
+        form.display()
 
     def resources_info(self):
         """
@@ -179,6 +180,7 @@ class VirtualMachineWidget(object):
             text='Retrieving resources usage information ...'
         )
 
+        # TODO: Do we want a property collector for a single object?
         view = self.agent.get_list_view([self.obj])
         data = self.agent.collect_properties(
             view_ref=view,
@@ -201,33 +203,33 @@ class VirtualMachineWidget(object):
         properties['summary.storage.uncommitted'] /= 1073741824
 
         elements = [
-            FormElement(
+            pvc.widget.form.FormElement(
                 label='Consumed Host CPU',
                 item='{} MHz'.format(properties.get('summary.quickStats.overallCpuUsage'))
             ),
-            FormElement(
+            pvc.widget.form.FormElement(
                 label='Consumed Host Memory',
                 item='{} MB'.format(properties.get('summary.quickStats.hostMemoryUsage'))
             ),
-            FormElement(
+            pvc.widget.form.FormElement(
                 label='Active Guest Memory',
                 item='{} MB'.format(properties.get('summary.quickStats.guestMemoryUsage'))
             ),
-            FormElement(
+            pvc.widget.form.FormElement(
                 label='Provisioned Storage',
                 item='{} GB'.format(round(properties.get('summary.storage.committed') + properties.get('summary.storage.uncommitted'), 2))
             ),
-            FormElement(
+            pvc.widget.form.FormElement(
                 label='Non-shared Storage',
                 item='{} GB'.format(round(properties.get('summary.storage.unshared'), 2))
             ),
-            FormElement(
+            pvc.widget.form.FormElement(
                 label='Used Storage',
                 item='{} GB'.format(round(properties.get('summary.storage.committed'), 2))
             ),
         ]
 
-        form = Form(
+        form = pvc.widget.form.Form(
             dialog=self.dialog,
             form_elements=elements,
             title=self.obj.name,
@@ -242,39 +244,39 @@ class VirtualMachineWidget(object):
 
         """
         items = [
-            MenuItem(
+            pvc.widget.menu.MenuItem(
                 tag='Power On',
                 description='Power On Virtual Machine',
                 on_select=self.power_on
             ),
-            MenuItem(
+            pvc.widget.menu.MenuItem(
                 tag='Power Off',
                 description='Power Off Virtual Machine Off ',
                 on_select=self.power_off
             ),
-            MenuItem(
+            pvc.widget.menu.MenuItem(
                 tag='Suspend',
                 description='Suspend Virtual Machine',
                 on_select=self.suspend,
             ),
-            MenuItem(
+            pvc.widget.menu.MenuItem(
                 tag='Reset',
                 description='Reset Virtual Machine',
                 on_select=self.reset
             ),
-            MenuItem(
+            pvc.widget.menu.MenuItem(
                 tag='Shutdown',
                 description='Shutdown Guest System',
                 on_select=self.shutdown
             ),
-            MenuItem(
+            pvc.widget.menu.MenuItem(
                 tag='Reboot',
                 description='Reboot Guest System',
                 on_select=self.reboot
             ),
         ]
 
-        menu = Menu(
+        menu = pvc.widget.menu.Menu(
             title=self.obj.name,
             items=items,
             dialog=self.dialog
@@ -287,20 +289,20 @@ class VirtualMachineWidget(object):
 
         """
         items = [
-            MenuItem(
+            pvc.widget.menu.MenuItem(
                 tag='VNC',
                 description='Launch VNC Console',
-                on_select=VncWidget,
+                on_select=pvc.widget.vnc.VncWidget,
                 on_select_args=(self.dialog, self.obj)
             ),
-            MenuItem(
+            pvc.widget.menu.MenuItem(
                 tag='VMware Player',
                 description='Launch VMware Player Console',
                 on_select=self.vmplayer_console,
             ),
         ]
 
-        menu = Menu(
+        menu = pvc.widget.menu.Menu(
             title=self.obj.name,
             items=items,
             dialog=self.dialog
@@ -320,7 +322,7 @@ class VirtualMachineWidget(object):
             return
 
         task = self.obj.PowerOn()
-        gauge = TaskGauge(
+        gauge = pvc.widget.gauge.TaskGauge(
             title=self.obj.name,
             text='Powering On Virtual Machine',
             dialog=self.dialog,
@@ -341,7 +343,7 @@ class VirtualMachineWidget(object):
             return
 
         task = self.obj.PowerOff()
-        gauge = TaskGauge(
+        gauge = pvc.widget.gauge.TaskGauge(
             title=self.obj.name,
             text='Powering Off Virtual Machine',
             dialog=self.dialog,
@@ -362,7 +364,7 @@ class VirtualMachineWidget(object):
             return
 
         task = self.obj.Suspend()
-        gauge = TaskGauge(
+        gauge = pvc.widget.gauge.TaskGauge(
             title=self.obj.name,
             text='Suspending Virtual Machine',
             dialog=self.dialog,
@@ -383,7 +385,7 @@ class VirtualMachineWidget(object):
             return
 
         task = self.obj.Reset()
-        gauge = TaskGauge(
+        gauge = pvc.widget.gauge.TaskGauge(
             title=self.obj.name,
             text='Resetting Virtual Machine',
             dialog=self.dialog,

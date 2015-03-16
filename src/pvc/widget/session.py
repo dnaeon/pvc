@@ -4,9 +4,8 @@ Session module
 """
 
 import pyVmomi
-
-from pvc.widget.menu import Menu, MenuItem
-from pvc.widget.form import Form, FormElement
+import pvc.widget.menu
+import pvc.widget.form
 
 __all__ = ['SessionWidget']
 
@@ -41,7 +40,7 @@ class SessionWidget(object):
             return
 
         items = [
-            MenuItem(
+            pvc.widget.menu.MenuItem(
                 tag=session.key,
                 description='{}@{}'.format(session.userName, session.ipAddress),
                 on_select=self.session_menu,
@@ -49,7 +48,7 @@ class SessionWidget(object):
             ) for session in session_list
         ]
 
-        menu = Menu(
+        menu = pvc.widget.menu.Menu(
             title='Sessions',
             text='Select a session for more detais',
             items=items,
@@ -67,13 +66,13 @@ class SessionWidget(object):
 
         """
         items = [
-            MenuItem(
+            pvc.widget.menu.MenuItem(
                 tag='Details',
                 description='View Session Details',
                 on_select=self.details,
                 on_select_args=(session,)
             ),
-            MenuItem(
+            pvc.widget.menu.MenuItem(
                 tag='Terminate',
                 description='Terminate Session',
                 on_select=self.terminate,
@@ -87,7 +86,7 @@ class SessionWidget(object):
         else:
             title = 'Session {}@{}'
 
-        menu = Menu(
+        menu = pvc.widget.menu.Menu(
             title=title.format(session.userName, session.ipAddress),
             items=items,
             dialog=self.dialog
@@ -107,35 +106,35 @@ class SessionWidget(object):
         )
 
         elements = [
-            FormElement(
+            pvc.widget.form.FormElement(
                 label='Username',
                 item=session.userName
             ),
-            FormElement(
+            pvc.widget.form.FormElement(
                 label='Full Name',
                 item=session.fullName
             ),
-            FormElement(
+            pvc.widget.form.FormElement(
                 label='Login Time',
                 item=str(session.loginTime)
             ),
-            FormElement(
+            pvc.widget.form.FormElement(
                 label='Last Active',
                 item=str(session.lastActiveTime)
             ),
-            FormElement(
+            pvc.widget.form.FormElement(
                 label='Idle',
                 item=str(self.agent.si.CurrentTime() - session.lastActiveTime)
             ),
-            FormElement(
+            pvc.widget.form.FormElement(
                 label='IP Address',
                 item=session.ipAddress
             ),
-            FormElement(
+            pvc.widget.form.FormElement(
                 label='User Agent',
                 item=session.userAgent
             ),
-            FormElement(
+            pvc.widget.form.FormElement(
                 label='API Invocations',
                 item=str(session.callCount)
             ),
@@ -147,7 +146,7 @@ class SessionWidget(object):
         else:
             title = 'Session {}@{}'
 
-        form = Form(
+        form = pvc.widget.form.Form(
             title=title.format(session.userName, session.ipAddress),
             dialog=self.dialog,
             form_elements=elements

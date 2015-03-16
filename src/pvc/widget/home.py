@@ -3,10 +3,9 @@ Home Widget
 
 """
 
-
-from pvc.widget.menu import Menu, MenuItem
-from pvc.widget.inventory import InventoryWidget
-from pvc.widget.administration import AdministrationWidget
+import pvc.widget.menu
+import pvc.widget.inventory
+import pvc.widget.administration
 
 __all__ = ['HomeWidget']
 
@@ -35,21 +34,21 @@ class HomeWidget(object):
             )
 
         items = [
-            MenuItem(
+            pvc.widget.menu.MenuItem(
                 tag='Inventory',
                 description='Inventory Menu',
-                on_select=InventoryWidget,
+                on_select=pvc.widget.inventory.InventoryWidget,
                 on_select_args=(self.agent, self.dialog)
             ),
-            MenuItem(
+            pvc.widget.menu.MenuItem(
                 tag='Administration',
                 description='Administration Menu',
-                on_select=AdministrationWidget,
+                on_select=pvc.widget.administration.AdministrationWidget,
                 on_select_args=(self.agent, self.dialog)
             ),
         ]
 
-        menu = Menu(
+        menu = pvc.widget.menu.Menu(
             title='Home',
             items=items,
             dialog=self.dialog,

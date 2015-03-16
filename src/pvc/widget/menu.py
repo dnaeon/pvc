@@ -3,8 +3,6 @@ Docstring should be here
 
 """
 
-from pvc.exceptions import GenericException
-
 __all__ = ['Menu', 'MenuItem']
 
 
@@ -26,7 +24,7 @@ class MenuItem(object):
         self.on_select_args = on_select_args
 
         if self.on_select and not callable(self.on_select):
-            raise GenericException('Need a callable for item callback')
+            raise TypeError('Need a callable for item callback')
 
     def selected(self):
         if self.on_select_args:

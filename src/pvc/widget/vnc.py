@@ -11,12 +11,11 @@ import time
 import tempfile
 
 import pyVmomi
+import pvc.widget.form
+import pvc.widget.menu
+import pvc.widget.gauge
 
 from subprocess import Popen, PIPE
-
-from pvc.widget.form import Form, FormElement
-from pvc.widget.menu import Menu, MenuItem
-from pvc.widget.gauge import TaskGauge
 
 __all__ = ['VncWidget']
 
@@ -123,7 +122,7 @@ class VncWidget(object):
         spec = pyVmomi.vim.VirtualMachineConfigSpec(extraConfig=options)
 
         task = self.obj.Reconfigure(spec=spec)
-        gauge = TaskGauge(
+        gauge = pvc.widget.gauge.TaskGauge(
             title=self.obj.name,
             text='Configuring VNC Settings',
             dialog=self.dialog,
@@ -137,29 +136,29 @@ class VncWidget(object):
 
         """
         items = [
-            MenuItem(
+            pvc.widget.menu.MenuItem(
                 tag='Console',
                 description='Launch VNC Console',
                 on_select=self.launch_console
             ),
-            MenuItem(
+            pvc.widget.menu.MenuItem(
                 tag='Enable',
                 description='Enable VNC Console',
                 on_select=self.enable_vnc
             ),
-            MenuItem(
+            pvc.widget.menu.MenuItem(
                 tag='Disable',
                 description='Disable VNC Console',
                 on_select=self.disable_vnc
             ),
-            MenuItem(
+            pvc.widget.menu.MenuItem(
                 tag='Settings',
                 description='Manual VNC Configuration',
                 on_select=self.settings
             ),
         ]
 
-        menu = Menu(
+        menu = pvc.widget.menu.Menu(
             title=self.obj.name,
             items=items,
             dialog=self.dialog
@@ -212,7 +211,7 @@ class VncWidget(object):
         spec = pyVmomi.vim.VirtualMachineConfigSpec(extraConfig=options)
 
         task = self.obj.Reconfigure(spec=spec)
-        gauge = TaskGauge(
+        gauge = pvc.widget.gauge.TaskGauge(
             title=self.obj.name,
             text='Disabling VNC Console',
             dialog=self.dialog,
@@ -231,22 +230,22 @@ class VncWidget(object):
         password = extra_config.get('RemoteDisplay.vnc.password', '')
 
         elements = [
-            FormElement(
+            pvc.widget.form.FormElement(
                 label='Enabled',
                 item=enabled
             ),
-            FormElement(
+            pvc.widget.form.FormElement(
                 label='Port',
                 item=port
             ),
-            FormElement(
+            pvc.widget.form.FormElement(
                 label='Password',
                 item=password,
                 input_length=8
             )
         ]
 
-        form = Form(
+        form = pvc.widget.form.Form(
             dialog=self.dialog,
             form_elements=elements,
             title=self.obj.name,

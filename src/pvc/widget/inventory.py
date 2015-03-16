@@ -5,8 +5,8 @@ Docstring should go here
 
 import pyVmomi
 
-from pvc.widget.menu import Menu, MenuItem
-from pvc.widget.virtualmachine import VirtualMachineWidget
+import pvc.widget.menu
+import pvc.widget.virtualmachine
 
 __all__ = ['InventoryWidget']
 
@@ -27,26 +27,26 @@ class InventoryWidget(object):
 
     def display(self):
         items = [
-            MenuItem(
+            pvc.widget.menu.MenuItem(
                 tag='Hosts and Clusters',
                 description='Manage hosts and clusters',
             ),
-            MenuItem(
+            pvc.widget.menu.MenuItem(
                 tag='VMs and Templates',
                 description='Manage VMs and templates',
                 on_select=self.virtual_machine_menu
             ),
-            MenuItem(
+            pvc.widget.menu.MenuItem(
                 tag='Datastores',
                 description='Manage Datastores and Datastore Clusters'
             ),
-            MenuItem(
+            pvc.widget.menu.MenuItem(
                 tag='Networking',
                 description='Manage Networking'
             ),
         ]
 
-        menu = Menu(
+        menu = pvc.widget.menu.Menu(
             title='Inventory Menu',
             text='Select an item from the inventory',
             items=items,
@@ -73,19 +73,19 @@ class InventoryWidget(object):
         view.DestroyView()
 
         items = [
-            MenuItem(
+            pvc.widget.menu.MenuItem(
                 tag=vm['name'],
                 description=vm['runtime.powerState'],
-                on_select=VirtualMachineWidget,
+                on_select=pvc.widget.virtualmachine.VirtualMachineWidget,
                 on_select_args=(self.agent, self.dialog, vm['obj'])
             ) for vm in properties
         ]
 
-        menu = Menu(
+        menu = pvc.widget.menu.Menu(
             title='Virtual Machines',
             text='Select a Virtual Machine from the menu that you wish to manage',
             items=items,
             dialog=self.dialog
         )
 
-        return menu.display()
+        menu.display()

@@ -3,9 +3,9 @@ Administration module
 
 """
 
-from pvc.widget.menu import Menu, MenuItem
-from pvc.widget.session import SessionWidget
-from pvc.widget.motd import MOTDWidget
+import pvc.widget.menu
+import pvc.widget.session
+import pvc.widget.motd
 
 __all__ = ['AdministrationWidget']
 
@@ -26,29 +26,29 @@ class AdministrationWidget(object):
 
     def display(self):
         items = [
-            MenuItem(
+            pvc.widget.menu.MenuItem(
                 tag='Events',
                 description='View Events'
             ),
-            MenuItem(
+            pvc.widget.menu.MenuItem(
                 tag='Tasks',
                 description='View Tasks'
             ),
-            MenuItem(
+            pvc.widget.menu.MenuItem(
                 tag='Message',
                 description='Message Of The Day',
-                on_select=MOTDWidget,
+                on_select=pvc.widget.motd.MOTDWidget,
                 on_select_args=(self.agent, self.dialog)
             ),
-            MenuItem(
+            pvc.widget.menu.MenuItem(
                 tag='Sessions',
                 description='View Sessions',
-                on_select=SessionWidget,
+                on_select=pvc.widget.session.SessionWidget,
                 on_select_args=(self.agent, self.dialog)
             ),
         ]
 
-        menu = Menu(
+        menu = pvc.widget.menu.Menu(
             title='Administration',
             items=items,
             dialog=self.dialog,

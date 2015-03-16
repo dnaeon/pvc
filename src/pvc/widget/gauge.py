@@ -3,11 +3,12 @@ Docstring should go here
 
 """
 
-__all__ = ['TaskGauge']
-
 import pyVmomi
 
 from time import sleep
+
+__all__ = ['TaskGauge']
+
 
 class TaskGauge(object):
     def __init__(self, title, text, dialog, task, interval=0.5):

@@ -40,7 +40,7 @@ class AlarmWidget(object):
 
         self.dialog.infobox(
             title=self.obj.name,
-            text='Retrieving Alarms ...'
+            text='Retrieving information ...'
         )
 
         items = [

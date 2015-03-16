@@ -94,7 +94,7 @@ class VirtualMachineWidget(object):
         """
         self.dialog.infobox(
             title=self.obj.name,
-            text='Retrieving general information ...'
+            text='Retrieving information ...'
         )
 
         # TODO: Do we want a property collector for a single object?
@@ -182,7 +182,7 @@ class VirtualMachineWidget(object):
         """
         self.dialog.infobox(
             title=self.obj.name,
-            text='Retrieving resources usage information ...'
+            text='Retrieving information ...'
         )
 
         # TODO: Do we want a property collector for a single object?

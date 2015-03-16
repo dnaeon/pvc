@@ -25,7 +25,7 @@ class MOTDWidget(object):
 
     def display(self):
         self.dialog.infobox(
-            text='Retrieving message of the day ...'
+            text='Retrieving information ...'
         )
 
         sm = self.agent.si.content.sessionManager

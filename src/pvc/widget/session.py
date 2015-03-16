@@ -26,7 +26,7 @@ class SessionWidget(object):
 
     def display(self):
         self.dialog.infobox(
-            text='Retrieving Sessions ...'
+            text='Retrieving information ...'
         )
 
         try:
@@ -102,7 +102,7 @@ class SessionWidget(object):
 
         """
         self.dialog.infobox(
-            text='Retrieving Session Details ...'
+            text='Retrieving information ...'
         )
 
         elements = [

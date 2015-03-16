@@ -24,14 +24,8 @@ class HomeWidget(object):
         self.dialog = dialog
 
     def display(self):
-        sm = self.agent.si.content.sessionManager
-        motd = sm.message
-
-        if motd:
-            self.dialog.msgbox(
-                title='Message Of The Day',
-                text=motd
-            )
+        self.warn_if_not_vcenter()
+        self.show_motd()
 
         items = [
             pvc.widget.menu.MenuItem(
@@ -55,3 +49,53 @@ class HomeWidget(object):
             width=70
         )
         menu.display()
+
+    def warn_if_not_vcenter(self):
+        about = self.agent.si.content.about
+
+        if about.apiType == 'VirtualCenter':
+            return
+
+        text = (
+            'You are currently connected to a {} system.\n\n'
+            'Some of the features provided by PVC may or may not '
+            'be available for the host to which you are currently '
+            'connected.\n\n'
+            'In order to take full advantage of all PVC '
+            'features you should disconnect now and connect to a '
+            'VMware vCenter server managing this host.'
+        )
+
+        self.dialog.msgbox(
+            title='Warning',
+            text=text.format(about.fullName),
+            width=70
+        )
+
+        view = self.agent.get_host_view()
+        host = view.view[0]
+        management_ip = host.summary.managementServerIp
+        view.DestroyView()
+
+        if management_ip:
+            text = (
+                'This host is currently being managed by the '
+                'VMware vCenter server with IP address {0}.\n\n'
+                'You should disconnect now and connect to the '
+                'VMware vCenter server at {0}.\n'
+            )
+            self.dialog.msgbox(
+                title='Warning',
+                text=text.format(management_ip),
+                width=70
+            )
+
+    def show_motd(self):
+        sm = self.agent.si.content.sessionManager
+        motd = sm.message
+
+        if motd:
+            self.dialog.msgbox(
+                title='Message Of The Day',
+                text=motd
+            )

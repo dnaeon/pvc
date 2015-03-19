@@ -12,6 +12,7 @@ import pvc.widget.form
 import pvc.widget.gauge
 import pvc.widget.vnc
 import pvc.widget.network
+import pvc.widget.performance
 
 from subprocess import Popen, PIPE
 
@@ -62,6 +63,12 @@ class VirtualMachineWidget(object):
                 tag='Network',
                 description='Virtual Machine Networking',
                 on_select=self.network_menu
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='Performance',
+                description='Performance Metrics',
+                on_select=pvc.widget.performance.PerformanceWidget,
+                on_select_args=(self.agent, self.dialog, self.obj)
             ),
             pvc.widget.menu.MenuItem(
                 tag='Tasks & Events',
@@ -319,6 +326,10 @@ class VirtualMachineWidget(object):
         Virtual Machine Network Menu
 
         """
+        self.dialog.infobox(
+            text='Retrieving information ...'
+        )
+
         items = [
             pvc.widget.menu.MenuItem(
                 tag=network.name,

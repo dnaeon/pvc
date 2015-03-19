@@ -59,19 +59,22 @@ class Menu(object):
         self._registry = {item.tag: item for item in items}
 
     def display(self):
+        default_item = ''
         while True:
             code, tag = self.dialog.menu(
                 title=self.title,
                 text=self.text,
                 choices=self.choices,
                 height=self.height,
-                width=self.width
+                width=self.width,
+                default_item=default_item
             )
 
             if code in (self.dialog.CANCEL, self.dialog.ESC):
                 break
 
             item = self._registry.get(tag)
+            default_item = tag
 
             if not item.on_select:
                 self.dialog.msgbox('Not implemented')

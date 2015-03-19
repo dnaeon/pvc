@@ -59,17 +59,9 @@ class PerformanceWidget(object):
                 on_select=self.provider_summary
             ),
             pvc.widget.menu.MenuItem(
-                tag='Metrics',
-                description='Available performance metrics',
-                on_select=self.metrics
-            ),
-            pvc.widget.menu.MenuItem(
-                tag='Real-time',
-                description='Real-time performance metrics'
-            ),
-            pvc.widget.menu.MenuItem(
-                tag='Historical',
-                description='Historical performance metrics'
+                tag='Groups',
+                description='Performance counter groups',
+                on_select=self.counter_groups
             ),
         ]
 
@@ -81,7 +73,7 @@ class PerformanceWidget(object):
         )
         menu.display()
 
-    def summary(self):
+    def provider_summary(self):
         """
         Performance provider summary information
 
@@ -91,10 +83,7 @@ class PerformanceWidget(object):
             text='Retrieving information ...'
         )
 
-        provider_summary = self.pm.QueryPerfProviderSummary(
-            entity=self.obj
-        )
-
+        provider_summary = self._get_provider_summary()
         elements = [
             pvc.widget.form.FormElement(
                 label='Real-time statistics support',
@@ -113,9 +102,81 @@ class PerformanceWidget(object):
         form = pvc.widget.form.Form(
             title=self.obj.name,
             text='Performance provider summary information',
-            form_elements=elements
-            dialog=self.dialog,
+            form_elements=elements,
+            dialog=self.dialog
         )
 
         form.display()
+
+    def counter_groups(self):
+        """
+        Available performance counter groups for this provider
+
+        """
+        self.dialog.infobox(
+            text='Retrieving information ...'
+        )
+
+        metrics = self._get_provider_metrics()
+        if not metrics:
+            self.dialog.msgbox(
+                title=self.obj.name,
+                text='Performance data is currently not available for this entity',
+                width=70
+            )
+            return
+
+        perf_counter = self.pm.perfCounter
+        counters = [c for c in perf_counter for m in metrics if c.key == m.counterId]
+        groups = [(c.groupInfo.key, c.groupInfo.label) for c in counters]
+
+        items = [
+            pvc.widget.menu.MenuItem(
+                tag=key,
+                description=label,
+                on_select=self.counters_in_group,
+                on_select_args=(label,)
+            ) for key, label in set(groups)
+        ]
+
+        menu = pvc.widget.menu.Menu(
+            title=self.obj.name,
+            text='Select a performance counter group',
+            items=items,
+            dialog=self.dialog
+        )
+
+        menu.display()
+
+    def counters_in_group(self, label):
+        """
+        Get counters from a specific counter group
+
+        Args:
+            label (str): Performance counter group label
+
+        """
+        self.dialog.infobox(
+            text='Retrieving information ...'
+        )
+
+        perf_counter = self.pm.perfCounter
+        metrics = self._get_provider_metrics()
+        counters = [c for c in perf_counter for m in metrics if c.key == m.counterId and c.groupInfo.label == label]
+
+        items = [
+            pvc.widget.menu.MenuItem(
+                tag='{0}.{1}.{2}'.format(c.groupInfo.key, c.nameInfo.key, c.unitInfo.key),
+                description=c.nameInfo.summary,
+            ) for c in counters
+        ]
+
+        menu = pvc.widget.menu.Menu(
+            title=self.obj.name,
+            text="Performance counters in group '{}'".format(label),
+            items=items,
+            dialog=self.dialog
+        )
+
+        menu.display()
 

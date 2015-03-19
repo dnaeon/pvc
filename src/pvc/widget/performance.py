@@ -30,6 +30,27 @@ class PerformanceWidget(object):
         self.pm = self.agent.si.content.perfManager
         self.display()
 
+    def _get_provider_summary(self):
+        """
+        Get provider summary information
+
+        """
+        return self.pm.QueryPerfProviderSummary(entity=self.obj)
+
+    def _get_provider_metrics(self):
+        """
+        Get the available metrics for the provider
+
+        """
+        provider_summary = self._get_provider_summary()
+        refresh_rate = provider_summary.refreshRate if provider_summary.currentSupported else None
+        metric_id = self.pm.QueryAvailablePerfMetric(
+            entity=self.obj,
+            intervalId=refresh_rate
+        )
+
+        return metric_id
+
     def display(self):
         items = [
             pvc.widget.menu.MenuItem(

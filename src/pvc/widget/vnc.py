@@ -37,12 +37,12 @@ class VncWidget(object):
         self.obj = obj
         self.display()
 
-    def _port_is_opened(self, host, port, timeout=3.0):
+    def _port_is_open(self, host, port, timeout=3.0):
         """
-        Probes a port to check if it is opened or not
+        Probes a port to check if it is open or not
 
         Returns:
-            True if the port is opened, False otherwise
+            True if the port is open, False otherwise
 
         """
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -77,7 +77,7 @@ class VncWidget(object):
 
         for i in range(attempts):
             random_port = 5900 + random.randrange(1, 99)
-            if not self._port_is_opened(host=host_ip, port=random_port):
+            if not self._port_is_open(host=host_ip, port=random_port):
                 return random_port
 
         return None
@@ -298,7 +298,7 @@ class VncWidget(object):
             text='Launching console ...'
         )
 
-        if not self._port_is_opened(host=host_ip, port=int(port)):
+        if not self._port_is_open(host=host_ip, port=int(port)):
             text = (
                 'Host {} with IP address {} is not reachable on port {}\n'
                 'Cannot establish a connection to the Virtual Machine console\n'

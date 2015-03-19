@@ -1,5 +1,5 @@
 """
-Docstring should go here
+Virtual Machine Widgets
 
 """
 

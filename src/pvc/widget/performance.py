@@ -168,6 +168,8 @@ class PerformanceWidget(object):
             pvc.widget.menu.MenuItem(
                 tag='{0}.{1}.{2}'.format(c.groupInfo.key, c.nameInfo.key, c.unitInfo.key),
                 description=c.nameInfo.summary,
+                on_select=self.counter_menu,
+                on_select_args=(c,)
             ) for c in counters
         ]
 
@@ -180,3 +182,75 @@ class PerformanceWidget(object):
 
         menu.display()
 
+    def counter_menu(self, counter):
+        """
+        Counter menu
+
+        Args:
+            counter (vim.PerformanceManager.CounterInfo): A CounterInfo instance
+
+        """
+        items = [
+            pvc.widget.menu.MenuItem(
+                tag='Info',
+                description='Counter information',
+                on_select=self.counter_info,
+                on_select_args=(counter,)
+            ),
+        ]
+
+        menu = pvc.widget.menu.Menu(
+            title=self.obj.name,
+            text='Performance counter {0}.{1}.{2}'.format(counter.groupInfo.key, counter.nameInfo.key, counter.unitInfo.key),
+            items=items,
+            dialog=self.dialog,
+            width=70
+        )
+
+        menu.display()
+
+    def counter_info(self, counter):
+        """
+        Display information about a counter
+
+        Args:
+            counter (vim.PerformanceManager.CounterInfo): A CounterInfo instance
+
+        """
+        intervals = [i.name for i in self.pm.historicalInterval if counter.level == i.level]
+
+        elements = [
+            pvc.widget.form.FormElement(
+                label='Key',
+                item=str(counter.key)
+            ),
+            pvc.widget.form.FormElement(
+                label='Counter',
+                item='{0}.{1}.{2}'.format(counter.groupInfo.key, counter.nameInfo.key, counter.unitInfo.key)
+            ),
+            pvc.widget.form.FormElement(
+                label='Description',
+                item=counter.nameInfo.summary
+            ),
+            pvc.widget.form.FormElement(
+                label='Group',
+                item=counter.groupInfo.label
+            ),
+            pvc.widget.form.FormElement(
+                label='Unit',
+                item=counter.unitInfo.label
+            ),
+            pvc.widget.form.FormElement(
+                label='Intervals',
+                item=', '.join(intervals)
+            ),
+        ]
+
+        form = pvc.widget.form.Form(
+            title=self.obj.name,
+            text='Performance counter information',
+            dialog=self.dialog,
+            form_elements=elements
+        )
+
+        form.display()

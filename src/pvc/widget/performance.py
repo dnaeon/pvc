@@ -138,10 +138,10 @@ class PerformanceProviderWidget(object):
             text='Retrieving information ...'
         )
 
-        # TODO: Exclude duplicate counters due to the number of multiple instances we might have for a counter
         perf_counter = self.pm.perfCounter
-        metrics = _get_provider_metrics(self.pm, self.obj)
-        counters = [c for c in perf_counter for m in metrics if c.key == m.counterId and c.groupInfo.label == label]
+        all_metrics = _get_provider_metrics(self.pm, self.obj)
+        unique_metrics = set([m.counterId for m in all_metrics])
+        counters = [c for c in perf_counter for m in unique_metrics if c.key == m and c.groupInfo.label == label]
 
         items = [
             pvc.widget.menu.MenuItem(

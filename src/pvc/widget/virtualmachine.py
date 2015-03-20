@@ -25,9 +25,9 @@ class VirtualMachineWidget(object):
         Virtual Machine Widget
 
         Args:
-            agent                 (VConnector): A VConnector instance
-            dialog             (dialog.Dialog): A Dialog instance
-            obj    (pyVmomi.vim.ManagedEntity): A VirtualMachine managed entity
+            agent         (VConnector): A VConnector instance
+            dialog     (dialog.Dialog): A Dialog instance
+            obj    (vim.ManagedEntity): A VirtualMachine managed entity
 
         """
         if not isinstance(obj, pyVmomi.vim.VirtualMachine):
@@ -67,7 +67,7 @@ class VirtualMachineWidget(object):
             pvc.widget.menu.MenuItem(
                 tag='Performance',
                 description='Performance Metrics',
-                on_select=pvc.widget.performance.PerformanceWidget,
+                on_select=pvc.widget.performance.PerformanceProviderWidget,
                 on_select_args=(self.agent, self.dialog, self.obj)
             ),
             pvc.widget.menu.MenuItem(

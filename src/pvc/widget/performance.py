@@ -6,57 +6,34 @@ Performance Metric Widgets
 import pyVmomi
 import pvc.widget.menu
 import pvc.widget.form
+import pvc.widget.checklist
 
-__all__ = ['PerformanceWidget']
+__all__ = ['PerformanceProviderWidget', 'PerformanceCounterWidget']
 
 
-class PerformanceWidget(object):
+class PerformanceProviderWidget(object):
     def __init__(self, agent, dialog, obj):
         """
         Performance Widget
 
         Args:
-            agent                 (VConnector): A VConnector instance
-            dialog             (dialog.Dialog): A Dialog instance
-            obj    (pyVmomi.vim.ManagedEntity): A managed entity
+            agent         (VConnector): A VConnector instance
+            dialog     (dialog.Dialog): A Dialog instance
+            obj    (vim.ManagedEntity): A managed entity
 
         """
-        if not isinstance(obj, pyVmomi.vim.ManagedEntity):
-            raise TypeError('Need a vim.ManagedEntity instance')
-
         self.agent = agent
         self.dialog = dialog
         self.obj = obj
         self.pm = self.agent.si.content.perfManager
         self.display()
 
-    def _get_provider_summary(self):
-        """
-        Get provider summary information
-
-        """
-        return self.pm.QueryPerfProviderSummary(entity=self.obj)
-
-    def _get_provider_metrics(self):
-        """
-        Get the available metrics for the provider
-
-        """
-        provider_summary = self._get_provider_summary()
-        refresh_rate = provider_summary.refreshRate if provider_summary.currentSupported else None
-        metric_id = self.pm.QueryAvailablePerfMetric(
-            entity=self.obj,
-            intervalId=refresh_rate
-        )
-
-        return metric_id
-
     def display(self):
         items = [
             pvc.widget.menu.MenuItem(
                 tag='Summary',
                 description='Performance provider summary',
-                on_select=self.provider_summary
+                on_select=self.summary
             ),
             pvc.widget.menu.MenuItem(
                 tag='Groups',
@@ -71,9 +48,10 @@ class PerformanceWidget(object):
             items=items,
             dialog=self.dialog
         )
+
         menu.display()
 
-    def provider_summary(self):
+    def summary(self):
         """
         Performance provider summary information
 
@@ -83,7 +61,7 @@ class PerformanceWidget(object):
             text='Retrieving information ...'
         )
 
-        provider_summary = self._get_provider_summary()
+        provider_summary = _get_provider_summary(self.pm, self.obj)
         elements = [
             pvc.widget.form.FormElement(
                 label='Real-time statistics support',
@@ -110,14 +88,14 @@ class PerformanceWidget(object):
 
     def counter_groups(self):
         """
-        Available performance counter groups for this provider
+        Available performance counter groups for the provider
 
         """
         self.dialog.infobox(
             text='Retrieving information ...'
         )
 
-        metrics = self._get_provider_metrics()
+        metrics = _get_provider_metrics(self.pm, self.obj)
         if not metrics:
             self.dialog.msgbox(
                 title=self.obj.name,
@@ -160,16 +138,17 @@ class PerformanceWidget(object):
             text='Retrieving information ...'
         )
 
+        # TODO: Exclude duplicate counters due to the number of multiple instances we might have for a counter
         perf_counter = self.pm.perfCounter
-        metrics = self._get_provider_metrics()
+        metrics = _get_provider_metrics(self.pm, self.obj)
         counters = [c for c in perf_counter for m in metrics if c.key == m.counterId and c.groupInfo.label == label]
 
         items = [
             pvc.widget.menu.MenuItem(
                 tag='{0}.{1}.{2}'.format(c.groupInfo.key, c.nameInfo.key, c.unitInfo.key),
                 description=c.nameInfo.summary,
-                on_select=self.counter_menu,
-                on_select_args=(c,)
+                on_select=PerformanceCounterWidget,
+                on_select_args=(self.agent, self.dialog, self.obj, c)
             ) for c in counters
         ]
 
@@ -182,26 +161,43 @@ class PerformanceWidget(object):
 
         menu.display()
 
-    def counter_menu(self, counter):
+
+class PerformanceCounterWidget(object):
+    def __init__(self, agent, dialog, obj, counter):
         """
-        Counter menu
+        Performance Counter Widget
 
         Args:
+            agent                           (VConnector): A VConnector instance
+            dialog                       (dialog.Dialog): A Dialog instance
+            obj                      (vim.ManagedEntity): A managed entity
             counter (vim.PerformanceManager.CounterInfo): A CounterInfo instance
 
         """
+        self.agent = agent
+        self.dialog = dialog
+        self.obj = obj
+        self.counter = counter
+        self.pm = self.agent.si.content.perfManager
+        self.display()
+
+    def display(self):
         items = [
             pvc.widget.menu.MenuItem(
                 tag='Info',
                 description='Counter information',
-                on_select=self.counter_info,
-                on_select_args=(counter,)
+                on_select=self.info
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='Graph',
+                description='Display graph',
+                on_select=self.graph
             ),
         ]
 
         menu = pvc.widget.menu.Menu(
             title=self.obj.name,
-            text='Performance counter {0}.{1}.{2}'.format(counter.groupInfo.key, counter.nameInfo.key, counter.unitInfo.key),
+            text='Performance counter {0}.{1}.{2}'.format(self.counter.groupInfo.key, self.counter.nameInfo.key, self.counter.unitInfo.key),
             items=items,
             dialog=self.dialog,
             width=70
@@ -209,36 +205,36 @@ class PerformanceWidget(object):
 
         menu.display()
 
-    def counter_info(self, counter):
+    def info(self):
         """
         Display information about a counter
 
-        Args:
-            counter (vim.PerformanceManager.CounterInfo): A CounterInfo instance
-
         """
-        intervals = [i.name for i in self.pm.historicalInterval if counter.level == i.level]
+        self.dialog.infobox(
+            text='Retrieving information ...'
+        )
 
+        intervals = [i.name for i in self.pm.historicalInterval if self.counter.level == i.level]
         elements = [
             pvc.widget.form.FormElement(
                 label='Key',
-                item=str(counter.key)
+                item=str(self.counter.key)
             ),
             pvc.widget.form.FormElement(
                 label='Counter',
-                item='{0}.{1}.{2}'.format(counter.groupInfo.key, counter.nameInfo.key, counter.unitInfo.key)
+                item='{0}.{1}.{2}'.format(self.counter.groupInfo.key, self.counter.nameInfo.key, self.counter.unitInfo.key)
             ),
             pvc.widget.form.FormElement(
                 label='Description',
-                item=counter.nameInfo.summary
+                item=self.counter.nameInfo.summary
             ),
             pvc.widget.form.FormElement(
                 label='Group',
-                item=counter.groupInfo.label
+                item=self.counter.groupInfo.label
             ),
             pvc.widget.form.FormElement(
                 label='Unit',
-                item=counter.unitInfo.label
+                item=self.counter.unitInfo.label
             ),
             pvc.widget.form.FormElement(
                 label='Intervals',
@@ -254,3 +250,91 @@ class PerformanceWidget(object):
         )
 
         form.display()
+
+    def graph(self):
+        """
+        Display counter graph
+
+        """
+        self.dialog.infobox(
+            text='Retrieving information ...'
+        )
+
+        provider_summary = _get_provider_summary(self.pm, self.obj)
+
+        # TODO: Handle historical performance stats as well
+        if not provider_summary.currentSupported:
+            self.dialog.msgbox(
+                text='Entity does not support real-time statistics'
+            )
+            return
+
+        metrics = [m for m in _get_provider_metrics(self.pm, self.obj) if m.counterId == self.counter.key]
+        instances = [m.instance if m.instance else self.obj.name for m in metrics]
+        items = [pvc.widget.checklist.CheckListItem(tag=instance) for instance in instances]
+
+        checklist = pvc.widget.checklist.CheckList(
+            title=self.obj.name,
+            text='Select objects for counter {0}.{1}.{2}'.format(self.counter.groupInfo.key, self.counter.nameInfo.key, self.counter.unitInfo.key),
+            items=items,
+            dialog=self.dialog
+        )
+        checklist.display()
+        selected = checklist.selected()
+
+        if not selected:
+            self.dialog.msgbox(
+                text='No objects selected'
+            )
+            return
+
+        metric_id = [
+            pyVmomi.vim.PerformanceManager.MetricId(
+                counterId=self.counter.key,
+                instance='' if instance == self.obj.name else instance
+            ) for instance in selected
+        ]
+
+        # TODO: Initially plot the graph for the last 1 hour
+        query_spec = pyVmomi.vim.PerformanceManager.QuerySpec(
+            maxSample=1,
+            entity=self.obj,
+            metricId=metric_id,
+            intervalId=provider_summary.refreshRate
+        )
+
+        # TODO: Make this work for all selected instances as it takes only the first one now
+        #data = self.pm.QueryPerf(
+        #    querySpec=[query_spec]
+        #)
+        #value = data[0].value[0].value[0]
+
+
+def _get_provider_summary(pm, obj):
+    """
+    Get performance provider summary information
+
+    Args:
+        pm  (vim.PerformanceManager): A PerformanceManager instance
+        obj      (vim.ManagedEntity): A ManagedEntity to be queried
+
+    """
+    return pm.QueryPerfProviderSummary(entity=obj)
+
+def _get_provider_metrics(pm, obj):
+    """
+    Get available metrics for a performance provider
+
+    Args:
+        pm  (vim.PerformanceManager): A PerformanceManager instance
+        obj      (vim.ManagedEntity): A ManagedEntity to be queried
+
+    """
+    provider_summary = _get_provider_summary(pm, obj)
+    refresh_rate = provider_summary.refreshRate if provider_summary.currentSupported else None
+    metric_id = pm.QueryAvailablePerfMetric(
+        entity=obj,
+        intervalId=refresh_rate
+    )
+
+    return metric_id

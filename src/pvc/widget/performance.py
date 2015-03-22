@@ -3,6 +3,12 @@ Performance Metric Widgets
 
 """
 
+import os
+import time
+import datetime
+import tempfile
+import subprocess
+
 import pyVmomi
 import pvc.widget.menu
 import pvc.widget.form
@@ -14,7 +20,7 @@ __all__ = ['PerformanceProviderWidget', 'PerformanceCounterWidget']
 class PerformanceProviderWidget(object):
     def __init__(self, agent, dialog, obj):
         """
-        Performance Widget
+        Performance Provider Widget
 
         Args:
             agent         (VConnector): A VConnector instance
@@ -88,7 +94,7 @@ class PerformanceProviderWidget(object):
 
     def counter_groups(self):
         """
-        Available performance counter groups for the provider
+        Available counter groups for the provider
 
         """
         self.dialog.infobox(
@@ -128,7 +134,7 @@ class PerformanceProviderWidget(object):
 
     def counters_in_group(self, label):
         """
-        Get counters from a specific counter group
+        Get counters from a specific group
 
         Args:
             label (str): Performance counter group label
@@ -181,6 +187,85 @@ class PerformanceCounterWidget(object):
         self.pm = self.agent.si.content.perfManager
         self.display()
 
+    def _save_performance_samples(self, path, data):
+        """
+        Save performance samples to a file
+
+        New samples are appended to the file.
+
+        Args:
+            path                                      (str): Path to the datafile
+            data  (vim.PerformanceManager.EntityMetricBase): The data to be saved
+
+        """
+        # The data we save is expected to be retrieved from a single entity
+        # TODO: Add support for multiple entities as well
+        data = data.pop()
+        all_values = [v.value for v in data.value]
+        samples = zip(data.sampleInfo, *all_values)
+
+        with open(path, 'a') as f:
+            for sample in samples:
+                timestamp, values = sample[0].timestamp, sample[1:]
+                f.write('{} {}\n'.format(str(timestamp), ' '.join([str(v) for v in values])))
+
+    def _create_gnuplot_script(self, datafile, instances):
+        """
+        Create a gnuplot(1) script for plotting a graph
+
+        Args:
+            datafile   (str): Path to a datafile containing performance samples
+            instances (list): A list of object instances present in the performance samples
+
+        Returns:
+            Path to the created gnuplot(1) script
+
+        """
+        provider_summary = _get_provider_summary(self.pm, self.obj)
+        gnuplot_term = os.environ['GNUPLOT_TERMINAL'] if os.environ.get('GNUPLOT_TERMINAL') else 'dumb'
+
+        lines = []
+        for index, instance in enumerate(instances):
+            l = '"{datafile}" using 1:{index} title "{instance}" with lines'.format(
+                datafile=datafile,
+                index=index+3,
+                instance=instance
+            )
+            lines.append(l)
+
+        # TODO: Set a time range for the plotted graph
+        gnuplot_script_template = """
+        # gnuplot(1) script created by PVC
+        set title '{name} - {title}'
+        set grid
+        set terminal {terminal}
+        set xdata time
+        set timefmt '%Y-%m-%d %H:%M:%S+00:00'
+        set format x '%H:%M:%S'
+        set xlabel 'Time'
+        set ylabel '{unit}'
+        set key outside right center
+        set autoscale fix
+        plot {lines}
+        pause {refresh_rate}
+        reread
+        """
+
+        gnuplot_script = gnuplot_script_template.format(
+            name=self.obj.name,
+            title=self.counter.nameInfo.summary,
+            terminal=gnuplot_term,
+            unit=self.counter.unitInfo.label,
+            lines=', '.join(lines),
+            refresh_rate=provider_summary.refreshRate
+        )
+
+        fd, path = tempfile.mkstemp(prefix='pvcgnuplot-script-')
+        with open(path, 'w') as f:
+            f.write(gnuplot_script)
+
+        return path
+
     def display(self):
         items = [
             pvc.widget.menu.MenuItem(
@@ -195,9 +280,15 @@ class PerformanceCounterWidget(object):
             ),
         ]
 
+        title = 'Performance counter {0}.{1}.{2}'.format(
+            self.counter.groupInfo.key,
+            self.counter.nameInfo.key,
+            self.counter.unitInfo.key
+        )
+
         menu = pvc.widget.menu.Menu(
             title=self.obj.name,
-            text='Performance counter {0}.{1}.{2}'.format(self.counter.groupInfo.key, self.counter.nameInfo.key, self.counter.unitInfo.key),
+            text=title,
             items=items,
             dialog=self.dialog,
             width=70
@@ -214,7 +305,13 @@ class PerformanceCounterWidget(object):
             text='Retrieving information ...'
         )
 
+        counter_name = '{0}.{1}.{2}'.format(
+            self.counter.groupInfo.key,
+            self.counter.nameInfo.key,
+            self.counter.unitInfo.key
+        )
         intervals = [i.name for i in self.pm.historicalInterval if self.counter.level == i.level]
+
         elements = [
             pvc.widget.form.FormElement(
                 label='Key',
@@ -222,7 +319,7 @@ class PerformanceCounterWidget(object):
             ),
             pvc.widget.form.FormElement(
                 label='Counter',
-                item='{0}.{1}.{2}'.format(self.counter.groupInfo.key, self.counter.nameInfo.key, self.counter.unitInfo.key)
+                item=counter_name
             ),
             pvc.widget.form.FormElement(
                 label='Description',
@@ -253,9 +350,22 @@ class PerformanceCounterWidget(object):
 
     def graph(self):
         """
-        Display counter graph
+        Display counter graph using gnuplot(1)
 
         """
+        try:
+            p = subprocess.Popen(
+                args=['gnuplot', '--version'],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE
+            )
+        except OSError as e:
+            self.dialog.msgbox(
+                title=self.obj.name,
+                text='Unable to find gnuplot(1): \n{}\n'.format(e)
+            )
+            return
+
         self.dialog.infobox(
             text='Retrieving information ...'
         )
@@ -272,10 +382,15 @@ class PerformanceCounterWidget(object):
         metrics = [m for m in _get_provider_metrics(self.pm, self.obj) if m.counterId == self.counter.key]
         instances = [m.instance if m.instance else self.obj.name for m in metrics]
         items = [pvc.widget.checklist.CheckListItem(tag=instance) for instance in instances]
+        checklist_text = 'Select objects for counter {0}.{1}.{2}'.format(
+            self.counter.groupInfo.key,
+            self.counter.nameInfo.key,
+            self.counter.unitInfo.key
+        )
 
         checklist = pvc.widget.checklist.CheckList(
             title=self.obj.name,
-            text='Select objects for counter {0}.{1}.{2}'.format(self.counter.groupInfo.key, self.counter.nameInfo.key, self.counter.unitInfo.key),
+            text=checklist_text,
             items=items,
             dialog=self.dialog
         )
@@ -295,7 +410,29 @@ class PerformanceCounterWidget(object):
             ) for instance in selected
         ]
 
-        # TODO: Initially plot the graph for the last 1 hour
+        self.dialog.infobox(
+            text='Retrieving information ...'
+        )
+
+        fd, datafile = tempfile.mkstemp(prefix='pvcgnuplot-data-')
+
+        # TODO: Allow user to choose a custom interval from the past
+        #       This query spec is for the initial data set used to plot a
+        #       graph for the past hour for our performance counter
+        one_hour_ago = self.agent.si.CurrentTime() - datetime.timedelta(seconds=3600)
+        query_spec_last_hour = pyVmomi.vim.PerformanceManager.QuerySpec(
+            entity=self.obj,
+            metricId=metric_id,
+            intervalId=provider_summary.refreshRate,
+            startTime=one_hour_ago
+        )
+        data = self.pm.QueryPerf(querySpec=[query_spec_last_hour])
+        self._save_performance_samples(
+            path=datafile,
+            data=data
+        )
+
+        # Query spec used to continuously get new performance data
         query_spec = pyVmomi.vim.PerformanceManager.QuerySpec(
             maxSample=1,
             entity=self.obj,
@@ -303,12 +440,32 @@ class PerformanceCounterWidget(object):
             intervalId=provider_summary.refreshRate
         )
 
-        # TODO: Make this work for all selected instances as it takes only the first one now
-        #data = self.pm.QueryPerf(
-        #    querySpec=[query_spec]
-        #)
-        #value = data[0].value[0].value[0]
+        self.dialog.msgbox(
+            text='Press CTRL-C to stop plotting graph ...'
+        )
 
+        gnuplot_script = self._create_gnuplot_script(
+            datafile=datafile,
+            instances=selected
+        )
+
+        p = subprocess.Popen(
+            args=['gnuplot', gnuplot_script]
+        )
+
+        try:
+            while True:
+                data = self.pm.QueryPerf(querySpec=[query_spec])
+                self._save_performance_samples(
+                    path=datafile,
+                    data=data
+                )
+                time.sleep(provider_summary.refreshRate)
+        except KeyboardInterrupt:
+            pass
+
+        os.unlink(datafile)
+        os.unlink(gnuplot_script)
 
 def _get_provider_summary(pm, obj):
     """

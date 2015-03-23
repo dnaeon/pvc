@@ -199,15 +199,15 @@ class VirtualMachineWidget(object):
             ),
             pvc.widget.form.FormElement(
                 label='Provisioned Storage',
-                item='{}'.format(humanize.naturalsize(provisioned_storage, binary=True))
+                item=humanize.naturalsize(provisioned_storage, binary=True)
             ),
             pvc.widget.form.FormElement(
                 label='Non-shared Storage',
-                item='{}'.format(humanize.naturalsize(self.obj.summary.storage.unshared, binary=True))
+                item=humanize.naturalsize(self.obj.summary.storage.unshared, binary=True)
             ),
             pvc.widget.form.FormElement(
                 label='Used Storage',
-                item='{}'.format(humanize.naturalsize(self.obj.summary.storage.committed, binary=True))
+                item=humanize.naturalsize(self.obj.summary.storage.committed, binary=True)
             ),
         ]
 
@@ -498,7 +498,7 @@ class VirtualMachineWidget(object):
         """
         code, new_name = self.dialog.inputbox(
             title=self.obj.name,
-            text='New Virtual Machine Name?',
+            text='New Virtual Machine name?',
             init=self.obj.name
         )
 

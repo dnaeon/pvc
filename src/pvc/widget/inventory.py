@@ -6,8 +6,9 @@ Docstring should go here
 import pyVmomi
 
 import pvc.widget.menu
-import pvc.widget.virtualmachine
+import pvc.widget.datastore
 import pvc.widget.network
+import pvc.widget.virtualmachine
 
 __all__ = ['InventoryWidget']
 
@@ -39,7 +40,8 @@ class InventoryWidget(object):
             ),
             pvc.widget.menu.MenuItem(
                 tag='Datastores',
-                description='Manage Datastores and Datastore Clusters'
+                description='Manage Datastores and Datastore Clusters',
+                on_select=self.datastore_menu
             ),
             pvc.widget.menu.MenuItem(
                 tag='Networking',
@@ -57,6 +59,37 @@ class InventoryWidget(object):
         )
         menu.display()
 
+    def datastore_menu(self):
+        self.dialog.infobox(
+            text='Retrieving information ...'
+        )
+
+        view = self.agent.get_datastore_view()
+        properties = self.agent.collect_properties(
+            view_ref=view,
+            obj_type=pyVmomi.vim.Datastore,
+            path_set=['name', 'summary.accessible'],
+            include_mors=True
+        )
+        view.DestroyView()
+
+        items = [
+            pvc.widget.menu.MenuItem(
+                tag=ds['name'],
+                description='Accessible' if ds['summary.accessible'] else 'Not Accessible',
+                on_select=pvc.widget.datastore.DatastoreWidget,
+                on_select_args=(self.agent, self.dialog, ds['obj'])
+            ) for ds in properties
+        ]
+
+        menu = pvc.widget.menu.Menu(
+            title='Datastores',
+            text='Select a Datastore from the menu',
+            items=items,
+            dialog=self.dialog
+        )
+        menu.display()
+
     def virtual_machine_menu(self):
         self.dialog.infobox(
             text='Retrieving information ...',
@@ -64,14 +97,12 @@ class InventoryWidget(object):
         )
 
         view = self.agent.get_vm_view()
-
         properties = self.agent.collect_properties(
             view_ref=view,
             obj_type=pyVmomi.vim.VirtualMachine,
             path_set=['name', 'runtime.powerState'],
             include_mors=True
         )
-
         view.DestroyView()
 
         items = [

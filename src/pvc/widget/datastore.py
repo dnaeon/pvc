@@ -11,6 +11,7 @@ import pvc.widget.menu
 import pvc.widget.form
 import pvc.widget.gauge
 import pvc.widget.performance
+import pvc.widget.virtualmachine
 
 __all__ = ['DatastoreWidget']
 
@@ -42,6 +43,11 @@ class DatastoreWidget(object):
                 tag='Capacity',
                 description='Datastore Capacity ',
                 on_select=self.capacity
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='Virtual Machines',
+                description='Virtual Machines using the datastore',
+                on_select=self.virtual_machine_menu
             ),
             pvc.widget.menu.MenuItem(
                 tag='Performance',
@@ -176,3 +182,31 @@ class DatastoreWidget(object):
         )
 
         gauge.display()
+
+    def virtual_machine_menu(self):
+        """
+        Virtual Machines using the datastore
+
+        """
+        self.dialog.infobox(
+            title=self.obj.name,
+            text='Retrieving information ...'
+        )
+
+        items = [
+            pvc.widget.menu.MenuItem(
+                tag=vm.name,
+                description=vm.runtime.powerState,
+                on_select=pvc.widget.virtualmachine.VirtualMachineWidget,
+                on_select_args=(self.agent, self.dialog, vm)
+            ) for vm in self.obj.vm
+        ]
+
+        menu = pvc.widget.menu.Menu(
+            title=self.obj.name,
+            text="Virtual Machines using '{}' datastore".format(self.obj.name),
+            items=items,
+            dialog=self.dialog
+        )
+
+        menu.display()

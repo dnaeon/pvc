@@ -39,7 +39,7 @@ class NetworkWidget(object):
             ),
             pvc.widget.menu.MenuItem(
                 tag='Virtual Machines',
-                description='Virtual Machines using the network ',
+                description='Virtual Machines using the network',
                 on_select=self.virtual_machine_menu,
             ),
             pvc.widget.menu.MenuItem(

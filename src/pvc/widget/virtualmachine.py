@@ -6,6 +6,8 @@ Virtual Machine Widgets
 import time
 
 import pyVmomi
+import humanize
+
 import pvc.widget.alarm
 import pvc.widget.menu
 import pvc.widget.form
@@ -25,9 +27,9 @@ class VirtualMachineWidget(object):
         Virtual Machine Widget
 
         Args:
-            agent         (VConnector): A VConnector instance
-            dialog     (dialog.Dialog): A Dialog instance
-            obj    (vim.ManagedEntity): A VirtualMachine managed entity
+            agent          (VConnector): A VConnector instance
+            dialog      (dialog.Dialog): A Dialog instance
+            obj    (vim.VirtualMachine): A VirtualMachine managed entity
 
         """
         if not isinstance(obj, pyVmomi.vim.VirtualMachine):
@@ -109,64 +111,46 @@ class VirtualMachineWidget(object):
             text='Retrieving information ...'
         )
 
-        # TODO: Do we want a property collector for a single object?
-        view = self.agent.get_list_view([self.obj])
-        data = self.agent.collect_properties(
-            view_ref=view,
-            obj_type=pyVmomi.vim.VirtualMachine,
-            path_set=[
-                'config.guestFullName',
-                'guest.hostName',
-                'guest.ipAddress',
-                'guest.toolsRunningStatus',
-                'guest.toolsVersionStatus',
-                'config.version',
-                'config.hardware.numCPU',
-                'config.hardware.memoryMB',
-                'config.template',
-                'summary.quickStats.consumedOverheadMemory',
-                'runtime.powerState',
-            ]
-        )
-        view.DestroyView()
-        properties = data.pop()
-
         elements = [
             pvc.widget.form.FormElement(
                 label='Guest OS',
-                item=properties.get('config.guestFullName', 'Unknown')
+                item=self.obj.config.guestFullName if self.obj.config.guestFullName else 'Unknown'
             ),
             pvc.widget.form.FormElement(
                 label='VM Version',
-                item=properties.get('config.version')
+                item=self.obj.config.version
             ),
             pvc.widget.form.FormElement(
                 label='CPU',
-                item='{} vCPU(s)'.format(properties.get('config.hardware.numCPU'))
+                item='{} vCPU(s)'.format(self.obj.config.hardware.numCPU)
             ),
             pvc.widget.form.FormElement(
                 label='Memory',
-                item='{} MB'.format(properties.get('config.hardware.memoryMB'))
+                item='{} MB'.format(self.obj.config.hardware.memoryMB)
             ),
             pvc.widget.form.FormElement(
                 label='Memory Overhead',
-                item='{} MB'.format(properties.get('summary.quickStats.consumedOverheadMemory'))
+                item='{} MB'.format(self.obj.summary.quickStats.consumedOverheadMemory)
             ),
             pvc.widget.form.FormElement(
-                label='VMware Tools',
-                item='{} ({})'.format(properties.get('guest.toolsRunningStatus'), properties.get('guest.toolsVersionStatus'))
+                label='VMware Tools Status',
+                item=self.obj.guest.toolsRunningStatus
+            ),
+            pvc.widget.form.FormElement(
+                label='VMware Tools Version',
+                item=self.obj.guest.toolsVersionStatus
             ),
             pvc.widget.form.FormElement(
                 label='IP Address',
-                item=properties.get('guest.ipAddress', 'Unknown')
+                item=self.obj.guest.ipAddress if self.obj.guest.ipAddress else 'Unknown'
             ),
             pvc.widget.form.FormElement(
                 label='DNS Name',
-                item=properties.get('guest.hostName', 'Unknown')
+                item=self.obj.guest.hostName if self.obj.guest.hostName else 'Unknown'
             ),
             pvc.widget.form.FormElement(
                 label='State',
-                item=properties.get('runtime.powerState')
+                item=self.obj.runtime.powerState
             ),
             pvc.widget.form.FormElement(
                 label='Host',
@@ -174,7 +158,7 @@ class VirtualMachineWidget(object):
             ),
             pvc.widget.form.FormElement(
                 label='Template',
-                item=str(properties['config.template'])
+                item=str(self.obj.config.template)
             ),
         ]
 
@@ -197,52 +181,33 @@ class VirtualMachineWidget(object):
             text='Retrieving information ...'
         )
 
-        # TODO: Do we want a property collector for a single object?
-        view = self.agent.get_list_view([self.obj])
-        data = self.agent.collect_properties(
-            view_ref=view,
-            obj_type=pyVmomi.vim.VirtualMachine,
-            path_set=[
-                'summary.quickStats.overallCpuUsage',
-                'summary.quickStats.hostMemoryUsage',
-                'summary.quickStats.guestMemoryUsage',
-                'summary.storage.committed',
-                'summary.storage.uncommitted',
-                'summary.storage.unshared',
-            ]
-        )
-        view.DestroyView()
-        properties = data.pop()
-
-        # Convert storage information into GB first
-        properties['summary.storage.committed'] /= 1073741824
-        properties['summary.storage.unshared'] /= 1073741824
-        properties['summary.storage.uncommitted'] /= 1073741824
+        provisioned_storage = self.obj.summary.storage.committed + \
+                              self.obj.summary.storage.uncommitted
 
         elements = [
             pvc.widget.form.FormElement(
                 label='Consumed Host CPU',
-                item='{} MHz'.format(properties.get('summary.quickStats.overallCpuUsage'))
+                item='{} MHz'.format(self.obj.summary.quickStats.overallCpuUsage)
             ),
             pvc.widget.form.FormElement(
                 label='Consumed Host Memory',
-                item='{} MB'.format(properties.get('summary.quickStats.hostMemoryUsage'))
+                item='{} MB'.format(self.obj.summary.quickStats.hostMemoryUsage)
             ),
             pvc.widget.form.FormElement(
                 label='Active Guest Memory',
-                item='{} MB'.format(properties.get('summary.quickStats.guestMemoryUsage'))
+                item='{} MB'.format(self.obj.summary.quickStats.guestMemoryUsage)
             ),
             pvc.widget.form.FormElement(
                 label='Provisioned Storage',
-                item='{} GB'.format(round(properties.get('summary.storage.committed') + properties.get('summary.storage.uncommitted'), 2))
+                item='{}'.format(humanize.naturalsize(provisioned_storage, binary=True))
             ),
             pvc.widget.form.FormElement(
                 label='Non-shared Storage',
-                item='{} GB'.format(round(properties.get('summary.storage.unshared'), 2))
+                item='{}'.format(humanize.naturalsize(self.obj.summary.storage.unshared, binary=True))
             ),
             pvc.widget.form.FormElement(
                 label='Used Storage',
-                item='{} GB'.format(round(properties.get('summary.storage.committed'), 2))
+                item='{}'.format(humanize.naturalsize(self.obj.summary.storage.committed, binary=True))
             ),
         ]
 

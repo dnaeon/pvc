@@ -84,7 +84,12 @@ class VirtualMachineWidget(object):
                 tag='Console',
                 description='Launch Console',
                 on_select=self.console_menu
-            )
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='Rename',
+                description='Rename Virtual Machine',
+                on_select=self.rename
+            ),
         ]
 
         menu = pvc.widget.menu.Menu(
@@ -520,3 +525,27 @@ class VirtualMachineWidget(object):
 
         # Give it some time to start up the console
         time.sleep(3)
+
+    def rename(self):
+        """
+        Rename Virtual Machine
+
+        """
+        code, new_name = self.dialog.inputbox(
+            title=self.obj.name,
+            text='New Virtual Machine Name?',
+            init=self.obj.name
+        )
+
+        if code in (self.dialog.CANCEL, self.dialog.ESC):
+            return
+
+        task = self.obj.Rename(newName=new_name)
+        gauge = pvc.widget.gauge.TaskGauge(
+            title=self.obj.name,
+            text='Renaming {} to {} ...'.format(self.obj.name, new_name),
+            dialog=self.dialog,
+            task=task
+        )
+
+        gauge.display()

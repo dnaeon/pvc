@@ -27,6 +27,7 @@ setup(
         'src/pvc-tui',
     ],
     install_requires=[
+        'humanize => 0.5.1',
         'pythondialog >= 3.2.1',
         'pyvmomi >= 5.5.0-2014.1.1',
         'vconnector >= 0.3.7',

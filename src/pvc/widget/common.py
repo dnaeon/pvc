@@ -62,6 +62,13 @@ def network_menu(agent, dialog, obj, text=''):
         )
         return
 
+    if not obj.network:
+        dialog.msgbox(
+            title=obj.name,
+            text='No networks found for this managed entity'
+        )
+        return
+
     items = [
         pvc.widget.menu.MenuItem(
             tag=network.name,
@@ -101,6 +108,13 @@ def virtual_machine_menu(agent, ):
         dialog.msgbox(
             title=obj.name,
             text='Entity does not contain any Virtual Machines'
+        )
+        return
+
+    if not obj.vm:
+        dialog.msgbox(
+            title=obj.name,
+            text='No virtual machines found for this managed entity'
         )
         return
 

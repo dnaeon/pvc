@@ -30,17 +30,18 @@ class InventoryWidget(object):
     def display(self):
         items = [
             pvc.widget.menu.MenuItem(
-                tag='Hosts and Clusters',
-                description='Manage hosts and clusters',
+                tag='Hosts',
+                description='Manage hosts',
+                on_select=self.host_menu
             ),
             pvc.widget.menu.MenuItem(
-                tag='VMs and Templates',
-                description='Manage VMs and templates',
+                tag='VMs & Templates',
+                description='Manage VMs & Templates',
                 on_select=self.virtual_machine_menu
             ),
             pvc.widget.menu.MenuItem(
                 tag='Datastores',
-                description='Manage Datastores and Datastore Clusters',
+                description='Manage Datastores',
                 on_select=self.datastore_menu
             ),
             pvc.widget.menu.MenuItem(
@@ -56,6 +57,37 @@ class InventoryWidget(object):
             items=items,
             dialog=self.dialog,
             width=70,
+        )
+        menu.display()
+
+    def host_menu(self):
+        self.dialog.infobox(
+            text='Retrieving information ...'
+        )
+
+        view = self.agent.get_host_view()
+        properties = self.agent.collect_properties(
+            view_ref=view,
+            obj_type=pyVmomi.vim.HostSystem,
+            path_set=['name', 'runtime.connectionState'],
+            include_mors=True
+        )
+        view.DestroyView()
+
+        items = [
+            pvc.widget.menu.MenuItem(
+                tag=host['name'],
+                description=host['runtime.connectionState'],
+                on_select=pvc.widget.hostsystem.HostSystemWidget,
+                on_select_args=(self.agent, self.dialog, host['obj'])
+            ) for host in properties
+        ]
+
+        menu = pvc.widget.menu.Menu(
+            title='Hosts',
+            text='Select a host from the menu',
+            items=items,
+            dialog=self.dialog
         )
         menu.display()
 

@@ -65,7 +65,8 @@ class VirtualMachineWidget(object):
             pvc.widget.menu.MenuItem(
                 tag='Network',
                 description='Virtual Machine Networking',
-                on_select=self.network_menu
+                on_select=pvc.widget.common.network_menu,
+                on_select_args=(self.agent, self.obj, self.dialog)
             ),
             pvc.widget.menu.MenuItem(
                 tag='Performance',
@@ -288,32 +289,6 @@ class VirtualMachineWidget(object):
 
         menu = pvc.widget.menu.Menu(
             title=self.obj.name,
-            items=items,
-            dialog=self.dialog
-        )
-        menu.display()
-
-    def network_menu(self):
-        """
-        Virtual Machine Network Menu
-
-        """
-        self.dialog.infobox(
-            text='Retrieving information ...'
-        )
-
-        items = [
-            pvc.widget.menu.MenuItem(
-                tag=network.name,
-                description='Accessible' if network.summary.accessible else 'Not Accessible',
-                on_select=pvc.widget.network.NetworkWidget,
-                on_select_args=(self.agent, self.dialog, network)
-            ) for network in self.obj.network
-        ]
-
-        menu = pvc.widget.menu.Menu(
-            title=self.obj.name,
-            text='Virtual Machine Networks',
             items=items,
             dialog=self.dialog
         )

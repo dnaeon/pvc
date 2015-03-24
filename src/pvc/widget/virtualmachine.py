@@ -66,7 +66,7 @@ class VirtualMachineWidget(object):
                 tag='Network',
                 description='Virtual Machine Networking',
                 on_select=pvc.widget.common.network_menu,
-                on_select_args=(self.agent, self.obj, self.dialog)
+                on_select_args=(self.agent, self.dialog, self.obj)
             ),
             pvc.widget.menu.MenuItem(
                 tag='Performance',

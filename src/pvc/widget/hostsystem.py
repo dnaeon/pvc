@@ -53,9 +53,15 @@ class HostSystemWidget(object):
                 on_select_args=(self.agent, self.dialog, self.obj)
             ),
             pvc.widget.menu.MenuItem(
-                tag='Network',
+                tag='Networks',
                 description='Host Networks',
                 on_select=pvc.widget.common.network_menu,
+                on_select_args=(self.agent, self.dialog, self.obj)
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='Datastores',
+                description='Datastores on this host',
+                on_select=pvc.widget.common.datastore_menu,
                 on_select_args=(self.agent, self.dialog, self.obj)
             ),
             pvc.widget.menu.MenuItem(

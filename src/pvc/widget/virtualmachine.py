@@ -163,6 +163,10 @@ class VirtualMachineWidget(object):
                 label='Template',
                 item=str(self.obj.config.template)
             ),
+            pvc.widget.form.FormElement(
+                label='Folder',
+                item=self.obj.parent.name
+            ),
         ]
 
         form = pvc.widget.form.Form(

@@ -1,6 +1,8 @@
 PVC - Python vSphere Client with a dialog(1) interface
 ======================================================
 
+.. image:: docs/images/pvc-screenshot.jpg
+
 TODO: Document me
 
 .. note::

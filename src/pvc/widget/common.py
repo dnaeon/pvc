@@ -7,6 +7,7 @@ import pvc.widget.menu
 import pvc.widget.gauge
 import pvc.widget.datastore
 import pvc.widget.network
+import pvc.widget.hostsystem
 import pvc.widget.virtualmachine
 
 __all__ = [
@@ -42,6 +43,54 @@ def rename(obj, dialog, text=''):
     )
 
     gauge.display()
+
+
+def host_menu(agent, dialog, obj, text=''):
+    """
+    A widget to display a menu of HostSystem entities
+
+    Args:
+        agent         (VConnector): A VConnector instance
+        dialog     (dialog.Dailog): A Dialog instance
+        obj    (vim.ManagedEntity): A Managed Entity
+        text                 (str): Text to display
+
+    """
+    dialog.infobox(
+        text='Retrieving information ...'
+    )
+
+    if not hasattr(obj, 'host'):
+        dialog.msgbox(
+            title=obj.name,
+            text='Entity does not contain any hosts'
+        )
+        return
+
+    if not obj.host:
+        dialog.msgbox(
+            title=obj.name,
+            text='No hosts found for this managed entity'
+        )
+        return
+
+    items = [
+        pvc.widget.menu.MenuItem(
+            tag=host.name,
+            description=host.runtime.connectionState,
+            on_select=pvc.widget.hostsystem.HostSystemWidget,
+            on_select_args=(agent, dialog, host)
+        ) for host in obj.host
+    ]
+
+    menu = pvc.widget.menu.Menu(
+        title=obj.name,
+        text=text,
+        items=items,
+        dialog=dialog
+    )
+
+    menu.display()
 
 def network_menu(agent, dialog, obj, text=''):
     """

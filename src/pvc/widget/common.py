@@ -5,6 +5,7 @@ Common Widgets Module
 
 import pvc.widget.menu
 import pvc.widget.gauge
+import pvc.widget.datastore
 import pvc.widget.network
 import pvc.widget.virtualmachine
 
@@ -87,7 +88,7 @@ def network_menu(agent, dialog, obj, text=''):
 
     menu.display()
 
-def virtual_machine_menu(agent, ):
+def virtual_machine_menu(agent, dialog, obj, text=''):
     """
     A widget to display the VMs contained within a Managed Entity, e.g.
     HostSystem, ClusterComputeResource, Datastore, etc.
@@ -125,6 +126,54 @@ def virtual_machine_menu(agent, ):
             on_select=pvc.widget.virtualmachine.VirtualMachineWidget,
             on_select_args=(agent, dialog, vm)
         ) for vm in obj.vm
+    ]
+
+    menu = pvc.widget.menu.Menu(
+        title=obj.name,
+        text=text,
+        items=items,
+        dialog=dialog
+    )
+
+    menu.display()
+
+def datastore_menu(agent, dialog, obj, text=''):
+    """
+    A widget to get all Datastores used by a managed entity, e.g.
+    HostSystem, VirtualMachine, Cluster, etc.
+
+    Args:
+        agent         (VConnector): A VConnector instance
+        dialog     (dialog.Dailog): A Dialog instance
+        obj    (vim.ManagedEntity): A Managed Entity
+        text                 (str): Text to display
+
+    """
+    dialog.infobox(
+        text='Retrieving information ...'
+    )
+
+    if not hasattr(obj, 'datastore'):
+        dialog.msgbox(
+            title=obj.name,
+            text='Entity does not have any datastores'
+        )
+        return
+
+    if not obj.datastore:
+        dialog.msgbox(
+            title=obj.name,
+            text='No datastores found for this managed entity'
+        )
+        return
+
+    items = [
+        pvc.widget.menu.MenuItem(
+            tag=dsname,
+            description='Accessible' if ds.summary.accessible else 'Not Accessible',
+            on_select=pvc.widget.datastore.DatastoreWidget,
+            on_select_args=(agent, dialog, ds)
+        ) for ds in obj.datastore
     ]
 
     menu = pvc.widget.menu.Menu(

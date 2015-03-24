@@ -48,7 +48,8 @@ class DatastoreWidget(object):
             pvc.widget.menu.MenuItem(
                 tag='Virtual Machines',
                 description='Virtual Machines using the datastore',
-                on_select=self.virtual_machine_menu
+                on_select=pvc.widget.common.virtual_machine_menu,
+                on_select_args=(self.agent, self.dialog, self.obj)
             ),
             pvc.widget.menu.MenuItem(
                 tag='Performance',

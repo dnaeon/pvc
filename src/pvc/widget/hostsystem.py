@@ -46,6 +46,12 @@ class HostSystemWidget(object):
                 description='Resource usage information',
                 on_select=self.resources
             ),
+            pvc.widget.menu.MenuItem(
+                tag='Network',
+                description='Host Networks',
+                on_select=pvc.widget.common.network_menu,
+                on_select_args=(self.agent, self.dialog, self.obj)
+            ),
         ]
 
         menu = pvc.widget.menu.Menu(

@@ -4,8 +4,10 @@ Network Widget module
 """
 
 import pyVmomi
+
 import pvc.widget.menu
 import pvc.widget.form
+import pvc.widget.common
 import pvc.widget.virtualmachine
 
 __all__ = ['NetworkWidget']
@@ -39,8 +41,9 @@ class NetworkWidget(object):
             ),
             pvc.widget.menu.MenuItem(
                 tag='Virtual Machines',
-                description='Virtual Machines using the network',
-                on_select=self.virtual_machine_menu,
+                description='Virtual Machines using this network',
+                on_select=pvc.widget.common.virtual_machine_menu,
+                on_select_args=(self.agent, self.dialog, self.obj)
             ),
             pvc.widget.menu.MenuItem(
                 tag='Hosts',
@@ -93,31 +96,6 @@ class NetworkWidget(object):
             form_elements=elements,
             title=self.obj.name
         )
+
         form.display()
 
-    def virtual_machine_menu(self):
-        """
-        Virtual Machines using the network
-
-        """
-        self.dialog.infobox(
-            title=self.obj.name,
-            text='Retrieving information ...'
-        )
-
-        items = [
-            pvc.widget.menu.MenuItem(
-                tag=vm.name,
-                description=vm.runtime.powerState,
-                on_select=pvc.widget.virtualmachine.VirtualMachineWidget,
-                on_select_args=(self.agent, self.dialog, vm)
-            ) for vm in self.obj.vm
-        ]
-
-        menu = pvc.widget.menu.Menu(
-            title=self.obj.name,
-            text="Virtual Machines using '{}' network".format(self.obj.name),
-            items=items,
-            dialog=self.dialog
-        )
-        menu.display()

@@ -47,6 +47,12 @@ class HostSystemWidget(object):
                 on_select=self.resources
             ),
             pvc.widget.menu.MenuItem(
+                tag='Virtual Machines',
+                description='Virtual Machines on this host',
+                on_select=pvc.widget.common.virtual_machine_menu,
+                on_select_args=(self.agent, self.dialog, self.obj)
+            ),
+            pvc.widget.menu.MenuItem(
                 tag='Network',
                 description='Host Networks',
                 on_select=pvc.widget.common.network_menu,

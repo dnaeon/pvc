@@ -47,7 +47,9 @@ class NetworkWidget(object):
             ),
             pvc.widget.menu.MenuItem(
                 tag='Hosts',
-                description='Hosts using the network',
+                description='Hosts using this network',
+                on_select=pvc.widget.common.host_menu,
+                on_select_args=(self.agent, self.dialog, self.obj)
             ),
             pvc.widget.menu.MenuItem(
                 tag='Tasks',

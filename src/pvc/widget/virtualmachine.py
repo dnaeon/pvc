@@ -9,6 +9,7 @@ import pyVmomi
 import humanize
 
 import pvc.widget.alarm
+import pvc.widget.common
 import pvc.widget.menu
 import pvc.widget.form
 import pvc.widget.gauge
@@ -90,7 +91,8 @@ class VirtualMachineWidget(object):
             pvc.widget.menu.MenuItem(
                 tag='Rename',
                 description='Rename Virtual Machine',
-                on_select=self.rename
+                on_select=pvc.widget.common.rename,
+                on_select_args=(self.obj, self.dialog, 'New virtual machine name?')
             ),
         ]
 
@@ -490,27 +492,3 @@ class VirtualMachineWidget(object):
 
         # Give it some time to start up the console
         time.sleep(3)
-
-    def rename(self):
-        """
-        Rename Virtual Machine
-
-        """
-        code, new_name = self.dialog.inputbox(
-            title=self.obj.name,
-            text='New Virtual Machine name?',
-            init=self.obj.name
-        )
-
-        if code in (self.dialog.CANCEL, self.dialog.ESC):
-            return
-
-        task = self.obj.Rename(newName=new_name)
-        gauge = pvc.widget.gauge.TaskGauge(
-            title=self.obj.name,
-            text='Renaming {} to {} ...'.format(self.obj.name, new_name),
-            dialog=self.dialog,
-            task=task
-        )
-
-        gauge.display()

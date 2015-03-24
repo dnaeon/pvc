@@ -58,6 +58,12 @@ class HostSystemWidget(object):
                 on_select=pvc.widget.performance.PerformanceProviderWidget,
                 on_select_args=(self.agent, self.dialog, self.obj)
             ),
+            pvc.widget.menu.MenuItem(
+                tag='Alarms',
+                description='View triggered alarms',
+                on_select=pvc.widget.alarm.AlarmWidget,
+                on_select_args=(self.agent, self.dialog, self.obj)
+            ),
         ]
 
         menu = pvc.widget.menu.Menu(

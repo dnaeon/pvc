@@ -9,7 +9,9 @@ import pvc.widget.datastore
 import pvc.widget.network
 import pvc.widget.virtualmachine
 
-__all__ = ['rename']
+__all__ = [
+    'rename', 'network_menu', 'datastore_menu', 'virtual_machine_menu',
+]
 
 
 def rename(obj, dialog, text=''):

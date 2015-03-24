@@ -7,6 +7,7 @@ import pyVmomi
 
 import pvc.widget.menu
 import pvc.widget.datastore
+import pvc.widget.hostsystem
 import pvc.widget.network
 import pvc.widget.virtualmachine
 

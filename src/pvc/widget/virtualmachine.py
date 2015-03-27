@@ -22,7 +22,11 @@ import pvc.widget.performance
 
 from subprocess import Popen, PIPE
 
-__all__ = ['VirtualMachineWidget', 'VirtualMachineExportWidget']
+__all__ = [
+    'VirtualMachineWidget',
+    'VirtualMachinePowerWidget',
+    'VirtualMachineExportWidget'
+]
 
 
 class VirtualMachineWidget(object):
@@ -64,7 +68,8 @@ class VirtualMachineWidget(object):
             pvc.widget.menu.MenuItem(
                 tag='Power',
                 description='Virtual Machine Power Options',
-                on_select=self.power_menu,
+                on_select=VirtualMachinePowerWidget,
+                on_select_args=(self.agent, self.dialog, self.obj)
             ),
             pvc.widget.menu.MenuItem(
                 tag='Configuration',
@@ -234,51 +239,6 @@ class VirtualMachineWidget(object):
 
         return form.display()
 
-    def power_menu(self):
-        """
-        Virtual Machine Power menu
-
-        """
-        items = [
-            pvc.widget.menu.MenuItem(
-                tag='Power On',
-                description='Power On Virtual Machine',
-                on_select=self.power_on
-            ),
-            pvc.widget.menu.MenuItem(
-                tag='Power Off',
-                description='Power Off Virtual Machine Off ',
-                on_select=self.power_off
-            ),
-            pvc.widget.menu.MenuItem(
-                tag='Suspend',
-                description='Suspend Virtual Machine',
-                on_select=self.suspend,
-            ),
-            pvc.widget.menu.MenuItem(
-                tag='Reset',
-                description='Reset Virtual Machine',
-                on_select=self.reset
-            ),
-            pvc.widget.menu.MenuItem(
-                tag='Shutdown',
-                description='Shutdown Guest System',
-                on_select=self.shutdown
-            ),
-            pvc.widget.menu.MenuItem(
-                tag='Reboot',
-                description='Reboot Guest System',
-                on_select=self.reboot
-            ),
-        ]
-
-        menu = pvc.widget.menu.Menu(
-            title=self.obj.name,
-            items=items,
-            dialog=self.dialog
-        )
-        menu.display()
-
     def action_menu(self):
         """
         Virtual Machine Actions Menu
@@ -351,6 +311,103 @@ class VirtualMachineWidget(object):
             title=self.obj.name,
             dialog=self.dialog,
             items=items
+        )
+
+        menu.display()
+
+    def vmplayer_console(self):
+        """
+        Launch a VMware Player console to the Virtual Machine
+
+        In order to establish a remote console session to the
+        Virtual Machine we run VMware Player this way:
+
+            $ vmplayer -h <hostname> -p <ticket> -M <managed-object-id>
+
+        Where <ticket> is an acquired ticket as returned by a
+        previous call to AcquireCloneTicket().
+
+        """
+        self.dialog.infobox(
+            title=self.obj.name,
+            text='Launching console ...'
+        )
+
+        ticket = self.agent.si.content.sessionManager.AcquireCloneTicket()
+
+        try:
+            p = Popen(
+                args=['vmplayer', '-h', self.agent.host, '-p', ticket, '-M', self.obj._moId],
+                stdout=PIPE,
+                stderr=PIPE
+            )
+        except OSError as e:
+            self.dialog.msgbox(
+                title=self.obj.name,
+                text='Cannot launch console: \n{}\n'.format(e)
+            )
+            return
+
+        # Give it some time to start up the console
+        time.sleep(3)
+
+
+class VirtualMachinePowerWidget(self):
+    """
+    Virtual Machine Power Menu Widget
+
+    """
+    def __init__(self, agent, dialog, obj):
+        """
+        Args:
+            agent          (VConnector): A VConnector instance
+            dialog      (dialog.Dialog): A Dialog instance
+            obj    (vim.VirtualMachine): A VirtualMachine managed entity
+
+        """
+        self.agent = agent
+        self.dialog = dialog
+        self.obj = obj
+        self.display()
+
+    def display(self):
+        items = [
+            pvc.widget.menu.MenuItem(
+                tag='Power On',
+                description='Power On Virtual Machine',
+                on_select=self.power_on
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='Power Off',
+                description='Power Off Virtual Machine Off ',
+                on_select=self.power_off
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='Suspend',
+                description='Suspend Virtual Machine',
+                on_select=self.suspend,
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='Reset',
+                description='Reset Virtual Machine',
+                on_select=self.reset
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='Shutdown',
+                description='Shutdown Guest System',
+                on_select=self.shutdown
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='Reboot',
+                description='Reboot Guest System',
+                on_select=self.reboot
+            ),
+        ]
+
+        menu = pvc.widget.menu.Menu(
+            title=self.obj.name,
+            items=items,
+            dialog=self.dialog
         )
 
         menu.display()
@@ -492,42 +549,6 @@ class VirtualMachineWidget(object):
             text='Rebooting guest system ...'
         )
         self.obj.RebootGuest()
-
-    def vmplayer_console(self):
-        """
-        Launch a VMware Player console to the Virtual Machine
-
-        In order to establish a remote console session to the
-        Virtual Machine we run VMware Player this way:
-
-            $ vmplayer -h <hostname> -p <ticket> -M <managed-object-id>
-
-        Where <ticket> is an acquired ticket as returned by a
-        previous call to AcquireCloneTicket().
-
-        """
-        self.dialog.infobox(
-            title=self.obj.name,
-            text='Launching console ...'
-        )
-
-        ticket = self.agent.si.content.sessionManager.AcquireCloneTicket()
-
-        try:
-            p = Popen(
-                args=['vmplayer', '-h', self.agent.host, '-p', ticket, '-M', self.obj._moId],
-                stdout=PIPE,
-                stderr=PIPE
-            )
-        except OSError as e:
-            self.dialog.msgbox(
-                title=self.obj.name,
-                text='Cannot launch console: \n{}\n'.format(e)
-            )
-            return
-
-        # Give it some time to start up the console
-        time.sleep(3)
 
 
 class VirtualMachineExportWidget(object):
@@ -693,7 +714,7 @@ class VirtualMachineExportWidget(object):
 
         self.dialog.msgbox(
             title=self.obj.name,
-            text='\Export successful. Files saved in:\n\n{}\n'.format(path),
+            text='\nExport successful. Files saved in:\n\n{}\n'.format(path),
             width=60
         )
 

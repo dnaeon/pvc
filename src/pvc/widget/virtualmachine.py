@@ -693,7 +693,7 @@ class VirtualMachineExportWidget(object):
 
         self.dialog.msgbox(
             title=self.obj.name,
-            text='\nVirtual Machine exported in\n\n{}\n'.format(path),
+            text='\Export successful. Files saved in:\n\n{}\n'.format(path),
             width=60
         )
 

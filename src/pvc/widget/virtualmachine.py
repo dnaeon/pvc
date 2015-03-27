@@ -3,10 +3,13 @@ Virtual Machine Widgets
 
 """
 
+import os
 import time
+import tarfile
 
 import pyVmomi
 import humanize
+import requests
 
 import pvc.widget.alarm
 import pvc.widget.common
@@ -19,7 +22,7 @@ import pvc.widget.performance
 
 from subprocess import Popen, PIPE
 
-__all__ = ['VirtualMachineWidget']
+__all__ = ['VirtualMachineWidget', 'VirtualMachineExportWidget']
 
 
 class VirtualMachineWidget(object):
@@ -54,6 +57,11 @@ class VirtualMachineWidget(object):
                 on_select=self.resources_info
             ),
             pvc.widget.menu.MenuItem(
+                tag='Actions',
+                description='Available Actions',
+                on_select=self.action_menu
+            ),
+            pvc.widget.menu.MenuItem(
                 tag='Power',
                 description='Virtual Machine Power Options',
                 on_select=self.power_menu,
@@ -75,6 +83,11 @@ class VirtualMachineWidget(object):
                 on_select_args=(self.agent, self.dialog, self.obj)
             ),
             pvc.widget.menu.MenuItem(
+                tag='Template',
+                description='Template Actions',
+                on_select=self.template_menu
+            ),
+            pvc.widget.menu.MenuItem(
                 tag='Tasks & Events',
                 description='View Tasks & Events'
             ),
@@ -88,12 +101,6 @@ class VirtualMachineWidget(object):
                 tag='Console',
                 description='Launch Console',
                 on_select=self.console_menu
-            ),
-            pvc.widget.menu.MenuItem(
-                tag='Rename',
-                description='Rename Virtual Machine',
-                on_select=pvc.widget.common.rename,
-                on_select_args=(self.obj, self.dialog, 'New virtual machine name?')
             ),
         ]
 
@@ -272,6 +279,28 @@ class VirtualMachineWidget(object):
         )
         menu.display()
 
+    def action_menu(self):
+        """
+        Virtual Machine Actions Menu
+
+        """
+        items = [
+            pvc.widget.menu.MenuItem(
+                tag='Rename',
+                description='Rename Virtual Machine',
+                on_select=pvc.widget.common.rename,
+                on_select_args=(self.obj, self.dialog, 'New virtual machine name?')
+            ),
+        ]
+
+        menu = pvc.widget.menu.Menu(
+            title=self.obj.name,
+            dialog=self.dialog,
+            items=items
+        )
+
+        menu.display()
+
     def console_menu(self):
         """
         Virtual Machine Console Menu
@@ -296,6 +325,34 @@ class VirtualMachineWidget(object):
             items=items,
             dialog=self.dialog
         )
+        menu.display()
+
+    def template_menu(self):
+        """
+        Template Actions Menu
+
+        """
+        items = [
+            pvc.widget.menu.MenuItem(
+                tag='Export OVA',
+                description='Single file (OVA)',
+                on_select=VirtualMachineExportWidget,
+                on_select_args=(self.agent, self.dialog, self.obj, True)
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='Export OVF',
+                description='Directory of files (OVF)',
+                on_select=VirtualMachineExportWidget,
+                on_select_args=(self.agent, self.dialog, self.obj, False)
+            ),
+        ]
+
+        menu = pvc.widget.menu.Menu(
+            title=self.obj.name,
+            dialog=self.dialog,
+            items=items
+        )
+
         menu.display()
 
     def power_on(self):
@@ -471,3 +528,274 @@ class VirtualMachineWidget(object):
 
         # Give it some time to start up the console
         time.sleep(3)
+
+
+class VirtualMachineExportWidget(object):
+    def __init__(self, agent, dialog, obj, create_ova):
+        """
+        Virtual Machine Export Widget
+
+        Args:
+            agent          (VConnector): A VConnector instance
+            dialog      (dialog.Dialog): A Dialog instance
+            obj    (vim.VirtualMachine): A VirtualMachine managed entity
+            create_ova           (bool): If True then export VM into a single OVA file
+                                         Otherwise create a folder of files (OVF)
+
+        """
+        self.agent = agent
+        self.dialog = dialog
+        self.obj = obj
+        self.create_ova = create_ova
+        self.display()
+
+    def display(self):
+        if self.obj.runtime.powerState != pyVmomi.vim.VirtualMachinePowerState.poweredOff:
+            self.dialog.msgbox(
+                title=self.obj.name,
+                text='Virtual Machine must be powered off in order to be exported'
+            )
+            return
+
+        code, path = self.dialog.dselect(
+            title='Directory to save OVF template',
+            filepath='',
+            width=60
+        )
+
+        path = os.path.join(path, self.obj.name)
+
+        if code in (self.dialog.ESC, self.dialog.CANCEL):
+            self.dialog.msgbox(
+                title=self.obj.name,
+                text='No destination directory specified'
+            )
+            return
+
+        if not os.path.exists(path):
+            os.makedirs(path)
+
+        self.export_ovf_template(path=path)
+
+    def export_ovf_template(self, path):
+        """
+        Exports a Virtual Machine into OVF/OVA template
+
+        Args:
+            path (str): Directory to save the OVF/OVA template
+
+        """
+        # TODO: Perform a dry-run and see if creating the
+        #       OVF descriptor succeeds and then proceed with
+        #       downloading the actual VMDK files
+
+        self.dialog.infobox(
+            title=self.obj.name,
+            text='Initializing OVF export ...',
+            width=60
+        )
+
+        lease = self.obj.ExportVm()
+
+        while True:
+            if lease.state == pyVmomi.vim.HttpNfcLeaseState.initializing:
+                lease.HttpNfcLeaseProgress(percent=0)
+            elif lease.state == pyVmomi.vim.HttpNfcLeaseState.error:
+                self.dialog.msgbox(
+                    title=self.obj.name,
+                    text=lease.error.msg
+                )
+                lease.HttpNfcLeaseAbort()
+                return
+            elif lease.state == pyVmomi.vim.HttpNfcLeaseState.ready:
+                break
+            time.sleep(0.5)
+
+        percent = 0
+        total_transfered_bytes = 0
+        manifest = []
+        ovf_files = []
+        exported_disks = {}
+
+        self.dialog.gauge_start(
+            title='Exporting OVF template - {}'.format(self.obj.name)
+        )
+
+        for url in lease.info.deviceUrl:
+            if not url.disk: # skip non-vmdk disks
+                continue
+
+            self.dialog.gauge_update(
+                percent=percent,
+                text='\nExporting {} ...\n'.format(url.targetId),
+                update_text=True
+            )
+
+            if manifest:
+                total_transfered_bytes = sum([m.capacity for m in manifest])
+
+            disk_transfered_bytes = 0
+            disk_file = os.path.join(path, '{}-{}'.format(self.obj.name, url.targetId))
+            r = requests.get(url.url, verify=False, stream=True)
+
+            with open(disk_file, 'wb') as f:
+                for chunk in r.iter_content(chunk_size=512*1024):
+                    if chunk:
+                        disk_transfered_bytes += len(chunk)
+                        percent = round(
+                            (total_transfered_bytes + disk_transfered_bytes) / 1024 /
+                            lease.info.totalDiskCapacityInKB * 100
+                        )
+                        self.dialog.gauge_update(percent=percent)
+                        lease.HttpNfcLeaseProgress(percent=percent)
+                        f.write(chunk)
+
+            m = [m for m in lease.HttpNfcLeaseGetManifest() if m.key == url.key].pop()
+            manifest.append(m)
+
+            of = pyVmomi.vim.OvfManager.OvfFile(
+                capacity=m.capacity,
+                deviceId=m.key,
+                path=os.path.basename(disk_file),
+                populatedSize=m.populatedSize,
+                size=disk_transfered_bytes,
+            )
+            ovf_files.append(of)
+
+            exported_disks[url.key] = url.targetId
+            total_transfered_bytes = sum([m.capacity for m in manifest])
+            percent = round(
+                total_transfered_bytes / 1024 / lease.info.totalDiskCapacityInKB * 100
+            )
+            self.dialog.gauge_update(percent)
+            lease.HttpNfcLeaseProgress(percent=percent)
+
+        # Create OVF manifest and descriptor files
+        self.dialog.gauge_stop()
+        self.create_manifest_file(
+            path=path,
+            manifest=manifest,
+            disks=exported_disks
+        )
+
+        self.create_ovf_descriptor(
+            path=path,
+            ovf_files=ovf_files
+        )
+
+        lease.HttpNfcLeaseComplete()
+
+        if self.create_ova:
+            self.create_ova_file(
+                path=path,
+                disks=exported_disks.values()
+            )
+
+        self.dialog.msgbox(
+            title=self.obj.name,
+            text='\nVirtual Machine exported in\n\n{}\n'.format(path),
+            width=60
+        )
+
+    def create_manifest_file(self, path, manifest, disks):
+        """
+        Creates the OVF manifest file
+
+        Args:
+            path      (str): Path to the exported disks
+            manifest (list): A list of vim.HttpNfcLease.ManifestEntry instances
+            disks    (dict): A mapping of the disk keys and target ids
+
+        """
+        self.dialog.infobox(
+            title=self.obj.name,
+            text='Creating OVF manifest ...'
+        )
+
+        with open(os.path.join(path, '{}.mf'.format(self.obj.name)), 'w') as f:
+            for entry in manifest:
+                f.write('SHA1({}-{})= {}\n'.format(
+                    self.obj.name,
+                    disks[entry.key],
+                    entry.sha1)
+                )
+
+    def create_ovf_descriptor(self, path, ovf_files):
+        """
+        Creates the OVF descriptor file
+
+        Args:
+            path       (str): Path to the exported disks
+            ovf_files (list): A list of vim.OvfManager.OvfFile instances
+
+        """
+        self.dialog.infobox(
+            title=self.obj.name,
+            text='Creating OVF descriptor ...'
+        )
+
+        cdp = pyVmomi.vim.OvfManager.CreateDescriptorParams(
+            ovfFiles=ovf_files
+        )
+
+        dr = self.agent.si.content.ovfManager.CreateDescriptor(
+            obj=self.obj,
+            cdp=cdp
+        )
+
+        if dr.warning:
+            self.dialog.msgbox(
+                title='Warning - {}'.format(self.obj.name),
+                text=str(dr.warning),
+                width=60
+            )
+
+        if dr.error:
+            self.dialog.msgbox(
+                title='Error - {}'.format(self.obj.name),
+                text=str(dr.error),
+                width=60
+            )
+
+        with open(os.path.join(path, '{}.ovf'.format(self.obj.name)), 'w') as f:
+            f.write(dr.ovfDescriptor)
+
+    def create_ova_file(self, path, disks):
+        """
+        Creates a single OVA file of the exported VM
+
+        Args:
+            path   (str): Path to the exported disks
+            disks (list): A list of the downloaded disks
+
+        """
+        self.dialog.infobox(
+            title=self.obj.name,
+            text='Creating OVA file ...',
+            width=60
+        )
+
+        old_cwd = os.getcwd()
+        os.chdir(path)
+
+        ova = tarfile.open('{}.ova'.format(self.obj.name), 'w')
+
+        # Add descriptor and manifest files first
+        descriptor = '{}.ovf'.format(self.obj.name)
+        manifest = '{}.mf'.format(self.obj.name)
+        ova.add(descriptor)
+        ova.add(manifest)
+
+        # Now add the VMDK disks
+        for disk in disks:
+            ova.add('{}-{}'.format(self.obj.name, disk))
+
+        ova.close()
+
+        # Cleanup disks, manifest and descriptor files
+        os.unlink(manifest)
+        os.unlink(descriptor)
+        for disk in disks:
+            os.unlink('{}-{}'.format(self.obj.name, disk))
+
+        os.chdir(old_cwd)

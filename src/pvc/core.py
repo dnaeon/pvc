@@ -3,6 +3,9 @@ Docstring should go here
 
 """
 
+import requests
+requests.packages.urllib3.disable_warnings()
+
 from dialog import Dialog
 from vconnector.core import VConnector
 

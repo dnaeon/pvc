@@ -352,7 +352,7 @@ class VirtualMachineWidget(object):
         time.sleep(3)
 
 
-class VirtualMachinePowerWidget(self):
+class VirtualMachinePowerWidget(object):
     """
     Virtual Machine Power Menu Widget
 

@@ -6,13 +6,13 @@ Docstring should go here
 import requests
 requests.packages.urllib3.disable_warnings()
 
+import pvc.widget.form
+import pvc.widget.home
+
 from dialog import Dialog
 from vconnector.core import VConnector
 
 from pvc import __version__
-from pvc.widget.form import Form, FormElement
-from pvc.widget.menu import Menu, MenuItem
-from pvc.widget.home import HomeWidget
 
 __all__ = ['MainApp']
 
@@ -43,7 +43,11 @@ class MainApp(object):
         )
 
         text = welcome.format(__version__)
-        self.dialog.msgbox(text=text, height=15, width=60)
+        self.dialog.msgbox(
+            text=text,
+            height=15,
+            width=60
+        )
 
     def login(self):
         """
@@ -55,12 +59,14 @@ class MainApp(object):
             'of the vSphere host you wish '
             'to connect to.\n'
         )
+
         form_elements = [
-            FormElement(label='Hostname'),
-            FormElement(label='Username'),
-            FormElement(label='Password', attributes=0x1),
+            pvc.widget.form.FormElement(label='Hostname'),
+            pvc.widget.form.FormElement(label='Username'),
+            pvc.widget.form.FormElement(label='Password', attributes=0x1),
         ]
-        form = Form(
+
+        form = pvc.widget.form.Form(
             dialog=self.dialog,
             form_elements=form_elements,
             title='Login details',
@@ -117,7 +123,7 @@ class MainApp(object):
         if not self.login():
             return
 
-        home = HomeWidget(
+        home = pvc.widget.home.HomeWidget(
             agent=self.agent,
             dialog=self.dialog
         )

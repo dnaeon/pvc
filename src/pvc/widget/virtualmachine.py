@@ -855,6 +855,11 @@ class VirtualMachineActionWidget(object):
                 on_select=pvc.widget.common.rename,
                 on_select_args=(self.obj, self.dialog, 'New virtual machine name?')
             ),
+            pvc.widget.menu.MenuItem(
+                tag='Unregister',
+                description='Remove from inventory',
+                on_select=self.unregister
+            ),
         ]
 
         menu = pvc.widget.menu.Menu(
@@ -864,3 +869,16 @@ class VirtualMachineActionWidget(object):
         )
 
         menu.display()
+
+    def unregister(self):
+        """
+        Unregister the VM from inventory
+
+        """
+        self.dialog.infobox(
+            title=self.obj.name,
+            text='Removing {} from inventory ...'.format(self.obj.name),
+            width=60
+        )
+
+        self.obj.Unregister()

@@ -5,6 +5,7 @@ Docstring should go here
 
 import pyVmomi
 
+import pvc.widget.cluster
 import pvc.widget.menu
 import pvc.widget.datastore
 import pvc.widget.hostsystem
@@ -30,6 +31,11 @@ class InventoryWidget(object):
 
     def display(self):
         items = [
+            pvc.widget.menu.MenuItem(
+                tag='Clusters',
+                description='Manage Clusters',
+                on_select=self.cluster_menu
+            ),
             pvc.widget.menu.MenuItem(
                 tag='Hosts',
                 description='Manage hosts',
@@ -59,6 +65,38 @@ class InventoryWidget(object):
             dialog=self.dialog,
             width=70,
         )
+        menu.display()
+
+    def cluster_menu(self):
+        self.dialog.infobox(
+            text='Retrieving information ...'
+        )
+
+        view = self.agent.get_cluster_view()
+        properties = self.agent.collect_properties(
+            view_ref=view,
+            obj_type=pyVmomi.vim.ClusterComputeResource,
+            path_set=['name', 'overallStatus'],
+            include_mors=True
+        )
+        view.DestroyView()
+
+        items = [
+            pvc.widget.menu.MenuItem(
+                tag=cluster['name'],
+                description=cluster['overallStatus'],
+                on_select=pvc.widget.cluster.ClusterWidget,
+                on_select_args=(self.agent, self.dialog, cluster['obj'])
+            ) for cluster in properties
+        ]
+
+        menu = pvc.widget.menu.Menu(
+            title='Clusters',
+            text='\nSelect a cluster from the menu\n',
+            items=items,
+            dialog=self.dialog
+        )
+
         menu.display()
 
     def host_menu(self):

@@ -34,6 +34,11 @@ class ClusterWidget(object):
                 description='General information',
                 on_select=self.summary
             ),
+            pvc.widget.menu.MenuItem(
+                tag='Resources',
+                description='Resource usage information',
+                on_select=self.resources
+            ),
         ]
 
         menu = pvc.widget.menu.Menu(
@@ -92,3 +97,19 @@ class ClusterWidget(object):
         )
 
         form.display()
+
+    def resources(self):
+        """
+        Resource usage information
+
+        """
+        text = (
+            'Not implemented yet.\n'
+            'See https://github.com/vmware/pyvmomi/issues/229 '
+            'for more information.\n'
+        )
+
+        self.dialog.msgbox(
+            title=self.obj.name,
+            text=text
+        )

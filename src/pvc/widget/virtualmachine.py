@@ -24,6 +24,7 @@ from subprocess import Popen, PIPE
 
 __all__ = [
     'VirtualMachineWidget',
+    'VirtualMachineConsoleWidget',
     'VirtualMachinePowerWidget',
     'VirtualMachineExportWidget'
 ]
@@ -105,7 +106,8 @@ class VirtualMachineWidget(object):
             pvc.widget.menu.MenuItem(
                 tag='Console',
                 description='Launch Console',
-                on_select=self.console_menu
+                on_select=VirtualMachineConsoleWidget,
+                on_select_args=(self.agent, self.dialog, self.obj)
             ),
         ]
 
@@ -261,32 +263,6 @@ class VirtualMachineWidget(object):
 
         menu.display()
 
-    def console_menu(self):
-        """
-        Virtual Machine Console Menu
-
-        """
-        items = [
-            pvc.widget.menu.MenuItem(
-                tag='VNC',
-                description='Launch VNC Console',
-                on_select=pvc.widget.vnc.VncWidget,
-                on_select_args=(self.dialog, self.obj)
-            ),
-            pvc.widget.menu.MenuItem(
-                tag='VMware Player',
-                description='Launch VMware Player Console',
-                on_select=self.vmplayer_console,
-            ),
-        ]
-
-        menu = pvc.widget.menu.Menu(
-            title=self.obj.name,
-            items=items,
-            dialog=self.dialog
-        )
-        menu.display()
-
     def template_menu(self):
         """
         Template Actions Menu
@@ -314,43 +290,6 @@ class VirtualMachineWidget(object):
         )
 
         menu.display()
-
-    def vmplayer_console(self):
-        """
-        Launch a VMware Player console to the Virtual Machine
-
-        In order to establish a remote console session to the
-        Virtual Machine we run VMware Player this way:
-
-            $ vmplayer -h <hostname> -p <ticket> -M <managed-object-id>
-
-        Where <ticket> is an acquired ticket as returned by a
-        previous call to AcquireCloneTicket().
-
-        """
-        self.dialog.infobox(
-            title=self.obj.name,
-            text='Launching console ...'
-        )
-
-        ticket = self.agent.si.content.sessionManager.AcquireCloneTicket()
-
-        try:
-            p = Popen(
-                args=['vmplayer', '-h', self.agent.host, '-p', ticket, '-M', self.obj._moId],
-                stdout=PIPE,
-                stderr=PIPE
-            )
-        except OSError as e:
-            self.dialog.msgbox(
-                title=self.obj.name,
-                text='Cannot launch console: \n{}\n'.format(e)
-            )
-            return
-
-        # Give it some time to start up the console
-        time.sleep(3)
-
 
 class VirtualMachinePowerWidget(object):
     """
@@ -820,3 +759,79 @@ class VirtualMachineExportWidget(object):
             os.unlink('{}-{}'.format(self.obj.name, disk))
 
         os.chdir(old_cwd)
+
+
+class VirtualMachineConsoleWidget(object):
+    def __init__(self, agent, dialog, obj):
+        """
+        Virtual Machine Console Widget
+
+        Args:
+            agent          (VConnector): A VConnector instance
+            dialog      (dialog.Dialog): A Dialog instance
+            obj    (vim.VirtualMachine): A VirtualMachine managed entity
+
+        """
+        self.agent = agent
+        self.dialog = dialog
+        self.obj = obj
+        self.display()
+
+    def display(self):
+        items = [
+            pvc.widget.menu.MenuItem(
+                tag='VNC',
+                description='Launch VNC Console',
+                on_select=pvc.widget.vnc.VncWidget,
+                on_select_args=(self.dialog, self.obj)
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='VMware Player',
+                description='Launch VMware Player Console',
+                on_select=self.vmplayer_console,
+            ),
+        ]
+
+        menu = pvc.widget.menu.Menu(
+            title=self.obj.name,
+            items=items,
+            dialog=self.dialog
+        )
+
+        menu.display()
+
+    def vmplayer_console(self):
+        """
+        Launch a VMware Player console to the Virtual Machine
+
+        In order to establish a remote console session to the
+        Virtual Machine we run VMware Player this way:
+
+            $ vmplayer -h <hostname> -p <ticket> -M <managed-object-id>
+
+        Where <ticket> is an acquired ticket as returned by a
+        previous call to AcquireCloneTicket().
+
+        """
+        self.dialog.infobox(
+            title=self.obj.name,
+            text='Launching console ...'
+        )
+
+        ticket = self.agent.si.content.sessionManager.AcquireCloneTicket()
+
+        try:
+            p = Popen(
+                args=['vmplayer', '-h', self.agent.host, '-p', ticket, '-M', self.obj._moId],
+                stdout=PIPE,
+                stderr=PIPE
+            )
+        except OSError as e:
+            self.dialog.msgbox(
+                title=self.obj.name,
+                text='Cannot launch console: \n{}\n'.format(e)
+            )
+            return
+
+        # Give it some time to start up the console
+        time.sleep(3)

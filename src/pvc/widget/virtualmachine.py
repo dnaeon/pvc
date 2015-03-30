@@ -91,7 +91,8 @@ class VirtualMachineWidget(object):
             pvc.widget.menu.MenuItem(
                 tag='Template',
                 description='Template Actions',
-                on_select=self.template_menu
+                on_select=VirtualMachineTemplateWidget,
+                on_select_args=(self.agent, self.dialog, self.obj)
             ),
             pvc.widget.menu.MenuItem(
                 tag='Tasks & Events',
@@ -252,34 +253,6 @@ class VirtualMachineWidget(object):
                 description='Rename Virtual Machine',
                 on_select=pvc.widget.common.rename,
                 on_select_args=(self.obj, self.dialog, 'New virtual machine name?')
-            ),
-        ]
-
-        menu = pvc.widget.menu.Menu(
-            title=self.obj.name,
-            dialog=self.dialog,
-            items=items
-        )
-
-        menu.display()
-
-    def template_menu(self):
-        """
-        Template Actions Menu
-
-        """
-        items = [
-            pvc.widget.menu.MenuItem(
-                tag='Export OVA',
-                description='Single file (OVA)',
-                on_select=VirtualMachineExportWidget,
-                on_select_args=(self.agent, self.dialog, self.obj, True)
-            ),
-            pvc.widget.menu.MenuItem(
-                tag='Export OVF',
-                description='Directory of files (OVF)',
-                on_select=VirtualMachineExportWidget,
-                on_select_args=(self.agent, self.dialog, self.obj, False)
             ),
         ]
 
@@ -835,3 +808,44 @@ class VirtualMachineConsoleWidget(object):
 
         # Give it some time to start up the console
         time.sleep(3)
+
+
+class VirtualMachineTemplateWidget(object):
+    def __init__(self, agent, dialog, obj):
+        """
+        Virtual Machine Template Widget
+
+        Args:
+            agent          (VConnector): A VConnector instance
+            dialog      (dialog.Dialog): A Dialog instance
+            obj    (vim.VirtualMachine): A VirtualMachine managed entity
+
+        """
+        self.agent = agent
+        self.dialog = dialog
+        self.obj = obj
+        self.display()
+
+    def display(self):
+        items = [
+            pvc.widget.menu.MenuItem(
+                tag='Export OVA',
+                description='Single file (OVA)',
+                on_select=VirtualMachineExportWidget,
+                on_select_args=(self.agent, self.dialog, self.obj, True)
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='Export OVF',
+                description='Directory of files (OVF)',
+                on_select=VirtualMachineExportWidget,
+                on_select_args=(self.agent, self.dialog, self.obj, False)
+            ),
+        ]
+
+        menu = pvc.widget.menu.Menu(
+            title=self.obj.name,
+            dialog=self.dialog,
+            items=items
+        )
+
+        menu.display()

@@ -809,6 +809,11 @@ class VirtualMachineTemplateWidget(object):
     def display(self):
         items = [
             pvc.widget.menu.MenuItem(
+                tag='Mark Template',
+                description='Mark Virtual Machine as template',
+                on_select=self.mark_as_template
+            ),
+            pvc.widget.menu.MenuItem(
                 tag='Export OVA',
                 description='Single file (OVA)',
                 on_select=VirtualMachineExportWidget,
@@ -829,6 +834,25 @@ class VirtualMachineTemplateWidget(object):
         )
 
         menu.display()
+
+    def mark_as_template(self):
+        """
+        Mark Virtual Machine as a template
+
+        """
+        if self.obj.runtime.powerState != pyVmomi.vim.VirtualMachinePowerState.poweredOff:
+            self.dialog.msgbox(
+                title=self.obj.name,
+                text='Virtual Machine must be powered off first'
+            )
+            return
+
+        self.dialog.infobox(
+            title=self.obj.name,
+            text='Marking {} as template ...'.format(self.obj.name)
+        )
+
+        self.obj.MarkAsTemplate()
 
 
 class VirtualMachineActionWidget(object):

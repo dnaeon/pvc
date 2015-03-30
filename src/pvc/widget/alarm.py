@@ -22,9 +22,6 @@ class AlarmWidget(object):
             obj    (vim.ManagedEntity): A vim.ManagedEntity object
 
         """
-        if not isinstance(obj, pyVmomi.vim.ManagedEntity):
-            raise TypeError('Need a vim.ManagedEntity instance')
-
         self.agent = agent
         self.dialog = dialog
         self.obj = obj

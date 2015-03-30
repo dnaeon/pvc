@@ -23,9 +23,6 @@ class TaskGauge(object):
            interval          (float): Check task state each 'interval' seconds
 
         """
-        if not isinstance(task, pyVmomi.vim.Task):
-            raise TypeError('Need a vim.Task instance')
-
         self.title = title
         self.text = text
         self.dialog = dialog

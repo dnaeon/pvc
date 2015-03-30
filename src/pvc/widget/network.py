@@ -24,9 +24,6 @@ class NetworkWidget(object):
             obj      (vim.Network): A vim.Network managed entity
 
         """
-        if not isinstance(obj, pyVmomi.vim.Network):
-            raise TypeError('Need a vim.Network instance')
-
         self.agent = agent
         self.dialog = dialog
         self.obj = obj

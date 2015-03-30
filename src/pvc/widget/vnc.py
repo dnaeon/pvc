@@ -30,9 +30,6 @@ class VncWidget(object):
             obj    (vim.VirtualMachine): A vim.VirtualMachine managed entity
 
         """
-        if not isinstance(obj, pyVmomi.vim.VirtualMachine):
-            raise TypeError('Need a vim.VirtualMachine instance')
-
         self.dialog = dialog
         self.obj = obj
         self.display()

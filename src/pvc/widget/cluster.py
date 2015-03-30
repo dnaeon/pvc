@@ -113,3 +113,38 @@ class ClusterWidget(object):
             title=self.obj.name,
             text=text
         )
+
+
+class ClusterActionWidget(object):
+    def __init__(self, agent, dialog, obj):
+        """
+        Cluster Actions Widget
+
+        Args:
+            agent                  (VConnector): A VConnector instance
+            dialog              (dialog.Dialog): A Dialog instance
+            obj    (vim.ClusterComputeResource): A ClusterComputeResource managed entity
+
+        """
+        self.agent = agent
+        self.dialog = dialog
+        self.obj = obj
+        self.display()
+
+    def display(self):
+        items = [
+            pvc.widget.menu.MenuItem(
+                tag='Rename',
+                description='Rename cluster',
+                on_select=pvc.widget.common.rename,
+                on_select_args=(self.obj, self.dialog, 'New cluster name?')
+            ),
+        ]
+
+        menu = pvc.widget.menu.Menu(
+            title=self.obj.name,
+            dialog=self.dialog,
+            items=items
+        )
+
+        menu.display()

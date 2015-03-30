@@ -24,6 +24,7 @@ from subprocess import Popen, PIPE
 
 __all__ = [
     'VirtualMachineWidget',
+    'VirtualMachineActionWidget',
     'VirtualMachineConsoleWidget',
     'VirtualMachinePowerWidget',
     'VirtualMachineExportWidget'
@@ -64,7 +65,8 @@ class VirtualMachineWidget(object):
             pvc.widget.menu.MenuItem(
                 tag='Actions',
                 description='Available Actions',
-                on_select=self.action_menu
+                on_select=VirtualMachineActionWidget,
+                on_select_args=(self.agent, self.dialog, self.obj)
             ),
             pvc.widget.menu.MenuItem(
                 tag='Power',
@@ -241,28 +243,6 @@ class VirtualMachineWidget(object):
         )
 
         return form.display()
-
-    def action_menu(self):
-        """
-        Virtual Machine Actions Menu
-
-        """
-        items = [
-            pvc.widget.menu.MenuItem(
-                tag='Rename',
-                description='Rename Virtual Machine',
-                on_select=pvc.widget.common.rename,
-                on_select_args=(self.obj, self.dialog, 'New virtual machine name?')
-            ),
-        ]
-
-        menu = pvc.widget.menu.Menu(
-            title=self.obj.name,
-            dialog=self.dialog,
-            items=items
-        )
-
-        menu.display()
 
 class VirtualMachinePowerWidget(object):
     """
@@ -839,6 +819,41 @@ class VirtualMachineTemplateWidget(object):
                 description='Directory of files (OVF)',
                 on_select=VirtualMachineExportWidget,
                 on_select_args=(self.agent, self.dialog, self.obj, False)
+            ),
+        ]
+
+        menu = pvc.widget.menu.Menu(
+            title=self.obj.name,
+            dialog=self.dialog,
+            items=items
+        )
+
+        menu.display()
+
+
+class VirtualMachineActionWidget(object):
+    def __init__(self, agent, dialog, obj):
+        """
+        Virtual Machine Action Widget
+
+        Args:
+            agent          (VConnector): A VConnector instance
+            dialog      (dialog.Dialog): A Dialog instance
+            obj    (vim.VirtualMachine): A VirtualMachine managed entity
+
+        """
+        self.agent = agent
+        self.dialog = dialog
+        self.obj = obj
+        self.display()
+
+    def display(self):
+        items = [
+            pvc.widget.menu.MenuItem(
+                tag='Rename',
+                description='Rename Virtual Machine',
+                on_select=pvc.widget.common.rename,
+                on_select_args=(self.obj, self.dialog, 'New virtual machine name?')
             ),
         ]
 

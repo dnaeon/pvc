@@ -7,8 +7,9 @@ import humanize
 
 import pvc.widget.alarm
 import pvc.widget.common
-import pvc.widget.menu
 import pvc.widget.form
+import pvc.widget.menu
+import pvc.widget.performance
 
 __all__ = ['ClusterWidget', 'ClusterActionWidget']
 
@@ -45,6 +46,12 @@ class ClusterWidget(object):
                 tag='Actions',
                 descriptions='Available Actions',
                 on_select=ClusterActionWidget,
+                on_select_args=(self.agent, self.dialog, self.obj)
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='Performance',
+                description='Performance Metrics',
+                on_select=pvc.widget.performance.PerformanceProviderWidget,
                 on_select_args=(self.agent, self.dialog, self.obj)
             ),
             pvc.widget.menu.MenuItem(

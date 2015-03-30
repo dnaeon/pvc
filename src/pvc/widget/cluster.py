@@ -11,7 +11,7 @@ import pvc.widget.form
 import pvc.widget.menu
 import pvc.widget.performance
 
-__all__ = ['ClusterWidget', 'ClusterActionWidget']
+__all__ = ['ClusterWidget', 'ClusterActionWidget', 'ClusterHostWidget']
 
 
 class ClusterWidget(object):
@@ -49,7 +49,13 @@ class ClusterWidget(object):
                 on_select_args=(self.agent, self.dialog, self.obj)
             ),
             pvc.widget.menu.MenuItem(
-                tag='Network',
+                tag='Hosts',
+                description='Manage hosts in cluster',
+                on_select=ClusterHostWidget,
+                on_select_args=(self.agent, self.dialog, self.obj)
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='Networks',
                 description='Networking',
                 on_select=pvc.widget.common.network_menu,
                 on_select_args=(self.agent, self.dialog, self.obj)
@@ -172,6 +178,47 @@ class ClusterActionWidget(object):
             title=self.obj.name,
             dialog=self.dialog,
             items=items
+        )
+
+        menu.display()
+
+
+class ClusterHostWidget(object):
+    def __init__(self, agent, dialog, obj):
+        """
+        Cluster Host Widget
+
+        Args:
+            agent                  (VConnector): A VConnector instance
+            dialog              (dialog.Dialog): A Dialog instance
+            obj    (vim.ClusterComputeResource): A ClusterComputeResource managed entity
+
+        """
+        self.agent = agent
+        self.dialog = dialog
+        self.obj = obj
+        self.display()
+
+    def display(self):
+        items = [
+            pvc.widget.menu.MenuItem(
+                tag='Connect',
+                description='Connect host to cluster'
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='Disconnect',
+                description='Disconnect host from cluster'
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='View',
+                description='View hosts in cluster'
+            ),
+        ]
+
+        menu = pvc.widget.menu.Menu(
+            title=self.obj.name,
+            items=items,
+            dialog=self.dialog
         )
 
         menu.display()

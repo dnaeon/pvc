@@ -814,6 +814,11 @@ class VirtualMachineTemplateWidget(object):
                 on_select=self.mark_as_template
             ),
             pvc.widget.menu.MenuItem(
+                tag='Mark VM',
+                description='Mark template as Virtual Machine',
+                on_select=self.mark_as_virtual_machine
+            ),
+            pvc.widget.menu.MenuItem(
                 tag='Export OVA',
                 description='Single file (OVA)',
                 on_select=VirtualMachineExportWidget,
@@ -852,7 +857,31 @@ class VirtualMachineTemplateWidget(object):
             text='Marking {} as template ...'.format(self.obj.name)
         )
 
-        self.obj.MarkAsTemplate()
+        try:
+            self.obj.MarkAsTemplate()
+        except Exception as e:
+            self.dialog.msgbox(
+                title=self.obj.name,
+                text=e.msg
+            )
+
+    def mark_as_virtual_machine(self):
+        """
+        Marks a template as a Virtual Machine
+
+        """
+        self.dialog.infobox(
+            title=self.obj.name,
+            text='Marking {} as virtual machine ...'.format(self.obj.name)
+        )
+
+        try:
+            self.obj.MarkAsVirtualMachine()
+        except Exception as e:
+            self.dialog.msgbox(
+                title=self.obj.name,
+                text=e.msg
+            )
 
 
 class VirtualMachineActionWidget(object):

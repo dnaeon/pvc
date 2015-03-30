@@ -5,6 +5,7 @@ Cluster Widgets
 
 import humanize
 
+import pvc.widget.alarm
 import pvc.widget.common
 import pvc.widget.menu
 import pvc.widget.form
@@ -44,6 +45,12 @@ class ClusterWidget(object):
                 tag='Actions',
                 descriptions='Available Actions',
                 on_select=ClusterActionWidget,
+                on_select_args=(self.agent, self.dialog, self.obj)
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='Alarms',
+                descriptions='View triggered alarms',
+                on_select=pvc.widget.alarm.AlarmWidget,
                 on_select_args=(self.agent, self.dialog, self.obj)
             ),
         ]

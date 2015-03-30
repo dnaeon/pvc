@@ -880,6 +880,15 @@ class VirtualMachineActionWidget(object):
         Unregister the VM from inventory
 
         """
+        code = self.dialog.yesno(
+            title='Confirm remove',
+            text='\nRemove {} from inventory?'.format(self.obj.name),
+            width=60
+        )
+
+        if code in (self.dialog.ESC, self.dialog.CANCEL):
+            return
+
         self.dialog.infobox(
             title=self.obj.name,
             text='Removing {} from inventory ...'.format(self.obj.name),
@@ -893,6 +902,15 @@ class VirtualMachineActionWidget(object):
         Delete the virtual machine from disk
 
         """
+        code = self.dialog.yesno(
+            title='Confirm delete',
+            text='\nDelete {} from disk?'.format(self.obj.name),
+            width=60
+        )
+
+        if code in (self.dialog.ESC, self.dialog.CANCEL):
+            return
+
         task = self.obj.Destroy()
         gauge = pvc.widget.gauge.TaskGauge(
             title=self.obj.name,

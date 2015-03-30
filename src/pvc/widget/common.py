@@ -220,7 +220,7 @@ def datastore_menu(agent, dialog, obj, text=''):
 
     items = [
         pvc.widget.menu.MenuItem(
-            tag=dsname,
+            tag=ds.name,
             description='Accessible' if ds.summary.accessible else 'Not Accessible',
             on_select=pvc.widget.datastore.DatastoreWidget,
             on_select_args=(agent, dialog, ds)

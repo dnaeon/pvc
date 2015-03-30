@@ -860,6 +860,11 @@ class VirtualMachineActionWidget(object):
                 description='Remove from inventory',
                 on_select=self.unregister
             ),
+            pvc.widget.menu.MenuItem(
+                tag='Delete',
+                description='Delete from disk',
+                on_select=self.delete
+            ),
         ]
 
         menu = pvc.widget.menu.Menu(
@@ -881,4 +886,19 @@ class VirtualMachineActionWidget(object):
             width=60
         )
 
-        self.obj.Unregister()
+        self.obj.UnregisterVM()
+
+    def delete(self):
+        """
+        Delete the virtual machine from disk
+
+        """
+        task = self.obj.Destroy()
+        gauge = pvc.widget.gauge.TaskGauge(
+            title=self.obj.name,
+            text='Deleting Virtual Machine',
+            dialog=self.dialog,
+            task=task
+        )
+
+        gauge.display()

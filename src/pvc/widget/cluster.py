@@ -211,7 +211,9 @@ class ClusterHostWidget(object):
             ),
             pvc.widget.menu.MenuItem(
                 tag='View',
-                description='View hosts in cluster'
+                description='View hosts in cluster',
+                on_select=pvc.widget.common.host_menu,
+                on_select_args=(self.agent, self.dialog, self.obj)
             ),
         ]
 

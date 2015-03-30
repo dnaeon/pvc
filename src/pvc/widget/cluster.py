@@ -5,10 +5,11 @@ Cluster Widgets
 
 import humanize
 
+import pvc.widget.common
 import pvc.widget.menu
 import pvc.widget.form
 
-__all__ = ['ClusterWidget']
+__all__ = ['ClusterWidget', 'ClusterActionWidget']
 
 
 class ClusterWidget(object):
@@ -38,6 +39,12 @@ class ClusterWidget(object):
                 tag='Resources',
                 description='Resource usage information',
                 on_select=self.resources
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='Actions',
+                descriptions='Available Actions',
+                on_select=ClusterActionWidget,
+                on_select_args=(self.agent, self.dialog, self.obj)
             ),
         ]
 

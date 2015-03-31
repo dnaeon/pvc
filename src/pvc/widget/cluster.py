@@ -12,6 +12,7 @@ import pvc.widget.form
 import pvc.widget.gauge
 import pvc.widget.menu
 import pvc.widget.performance
+import pvc.widget.radiolist
 
 __all__ = ['ClusterWidget', 'ClusterActionWidget', 'ClusterHostWidget']
 
@@ -210,7 +211,8 @@ class ClusterHostWidget(object):
             ),
             pvc.widget.menu.MenuItem(
                 tag='Disconnect',
-                description='Disconnect host from cluster'
+                description='Disconnect host from cluster',
+                on_select=self.disconnect_host
             ),
             pvc.widget.menu.MenuItem(
                 tag='View',
@@ -280,6 +282,53 @@ class ClusterHostWidget(object):
         gauge = pvc.widget.gauge.TaskGauge(
             title=self.obj.name,
             text='\nConnecting {} to cluster ...'.format(fields['Hostname']),
+            dialog=self.dialog,
+            task=task
+        )
+
+        gauge.display()
+
+    def disconnect_host(self):
+        """
+        Disconnect a host from the cluster
+
+        This action does not remove the host from inventory
+
+        """
+        items = [
+            pvc.widget.radiolist.RadioListItem(tag=h.name, description=h.runtime.connectionState)
+            for h in self.obj.host
+        ]
+
+        radiolist = pvc.widget.radiolist.RadioList(
+            title=self.obj.name,
+            text='Select a host to be disconnected from the cluster',
+            items=items,
+            dialog=self.dialog
+        )
+
+        code, host = radiolist.display()
+
+        if code in (self.dialog.CANCEL, self.dialog.ESC):
+            return
+
+        host_obj = [h for h in self.obj.host if h.name == host].pop()
+        if host_obj.runtime.connectionState == pyVmomi.vim.HostSystemConnectionState.disconnected:
+            return
+
+        code = self.dialog.yesno(
+            title='Confirm disconnect',
+            text='\nDisconnect {} from cluster?'.format(host),
+            width=60
+        )
+
+        if code in (self.dialog.ESC, self.dialog.CANCEL):
+            return
+
+        task = host_obj.Disconnect()
+        gauge = pvc.widget.gauge.TaskGauge(
+            title=self.obj.name,
+            text='\nDisconnecting {} from cluster ...'.format(host),
             dialog=self.dialog,
             task=task
         )

@@ -60,7 +60,7 @@ class MainApp(object):
             'to connect to.\n'
         )
 
-        form_elements = [
+        elements = [
             pvc.widget.form.FormElement(label='Hostname'),
             pvc.widget.form.FormElement(label='Username'),
             pvc.widget.form.FormElement(label='Password', attributes=0x1),
@@ -68,7 +68,7 @@ class MainApp(object):
 
         form = pvc.widget.form.Form(
             dialog=self.dialog,
-            form_elements=form_elements,
+            form_elements=elements,
             title='Login details',
             text=form_text,
             mixed_form=True
@@ -81,7 +81,8 @@ class MainApp(object):
 
             if not all(fields.values()):
                 self.dialog.msgbox(
-                    text='Invalid login details, please try again.',
+                    title='Error',
+                    text='\nInvalid login details, please try again.',
                     width=45
                 )
                 continue

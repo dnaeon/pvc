@@ -58,6 +58,12 @@ class ClusterWidget(object):
                 on_select_args=(self.agent, self.dialog, self.obj)
             ),
             pvc.widget.menu.MenuItem(
+                tag='Datastores',
+                description='Manage datastores',
+                on_select=pvc.widget.common.datastore_menu,
+                on_select_args=(self.agent, self.dialog, self.obj)
+            ),
+            pvc.widget.menu.MenuItem(
                 tag='Networks',
                 description='Networking',
                 on_select=pvc.widget.common.network_menu,

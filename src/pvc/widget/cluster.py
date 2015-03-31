@@ -8,11 +8,11 @@ import humanize
 
 import pvc.widget.alarm
 import pvc.widget.common
+import pvc.widget.checklist
 import pvc.widget.form
 import pvc.widget.gauge
 import pvc.widget.menu
 import pvc.widget.performance
-import pvc.widget.radiolist
 
 __all__ = ['ClusterWidget', 'ClusterActionWidget', 'ClusterHostWidget']
 
@@ -211,8 +211,13 @@ class ClusterHostWidget(object):
             ),
             pvc.widget.menu.MenuItem(
                 tag='Disconnect',
-                description='Disconnect host from cluster',
+                description='Disconnect host(s) from cluster',
                 on_select=self.disconnect_host
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='Reconnect',
+                description='Reconnect host(s) to cluster',
+                on_select=self.reconnect_host
             ),
             pvc.widget.menu.MenuItem(
                 tag='View',
@@ -290,47 +295,99 @@ class ClusterHostWidget(object):
 
     def disconnect_host(self):
         """
-        Disconnect a host from the cluster
-
-        This action does not remove the host from inventory
+        Disconnect host(s) from the cluster
 
         """
+        self.dialog.infobox(
+            title=self.obj.name,
+            text='Retrieving information ...'
+        )
+
         items = [
-            pvc.widget.radiolist.RadioListItem(tag=h.name, description=h.runtime.connectionState)
-            for h in self.obj.host
+            pvc.widget.checklist.CheckListItem(tag=h.name, description=h.runtime.connectionState)
+            for h in self.obj.host if h.runtime.connectionState == pyVmomi.vim.HostSystemConnectionState.connected
         ]
 
-        radiolist = pvc.widget.radiolist.RadioList(
+        checklist = pvc.widget.checklist.CheckList(
             title=self.obj.name,
-            text='Select a host to be disconnected from the cluster',
+            text='Select host(s) to be disconnected from the cluster',
             items=items,
             dialog=self.dialog
         )
 
-        code, host = radiolist.display()
+        checklist.display()
+        selected_hosts = checklist.selected()
 
-        if code in (self.dialog.CANCEL, self.dialog.ESC):
+        if not selected_hosts:
             return
 
-        host_obj = [h for h in self.obj.host if h.name == host].pop()
-        if host_obj.runtime.connectionState == pyVmomi.vim.HostSystemConnectionState.disconnected:
-            return
-
+        text = (
+            'The following host(s) will be disconnected from the cluster.\n\n'
+            '{}\n\n'
+            'Disconnect host(s) from cluster?\n'
+        )
         code = self.dialog.yesno(
             title='Confirm disconnect',
-            text='\nDisconnect {} from cluster?'.format(host),
+            text=text.format('\n'.join(selected_hosts)),
             width=60
         )
 
         if code in (self.dialog.ESC, self.dialog.CANCEL):
             return
 
-        task = host_obj.Disconnect()
-        gauge = pvc.widget.gauge.TaskGauge(
+        host_objects = [h for sh in selected_hosts for h in self.obj.host if sh == h.name]
+        for host_obj in host_objects:
+            task = host_obj.Disconnect()
+            gauge = pvc.widget.gauge.TaskGauge(
+                title=self.obj.name,
+                text='\nDisconnecting {} from cluster ...'.format(host_obj.name),
+                dialog=self.dialog,
+                task=task
+            )
+            gauge.display()
+
+    def reconnect_host(self):
+        """
+        Reconnect disconnected hosts to cluster
+
+        """
+        self.dialog.infobox(
             title=self.obj.name,
-            text='\nDisconnecting {} from cluster ...'.format(host),
-            dialog=self.dialog,
-            task=task
+            text='Retrieving information ...'
         )
 
-        gauge.display()
+        items = [
+            pvc.widget.checklist.CheckListItem(tag=h.name, description=h.runtime.connectionState)
+            for h in self.obj.host if h.runtime.connectionState == pyVmomi.vim.HostSystemConnectionState.disconnected
+        ]
+
+        if not items:
+            self.dialog.msgbox(
+                title=self.obj.name,
+                text='\nThere are no disconnected hosts in the cluster'
+            )
+            return
+
+        checklist = pvc.widget.checklist.CheckList(
+            title=self.obj.name,
+            text='\nSelect host(s) to be reconnected to the cluster',
+            items=items,
+            dialog=self.dialog
+        )
+
+        checklist.display()
+        selected_hosts = checklist.selected()
+
+        if not selected_hosts:
+            return
+
+        host_objects = [h for sh in selected_hosts for h in self.obj.host if sh == h.name]
+        for host_obj in host_objects:
+            task = host_obj.Reconnect()
+            gauge = pvc.widget.gauge.TaskGauge(
+                title=self.obj.name,
+                text='\nReconnecting {} to cluster ...'.format(host_obj.name),
+                dialog=self.dialog,
+                task=task
+            )
+            gauge.display()

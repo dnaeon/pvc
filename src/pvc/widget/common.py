@@ -44,7 +44,6 @@ def rename(obj, dialog, text=''):
 
     gauge.display()
 
-
 def host_menu(agent, dialog, obj, text=''):
     """
     A widget to display a menu of HostSystem entities
@@ -81,6 +80,56 @@ def host_menu(agent, dialog, obj, text=''):
             on_select=pvc.widget.hostsystem.HostSystemWidget,
             on_select_args=(agent, dialog, host)
         ) for host in obj.host
+    ]
+
+    menu = pvc.widget.menu.Menu(
+        title=obj.name,
+        text=text,
+        items=items,
+        dialog=dialog
+    )
+
+    menu.display()
+
+def hostmount_menu(agent, dialog, obj, text=''):
+    """
+    A widget to display a menu of DatastoreHostMount instances
+
+    To be used with datastores in order to provide a menu of
+    hosts mounting a particular datastore
+
+    Args:
+        agent     (VConnector): A VConnector instance
+        dialog (dialog.Dailog): A Dialog instance
+        obj    (vim.Datastore): A Managed Entity
+        text             (str): Text to display
+
+    """
+    dialog.infobox(
+        text='Retrieving information ...'
+    )
+
+    if not hasattr(obj, 'host'):
+        dialog.msgbox(
+            title=obj.name,
+            text='Entity does not contain any hosts'
+        )
+        return
+
+    if not obj.host:
+        dialog.msgbox(
+            title=obj.name,
+            text='No hosts have mounted the datastore'
+        )
+        return
+
+    items = [
+        pvc.widget.menu.MenuItem(
+            tag=hostmount.key.name,
+            description=hostmount.key.runtime.connectionState,
+            on_select=pvc.widget.hostsystem.HostSystemWidget,
+            on_select_args=(agent, dialog, hostmount.key)
+        ) for hostmount in obj.host
     ]
 
     menu = pvc.widget.menu.Menu(

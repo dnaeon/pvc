@@ -48,7 +48,8 @@ class TaskGauge(object):
             elif self.task.info.state == pyVmomi.vim.TaskInfoState.error:
                 self.dialog.msgbox(
                     title=self.title,
-                    text=self.task.info.error.msg
+                    text=self.task.info.error.msg,
+                    width=60
                 )
                 break
             sleep(self.interval)

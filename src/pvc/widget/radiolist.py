@@ -40,7 +40,7 @@ class RadioList(object):
             width            (int): Width of the box
 
         Returns:
-            The selected item tag
+            A tuple containing the code and selected tag
 
         """
         self.text = text
@@ -61,4 +61,4 @@ class RadioList(object):
             width=self.width
         )
 
-        return tag
+        return (code, tag)

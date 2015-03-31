@@ -254,6 +254,10 @@ class ClusterHostWidget(object):
         )
 
         code, fields = form.display()
+
+        if code in (self.dialog.CANCEL, self.dialog.ESC):
+            return
+
         if not all(fields.values()):
             self.dialog.msgbox(
                 title='Error',
@@ -275,7 +279,7 @@ class ClusterHostWidget(object):
 
         gauge = pvc.widget.gauge.TaskGauge(
             title=self.obj.name,
-            text='Connecting {} to cluster ...'.format(fields['Hostname']),
+            text='\nConnecting {} to cluster ...'.format(fields['Hostname']),
             dialog=self.dialog,
             task=task
         )

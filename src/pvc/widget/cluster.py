@@ -3,11 +3,13 @@ Cluster Widgets
 
 """
 
+import pyVmomi
 import humanize
 
 import pvc.widget.alarm
 import pvc.widget.common
 import pvc.widget.form
+import pvc.widget.gauge
 import pvc.widget.menu
 import pvc.widget.performance
 
@@ -44,7 +46,7 @@ class ClusterWidget(object):
             ),
             pvc.widget.menu.MenuItem(
                 tag='Actions',
-                descriptions='Available Actions',
+                description='Available Actions',
                 on_select=ClusterActionWidget,
                 on_select_args=(self.agent, self.dialog, self.obj)
             ),
@@ -68,7 +70,7 @@ class ClusterWidget(object):
             ),
             pvc.widget.menu.MenuItem(
                 tag='Alarms',
-                descriptions='View triggered alarms',
+                description='View triggered alarms',
                 on_select=pvc.widget.alarm.AlarmWidget,
                 on_select_args=(self.agent, self.dialog, self.obj)
             ),
@@ -203,7 +205,8 @@ class ClusterHostWidget(object):
         items = [
             pvc.widget.menu.MenuItem(
                 tag='Connect',
-                description='Connect host to cluster'
+                description='Connect host to cluster',
+                on_select=self.connect_host
             ),
             pvc.widget.menu.MenuItem(
                 tag='Disconnect',
@@ -224,3 +227,57 @@ class ClusterHostWidget(object):
         )
 
         menu.display()
+
+    def connect_host(self):
+        """
+        Connect a host to the cluster and add it to the inventory
+
+        """
+        text = (
+            '\nEnter hostname or IP address of the '
+            'host to be connected to cluster {}\n'
+        )
+
+        elements = [
+            pvc.widget.form.FormElement(label='Hostname'),
+            pvc.widget.form.FormElement(label='SSL Thumbprint'),
+            pvc.widget.form.FormElement(label='Username'),
+            pvc.widget.form.FormElement(label='Password', attributes=0x1),
+        ]
+
+        form = pvc.widget.form.Form(
+            dialog=self.dialog,
+            form_elements=elements,
+            title='Connect host to cluster',
+            text=text.format(self.obj.name),
+            mixed_form=True
+        )
+
+        code, fields = form.display()
+        if not all(fields.values()):
+            self.dialog.msgbox(
+                title='Error',
+                text='Invalid input provided'
+            )
+            return
+
+        connect_spec = pyVmomi.vim.HostConnectSpec(
+            hostName=fields['Hostname'],
+            sslThumbprint=fields['SSL Thumbprint'],
+            userName=fields['Username'],
+            password=fields['Password']
+        )
+
+        task = self.obj.AddHost(
+            spec=connect_spec,
+            asConnected=True
+        )
+
+        gauge = pvc.widget.gauge.TaskGauge(
+            title=self.obj.name,
+            text='Connecting {} to cluster ...'.format(fields['Hostname']),
+            dialog=self.dialog,
+            task=task
+        )
+
+        gauge.display()

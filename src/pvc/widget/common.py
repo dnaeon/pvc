@@ -59,13 +59,6 @@ def host_menu(agent, dialog, obj, text=''):
         text='Retrieving information ...'
     )
 
-    if not hasattr(obj, 'host'):
-        dialog.msgbox(
-            title=obj.name,
-            text='Entity does not contain any hosts'
-        )
-        return
-
     if not obj.host:
         dialog.msgbox(
             title=obj.name,
@@ -109,13 +102,6 @@ def hostmount_menu(agent, dialog, obj, text=''):
         text='Retrieving information ...'
     )
 
-    if not hasattr(obj, 'host'):
-        dialog.msgbox(
-            title=obj.name,
-            text='Entity does not contain any hosts'
-        )
-        return
-
     if not obj.host:
         dialog.msgbox(
             title=obj.name,
@@ -155,13 +141,6 @@ def network_menu(agent, dialog, obj, text=''):
     dialog.infobox(
         text='Retrieving information ...'
     )
-
-    if not hasattr(obj, 'network'):
-        dialog.msgbox(
-            title=obj.name,
-            text='Entity does not contain any networks'
-        )
-        return
 
     if not obj.network:
         dialog.msgbox(
@@ -205,13 +184,6 @@ def virtual_machine_menu(agent, dialog, obj, text=''):
         text='Retrieving information ...'
     )
 
-    if not hasattr(obj, 'vm'):
-        dialog.msgbox(
-            title=obj.name,
-            text='Entity does not contain any Virtual Machines'
-        )
-        return
-
     if not obj.vm:
         dialog.msgbox(
             title=obj.name,
@@ -252,13 +224,6 @@ def datastore_menu(agent, dialog, obj, text=''):
     dialog.infobox(
         text='Retrieving information ...'
     )
-
-    if not hasattr(obj, 'datastore'):
-        dialog.msgbox(
-            title=obj.name,
-            text='Entity does not have any datastores'
-        )
-        return
 
     if not obj.datastore:
         dialog.msgbox(

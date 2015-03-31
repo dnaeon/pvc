@@ -1,5 +1,5 @@
 """
-Docstring should go here
+Alarm Widgets
 
 """
 
@@ -14,7 +14,7 @@ __all__ = ['AlarmWidget']
 class AlarmWidget(object):
     def __init__(self, agent, dialog, obj):
         """
-        Inventory menu
+        Alarm Widget
 
         Args:
             agent         (VConnector): A VConnector instance
@@ -28,17 +28,17 @@ class AlarmWidget(object):
         self.display()
 
     def display(self):
+        self.dialog.infobox(
+            title=self.obj.name,
+            text='Retrieving information ...'
+        )
+
         if not self.obj.triggeredAlarmState:
             self.dialog.msgbox(
                 title=self.obj.name,
                 text='No triggered alarms'
             )
             return
-
-        self.dialog.infobox(
-            title=self.obj.name,
-            text='Retrieving information ...'
-        )
 
         items = [
             pvc.widget.menu.MenuItem(

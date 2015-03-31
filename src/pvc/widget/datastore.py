@@ -54,7 +54,7 @@ class DatastoreWidget(object):
             pvc.widget.menu.MenuItem(
                 tag='Hosts',
                 description='Hosts using the datastore',
-                on_select=pvc.widget.common.host_menu,
+                on_select=pvc.widget.common.hostmount_menu,
                 on_select_args=(self.agent, self.dialog, self.obj)
             ),
             pvc.widget.menu.MenuItem(

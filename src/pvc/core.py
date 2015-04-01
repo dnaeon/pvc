@@ -23,7 +23,7 @@ class MainApp(object):
 
     """
     def __init__(self):
-        self.dialog = Dialog()
+        self.dialog = Dialog(autowidgetsize=True)
         self.dialog.set_background_title(
             'Python vSphere Client version {}'.format(__version__)
         )

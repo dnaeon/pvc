@@ -317,7 +317,7 @@ def alarm_menu(agent, dialog, obj):
 
     items = [
         pvc.widget.menu.MenuItem(
-            tag=alarm.entity.name,
+            tag=alarm.key,
             description=alarm.alarm.info.name,
             on_select=pvc.widget.alarm.AlarmWidget,
             on_select_args=(agent, dialog, alarm)

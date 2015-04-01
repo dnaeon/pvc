@@ -12,7 +12,7 @@ import pvc.widget.hostsystem
 import pvc.widget.network
 import pvc.widget.virtualmachine
 
-__all__ = ['InventoryWidget']
+__all__ = ['InventoryWidget', 'InventorySearchWidget']
 
 
 class InventoryWidget(object):
@@ -55,6 +55,12 @@ class InventoryWidget(object):
                 tag='Networking',
                 description='Manage Networking',
                 on_select=self.network_menu
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='Search',
+                description='Search Inventory',
+                on_select=InventorySearchWidget,
+                on_select_args=(self.agent, self.dialog)
             ),
         ]
 
@@ -228,6 +234,42 @@ class InventoryWidget(object):
             dialog=self.dialog,
             title='Networks',
             text='Select a network from the menu that you wish to manage'
+        )
+
+        menu.display()
+
+
+class InventorySearchWidget(object):
+    def __init__(self, agent, dialog):
+        """
+        Inventory search widget
+
+        Args:
+            agent (VConnector): A VConnector instance
+            dialog    (Dialog): A Dialog instance
+
+        """
+        self.agent = agent
+        self.dialog = dialog
+        self.display()
+
+    def display(self):
+        items = [
+            pvc.widget.menu.MenuItem(
+                tag='Hosts',
+                description='Search inventory for hosts'
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='Virtual Machines',
+                description='Search inventory for VMs'
+            ),
+        ]
+
+        menu = pvc.widget.menu.Menu(
+            items=items,
+            dialog=self.dialog,
+            title='Inventory Search',
+            text=''
         )
 
         menu.display()

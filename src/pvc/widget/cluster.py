@@ -84,9 +84,10 @@ class ClusterWidget(object):
         ]
 
         menu = pvc.widget.menu.Menu(
-            title=self.obj.name,
             items=items,
-            dialog=self.dialog
+            dialog=self.dialog,
+            title=self.obj.name,
+            text='Select item from menu'
         )
 
         menu.display()
@@ -135,7 +136,8 @@ class ClusterWidget(object):
         form = pvc.widget.form.Form(
             dialog=self.dialog,
             form_elements=elements,
-            title=self.obj.name
+            title=self.obj.name,
+            text='Cluster general information'
         )
 
         form.display()
@@ -184,9 +186,10 @@ class ClusterActionWidget(object):
         ]
 
         menu = pvc.widget.menu.Menu(
-            title=self.obj.name,
+            items=items,
             dialog=self.dialog,
-            items=items
+            title=self.obj.name,
+            text='Select an action to be performed'
         )
 
         menu.display()
@@ -234,9 +237,10 @@ class ClusterHostWidget(object):
         ]
 
         menu = pvc.widget.menu.Menu(
-            title=self.obj.name,
             items=items,
-            dialog=self.dialog
+            dialog=self.dialog,
+            title=self.obj.name,
+            text='Select a host action to be performed'
         )
 
         menu.display()
@@ -261,9 +265,9 @@ class ClusterHostWidget(object):
         form = pvc.widget.form.Form(
             dialog=self.dialog,
             form_elements=elements,
+            mixed_form=True,
             title='Connect host to cluster',
-            text=text.format(self.obj.name),
-            mixed_form=True
+            text=text.format(self.obj.name)
         )
 
         code, fields = form.display()
@@ -291,10 +295,10 @@ class ClusterHostWidget(object):
         )
 
         gauge = pvc.widget.gauge.TaskGauge(
-            title=self.obj.name,
-            text='\nConnecting {} to cluster ...'.format(fields['Hostname']),
             dialog=self.dialog,
-            task=task
+            task=task,
+            title=self.obj.name,
+            text='\nConnecting {} to cluster ...'.format(fields['Hostname'])
         )
 
         gauge.display()
@@ -315,10 +319,10 @@ class ClusterHostWidget(object):
         ]
 
         checklist = pvc.widget.checklist.CheckList(
-            title=self.obj.name,
-            text='Select host(s) to be disconnected from the cluster',
             items=items,
-            dialog=self.dialog
+            dialog=self.dialog,
+            title=self.obj.name,
+            text='Select host(s) to be disconnected from the cluster'
         )
 
         checklist.display()
@@ -375,10 +379,10 @@ class ClusterHostWidget(object):
             return
 
         checklist = pvc.widget.checklist.CheckList(
-            title=self.obj.name,
-            text='\nSelect host(s) to be reconnected to the cluster',
             items=items,
-            dialog=self.dialog
+            dialog=self.dialog,
+            title=self.obj.name,
+            text='\nSelect host(s) to be reconnected to the cluster'
         )
 
         checklist.display()

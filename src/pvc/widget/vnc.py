@@ -156,9 +156,10 @@ class VncWidget(object):
         ]
 
         menu = pvc.widget.menu.Menu(
-            title=self.obj.name,
             items=items,
-            dialog=self.dialog
+            dialog=self.dialog,
+            title=self.obj.name,
+            text='Select an action to be performed'
         )
 
         menu.display()

@@ -82,9 +82,10 @@ class DatastoreWidget(object):
         ]
 
         menu = pvc.widget.menu.Menu(
-            title=self.obj.name,
             items=items,
-            dialog=self.dialog
+            dialog=self.dialog,
+            title=self.obj.name,
+            text='Select item from menu'
         )
         menu.display()
 
@@ -129,7 +130,7 @@ class DatastoreWidget(object):
             dialog=self.dialog,
             form_elements=elements,
             title=self.obj.name,
-            text='\Datastore General Information\n'
+            text='\Datastore general information'
         )
 
         form.display()
@@ -163,7 +164,7 @@ class DatastoreWidget(object):
             dialog=self.dialog,
             form_elements=elements,
             title=self.obj.name,
-            text='\nDatastore Capacity Information\n'
+            text='\nDatastore capacity information'
         )
 
         return form.display()

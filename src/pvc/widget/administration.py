@@ -49,9 +49,10 @@ class AdministrationWidget(object):
         ]
 
         menu = pvc.widget.menu.Menu(
-            title='Administration',
             items=items,
             dialog=self.dialog,
-            width=70,
+            title='Administration',
+            text='\nSelect administration item'
         )
+
         menu.display()

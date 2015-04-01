@@ -59,12 +59,12 @@ class InventoryWidget(object):
         ]
 
         menu = pvc.widget.menu.Menu(
-            title='Inventory Menu',
-            text='Select an item from the inventory',
             items=items,
             dialog=self.dialog,
-            width=70,
+            title='Inventory Menu',
+            text='Select an item from the inventory'
         )
+
         menu.display()
 
     def cluster_menu(self):
@@ -91,10 +91,10 @@ class InventoryWidget(object):
         ]
 
         menu = pvc.widget.menu.Menu(
-            title='Clusters',
-            text='\nSelect a cluster from the menu\n',
             items=items,
-            dialog=self.dialog
+            dialog=self.dialog,
+            title='Clusters',
+            text='\nSelect a cluster from the menu\n'
         )
 
         menu.display()
@@ -123,11 +123,12 @@ class InventoryWidget(object):
         ]
 
         menu = pvc.widget.menu.Menu(
-            title='Hosts',
-            text='Select a host from the menu',
             items=items,
-            dialog=self.dialog
+            dialog=self.dialog,
+            title='Hosts',
+            text='Select a host from the menu'
         )
+
         menu.display()
 
     def datastore_menu(self):
@@ -154,11 +155,12 @@ class InventoryWidget(object):
         ]
 
         menu = pvc.widget.menu.Menu(
-            title='Datastores',
-            text='Select a Datastore from the menu',
             items=items,
-            dialog=self.dialog
+            dialog=self.dialog,
+            title='Datastores',
+            text='Select a Datastore from the menu'
         )
+
         menu.display()
 
     def virtual_machine_menu(self):
@@ -186,10 +188,10 @@ class InventoryWidget(object):
         ]
 
         menu = pvc.widget.menu.Menu(
-            title='Virtual Machines',
-            text='Select a Virtual Machine from the menu that you wish to manage',
             items=items,
-            dialog=self.dialog
+            dialog=self.dialog,
+            title='Virtual Machines',
+            text='Select a Virtual Machine from the menu'
         )
 
         menu.display()
@@ -222,9 +224,10 @@ class InventoryWidget(object):
         ]
 
         menu = pvc.widget.menu.Menu(
-            title='Networks',
-            text='Select a network from the menu that you wish to manage',
             items=items,
-            dialog=self.dialog
+            dialog=self.dialog,
+            title='Networks',
+            text='Select a network from the menu that you wish to manage'
         )
+
         menu.display()

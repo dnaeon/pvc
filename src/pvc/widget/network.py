@@ -59,10 +59,12 @@ class NetworkWidget(object):
         ]
 
         menu = pvc.widget.menu.Menu(
-            title=self.obj.name,
             items=items,
-            dialog=self.dialog
+            dialog=self.dialog,
+            title=self.obj.name,
+            text='Select item from menu'
         )
+
         menu.display()
 
     def summary(self):
@@ -93,7 +95,8 @@ class NetworkWidget(object):
         form = pvc.widget.form.Form(
             dialog=self.dialog,
             form_elements=elements,
-            title=self.obj.name
+            title=self.obj.name,
+            text='Network summary information'
         )
 
         form.display()

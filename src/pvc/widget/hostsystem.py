@@ -79,10 +79,12 @@ class HostSystemWidget(object):
         ]
 
         menu = pvc.widget.menu.Menu(
-            title=self.obj.name,
             items=items,
-            dialog=self.dialog
+            dialog=self.dialog,
+            title=self.obj.name,
+            text='Select item from menu'
         )
+
         menu.display()
 
     def info(self):
@@ -137,7 +139,8 @@ class HostSystemWidget(object):
         form = pvc.widget.form.Form(
             dialog=self.dialog,
             form_elements=elements,
-            title=self.obj.name
+            title=self.obj.name,
+            text='Host general information'
         )
 
         form.display()
@@ -175,6 +178,7 @@ class HostSystemWidget(object):
             dialog=self.dialog,
             form_elements=elements,
             title=self.obj.name,
+            text='Host resource usage information'
         )
 
         form.display()

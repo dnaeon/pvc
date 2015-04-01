@@ -1,5 +1,5 @@
 """
-Docstring should go here
+Core Widgets
 
 """
 
@@ -19,14 +19,10 @@ __all__ = ['MainApp']
 
 class MainApp(object):
     """
-    docstring
+    Main App class
 
     """
     def __init__(self):
-        """
-        docstring
-
-        """
         self.dialog = Dialog()
         self.dialog.set_background_title(
             'Python vSphere Client version {}'.format(__version__)
@@ -42,21 +38,23 @@ class MainApp(object):
             'https://github.com/dnaeon/pvc'
         )
 
-        text = welcome.format(__version__)
         self.dialog.msgbox(
-            text=text,
+            text=welcome.format(__version__),
             height=15,
             width=60
         )
 
     def login(self):
         """
-        docstring
+        Login to the VMware vSphere host
+
+        Returns:
+            True on successful connect, False otherwise
 
         """
         form_text = (
             'Enter IP address or DNS name '
-            'of the vSphere host you wish '
+            'of the VMware vSphere host you wish '
             'to connect to.\n'
         )
 
@@ -69,9 +67,9 @@ class MainApp(object):
         form = pvc.widget.form.Form(
             dialog=self.dialog,
             form_elements=elements,
+            mixed_form=True,
             title='Login details',
             text=form_text,
-            mixed_form=True
         )
 
         while True:
@@ -116,10 +114,6 @@ class MainApp(object):
                 )
 
     def run(self):
-        """
-        docstring
-
-        """
         self.about()
         if not self.login():
             return

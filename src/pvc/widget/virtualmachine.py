@@ -112,10 +112,12 @@ class VirtualMachineWidget(object):
         ]
 
         menu = pvc.widget.menu.Menu(
-            title=self.obj.name,
             items=items,
-            dialog=self.dialog
+            dialog=self.dialog,
+            title=self.obj.name,
+            text='Select an item from menu'
         )
+
         menu.display()
 
     def general_info(self):
@@ -187,7 +189,7 @@ class VirtualMachineWidget(object):
             dialog=self.dialog,
             form_elements=elements,
             title=self.obj.name,
-            text='\nVirtual Machine General Information\n'
+            text='\nVirtual Machine General Information'
         )
 
         form.display()
@@ -236,10 +238,11 @@ class VirtualMachineWidget(object):
             dialog=self.dialog,
             form_elements=elements,
             title=self.obj.name,
-            text='\nVirtual Machine Resources Usage Information\n'
+            text='\nVirtual Machine Resources Usage Information'
         )
 
         return form.display()
+
 
 class VirtualMachinePowerWidget(object):
     """
@@ -294,9 +297,10 @@ class VirtualMachinePowerWidget(object):
         ]
 
         menu = pvc.widget.menu.Menu(
-            title=self.obj.name,
             items=items,
-            dialog=self.dialog
+            dialog=self.dialog,
+            title=self.obj.name,
+            text='Select an action to be performed'
         )
 
         menu.display()
@@ -315,11 +319,12 @@ class VirtualMachinePowerWidget(object):
 
         task = self.obj.PowerOn()
         gauge = pvc.widget.gauge.TaskGauge(
-            title=self.obj.name,
-            text='Powering On Virtual Machine',
             dialog=self.dialog,
-            task=task
+            task=task,
+            title=self.obj.name,
+            text='Powering On Virtual Machine'
         )
+
         gauge.display()
 
     def power_off(self):
@@ -336,11 +341,12 @@ class VirtualMachinePowerWidget(object):
 
         task = self.obj.PowerOff()
         gauge = pvc.widget.gauge.TaskGauge(
-            title=self.obj.name,
-            text='Powering Off Virtual Machine',
             dialog=self.dialog,
-            task=task
+            task=task,
+            title=self.obj.name,
+            text='Powering Off Virtual Machine'
         )
+
         gauge.display()
 
     def suspend(self):
@@ -357,11 +363,12 @@ class VirtualMachinePowerWidget(object):
 
         task = self.obj.Suspend()
         gauge = pvc.widget.gauge.TaskGauge(
-            title=self.obj.name,
-            text='Suspending Virtual Machine',
             dialog=self.dialog,
-            task=task
+            task=task,
+            title=self.obj.name,
+            text='Suspending Virtual Machine'
         )
+
         gauge.display()
 
     def reset(self):
@@ -378,11 +385,12 @@ class VirtualMachinePowerWidget(object):
 
         task = self.obj.Reset()
         gauge = pvc.widget.gauge.TaskGauge(
-            title=self.obj.name,
-            text='Resetting Virtual Machine',
             dialog=self.dialog,
-            task=task
+            task=task,
+            title=self.obj.name,
+            text='Resetting Virtual Machine'
         )
+
         gauge.display()
 
     def shutdown(self):
@@ -743,9 +751,10 @@ class VirtualMachineConsoleWidget(object):
         ]
 
         menu = pvc.widget.menu.Menu(
-            title=self.obj.name,
             items=items,
-            dialog=self.dialog
+            dialog=self.dialog,
+            title=self.obj.name,
+            text='Select console to be launched'
         )
 
         menu.display()
@@ -830,9 +839,10 @@ class VirtualMachineTemplateWidget(object):
         ]
 
         menu = pvc.widget.menu.Menu(
-            title=self.obj.name,
             dialog=self.dialog,
-            items=items
+            items=items,
+            title=self.obj.name,
+            text='Select an action to be performed'
         )
 
         menu.display()
@@ -918,9 +928,10 @@ class VirtualMachineActionWidget(object):
         ]
 
         menu = pvc.widget.menu.Menu(
-            title=self.obj.name,
             dialog=self.dialog,
-            items=items
+            items=items,
+            title=self.obj.name,
+            text='Select an action to be performed'
         )
 
         menu.display()

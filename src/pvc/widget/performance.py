@@ -49,10 +49,10 @@ class PerformanceProviderWidget(object):
         ]
 
         menu = pvc.widget.menu.Menu(
+            items=items,
+            dialog=self.dialog,
             title=self.obj.name,
             text='Performance Metrics',
-            items=items,
-            dialog=self.dialog
         )
 
         menu.display()
@@ -84,10 +84,10 @@ class PerformanceProviderWidget(object):
         ]
 
         form = pvc.widget.form.Form(
-            title=self.obj.name,
-            text='Performance provider summary information',
+            dialog=self.dialog,
             form_elements=elements,
-            dialog=self.dialog
+            title=self.obj.name,
+            text='Performance provider summary information'
         )
 
         form.display()
@@ -124,10 +124,10 @@ class PerformanceProviderWidget(object):
         ]
 
         menu = pvc.widget.menu.Menu(
-            title=self.obj.name,
-            text='Select a performance counter group',
             items=items,
-            dialog=self.dialog
+            dialog=self.dialog,
+            title=self.obj.name,
+            text='Select a performance counter group'
         )
 
         menu.display()
@@ -159,10 +159,10 @@ class PerformanceProviderWidget(object):
         ]
 
         menu = pvc.widget.menu.Menu(
-            title=self.obj.name,
-            text="Performance counters in group '{}'".format(label),
             items=items,
-            dialog=self.dialog
+            dialog=self.dialog,
+            title=self.obj.name,
+            text="Performance counters in group '{}'".format(label)
         )
 
         menu.display()
@@ -287,10 +287,10 @@ class PerformanceCounterWidget(object):
         )
 
         menu = pvc.widget.menu.Menu(
-            title=self.obj.name,
-            text=title,
             items=items,
             dialog=self.dialog,
+            title=self.obj.name,
+            text=title,
             width=70
         )
 
@@ -340,10 +340,10 @@ class PerformanceCounterWidget(object):
         ]
 
         form = pvc.widget.form.Form(
-            title=self.obj.name,
-            text='Performance counter information',
             dialog=self.dialog,
-            form_elements=elements
+            form_elements=elements,
+            title=self.obj.name,
+            text='Performance counter information'
         )
 
         form.display()
@@ -389,10 +389,10 @@ class PerformanceCounterWidget(object):
         )
 
         checklist = pvc.widget.checklist.CheckList(
+            items=items,
+            dialog=self.dialog,
             title=self.obj.name,
             text=checklist_text,
-            items=items,
-            dialog=self.dialog
         )
         checklist.display()
         selected = checklist.selected()

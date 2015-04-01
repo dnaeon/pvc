@@ -36,10 +36,10 @@ def rename(obj, dialog, text=''):
 
     task = obj.Rename(newName=new_name)
     gauge = pvc.widget.gauge.TaskGauge(
-        title=obj.name,
-        text='Renaming {} to {} ...'.format(obj.name, new_name),
         dialog=dialog,
-        task=task
+        task=task,
+        title=obj.name,
+        text='Renaming {} to {} ...'.format(obj.name, new_name)
     )
 
     gauge.display()
@@ -76,10 +76,10 @@ def host_menu(agent, dialog, obj, text=''):
     ]
 
     menu = pvc.widget.menu.Menu(
-        title=obj.name,
-        text=text,
         items=items,
-        dialog=dialog
+        dialog=dialog,
+        title=obj.name,
+        text=text
     )
 
     menu.display()
@@ -119,10 +119,10 @@ def hostmount_menu(agent, dialog, obj, text=''):
     ]
 
     menu = pvc.widget.menu.Menu(
+        items=items,
+        dialog=dialog,
         title=obj.name,
         text=text,
-        items=items,
-        dialog=dialog
     )
 
     menu.display()
@@ -159,10 +159,10 @@ def network_menu(agent, dialog, obj, text=''):
     ]
 
     menu = pvc.widget.menu.Menu(
-        title=obj.name,
-        text=text,
         items=items,
-        dialog=dialog
+        dialog=dialog,
+        title=obj.name,
+        text=text
     )
 
     menu.display()
@@ -201,10 +201,10 @@ def virtual_machine_menu(agent, dialog, obj, text=''):
     ]
 
     menu = pvc.widget.menu.Menu(
-        title=obj.name,
-        text=text,
         items=items,
-        dialog=dialog
+        dialog=dialog,
+        title=obj.name,
+        text=text
     )
 
     menu.display()
@@ -242,10 +242,10 @@ def datastore_menu(agent, dialog, obj, text=''):
     ]
 
     menu = pvc.widget.menu.Menu(
-        title=obj.name,
-        text=text,
         items=items,
-        dialog=dialog
+        dialog=dialog,
+        title=obj.name,
+        text=text
     )
 
     menu.display()

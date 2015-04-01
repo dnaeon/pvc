@@ -49,12 +49,13 @@ class SessionWidget(object):
         ]
 
         menu = pvc.widget.menu.Menu(
-            title='Sessions',
-            text='Select a session for more detais',
             items=items,
             dialog=self.dialog,
+            title='Sessions',
+            text='Select a session for more detais',
             width=70
         )
+
         menu.display()
 
     def session_menu(self, session):
@@ -87,10 +88,12 @@ class SessionWidget(object):
             title = 'Session {}@{}'
 
         menu = pvc.widget.menu.Menu(
-            title=title.format(session.userName, session.ipAddress),
             items=items,
-            dialog=self.dialog
+            dialog=self.dialog,
+            title=title.format(session.userName, session.ipAddress), 
+            text='Select an action to be performed'
         )
+
         menu.display()
 
     def details(self, session):
@@ -147,10 +150,12 @@ class SessionWidget(object):
             title = 'Session {}@{}'
 
         form = pvc.widget.form.Form(
-            title=title.format(session.userName, session.ipAddress),
             dialog=self.dialog,
-            form_elements=elements
+            form_elements=elements,
+            title=title.format(session.userName, session.ipAddress),
+            text='Session details'
         )
+
         form.display()
 
     def terminate(self, session):

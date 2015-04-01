@@ -43,11 +43,12 @@ class HomeWidget(object):
         ]
 
         menu = pvc.widget.menu.Menu(
-            title='Home',
             items=items,
             dialog=self.dialog,
-            width=70
+            title='Home',
+            text='Select an item from menu',
         )
+
         menu.display()
 
     def warn_if_not_vcenter(self):

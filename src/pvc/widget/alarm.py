@@ -50,9 +50,10 @@ class AlarmWidget(object):
         ]
 
         menu = pvc.widget.menu.Menu(
-            title=self.obj.name,
             items=items,
-            dialog=self.dialog
+            dialog=self.dialog,
+            title=self.obj.name,
+            text='Select an alarm for more details'
         )
         menu.display()
 
@@ -84,9 +85,10 @@ class AlarmWidget(object):
         ]
 
         menu = pvc.widget.menu.Menu(
-            title=self.obj.name,
             items=items,
-            dialog=self.dialog
+            dialog=self.dialog,
+            title=self.obj.name,
+            text='Select an alarm action'
         )
         menu.display()
 
@@ -130,9 +132,10 @@ class AlarmWidget(object):
         ]
 
         form = pvc.widget.form.Form(
-            title=self.obj.name,
             dialog=self.dialog,
-            form_elements=elements
+            form_elements=elements,
+            title=self.obj.name,
+            text='Alarm details'
         )
 
         return form.display()

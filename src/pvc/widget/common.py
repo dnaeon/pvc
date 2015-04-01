@@ -19,19 +19,18 @@ __all__ = [
 ]
 
 
-def rename(obj, dialog, text=''):
+def rename(obj, dialog):
     """
     Rename a Managed Entity
 
     Args:
         obj    (vim.ManagedEntity): A Managed Entity
         dialog     (dialog.Dialog): A Dialog instance
-        text                 (str): Text to display
 
     """
     code, new_name = dialog.inputbox(
         title=obj.name,
-        text=text,
+        text='New name for {}?'.format(obj.name),
         init=obj.name
     )
 
@@ -48,7 +47,7 @@ def rename(obj, dialog, text=''):
 
     gauge.display()
 
-def host_menu(agent, dialog, obj, text=''):
+def host_menu(agent, dialog, obj):
     """
     A widget to display a menu of HostSystem entities
 
@@ -56,7 +55,6 @@ def host_menu(agent, dialog, obj, text=''):
         agent         (VConnector): A VConnector instance
         dialog     (dialog.Dailog): A Dialog instance
         obj    (vim.ManagedEntity): A Managed Entity
-        text                 (str): Text to display
 
     """
     dialog.infobox(
@@ -83,12 +81,12 @@ def host_menu(agent, dialog, obj, text=''):
         items=items,
         dialog=dialog,
         title=obj.name,
-        text=text
+        text=''
     )
 
     menu.display()
 
-def hostmount_menu(agent, dialog, obj, text=''):
+def hostmount_menu(agent, dialog, obj):
     """
     A widget to display a menu of DatastoreHostMount instances
 
@@ -99,7 +97,6 @@ def hostmount_menu(agent, dialog, obj, text=''):
         agent     (VConnector): A VConnector instance
         dialog (dialog.Dailog): A Dialog instance
         obj    (vim.Datastore): A Managed Entity
-        text             (str): Text to display
 
     """
     dialog.infobox(
@@ -126,12 +123,12 @@ def hostmount_menu(agent, dialog, obj, text=''):
         items=items,
         dialog=dialog,
         title=obj.name,
-        text=text,
+        text='',
     )
 
     menu.display()
 
-def network_menu(agent, dialog, obj, text=''):
+def network_menu(agent, dialog, obj):
     """
     A widget to display the networks by a Managed Entity
 
@@ -139,7 +136,6 @@ def network_menu(agent, dialog, obj, text=''):
         agent         (VConnector): A VConnector instance
         dialog     (dialog.Dailog): A Dialog instance
         obj    (vim.ManagedEntity): A Managed Entity
-        text                 (str): Text to display
 
     """
     dialog.infobox(
@@ -166,12 +162,12 @@ def network_menu(agent, dialog, obj, text=''):
         items=items,
         dialog=dialog,
         title=obj.name,
-        text=text
+        text=''
     )
 
     menu.display()
 
-def virtual_machine_menu(agent, dialog, obj, text=''):
+def virtual_machine_menu(agent, dialog, obj):
     """
     A widget to display the VMs contained within a Managed Entity, e.g.
     HostSystem, ClusterComputeResource, Datastore, etc.
@@ -180,7 +176,6 @@ def virtual_machine_menu(agent, dialog, obj, text=''):
         agent         (VConnector): A VConnector instance
         dialog     (dialog.Dailog): A Dialog instance
         obj    (vim.ManagedEntity): A Managed Entity
-        text                 (str): Text to display
 
     """
     dialog.infobox(
@@ -208,12 +203,12 @@ def virtual_machine_menu(agent, dialog, obj, text=''):
         items=items,
         dialog=dialog,
         title=obj.name,
-        text=text
+        text=''
     )
 
     menu.display()
 
-def datastore_menu(agent, dialog, obj, text=''):
+def datastore_menu(agent, dialog, obj):
     """
     A widget to get all Datastores used by a managed entity, e.g.
     HostSystem, VirtualMachine, Cluster, etc.
@@ -222,7 +217,6 @@ def datastore_menu(agent, dialog, obj, text=''):
         agent         (VConnector): A VConnector instance
         dialog     (dialog.Dailog): A Dialog instance
         obj    (vim.ManagedEntity): A Managed Entity
-        text                 (str): Text to display
 
     """
     dialog.infobox(
@@ -249,12 +243,12 @@ def datastore_menu(agent, dialog, obj, text=''):
         items=items,
         dialog=dialog,
         title=obj.name,
-        text=text
+        text=''
     )
 
     menu.display()
 
-def session_menu(agent, dialog, text=''):
+def session_menu(agent, dialog):
     """
     A widget to display a menu of current sessions
 
@@ -291,7 +285,6 @@ def session_menu(agent, dialog, text=''):
         dialog=dialog,
         title='Sessions',
         text='Select a session for more detais',
-        width=70
     )
 
     menu.display()

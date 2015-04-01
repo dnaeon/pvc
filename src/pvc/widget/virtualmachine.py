@@ -913,7 +913,7 @@ class VirtualMachineActionWidget(object):
                 tag='Rename',
                 description='Rename Virtual Machine',
                 on_select=pvc.widget.common.rename,
-                on_select_args=(self.obj, self.dialog, 'New virtual machine name?')
+                on_select_args=(self.obj, self.dialog)
             ),
             pvc.widget.menu.MenuItem(
                 tag='Unregister',

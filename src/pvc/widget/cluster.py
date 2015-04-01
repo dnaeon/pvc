@@ -181,7 +181,7 @@ class ClusterActionWidget(object):
                 tag='Rename',
                 description='Rename cluster',
                 on_select=pvc.widget.common.rename,
-                on_select_args=(self.obj, self.dialog, 'New cluster name?')
+                on_select_args=(self.obj, self.dialog)
             ),
         ]
 

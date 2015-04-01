@@ -77,7 +77,7 @@ class DatastoreWidget(object):
                 tag='Rename',
                 description='Rename Datastore',
                 on_select=pvc.widget.common.rename,
-                on_select_args=(self.obj, self.dialog, 'New datastore name?')
+                on_select_args=(self.obj, self.dialog)
             ),
         ]
 

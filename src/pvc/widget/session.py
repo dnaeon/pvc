@@ -4,6 +4,7 @@ Session module
 """
 
 import pyVmomi
+
 import pvc.widget.menu
 import pvc.widget.form
 
@@ -11,78 +12,37 @@ __all__ = ['SessionWidget']
 
 
 class SessionWidget(object):
-    def __init__(self, agent, dialog):
+    def __init__(self, agent, dialog, obj):
         """
         Session Widget
 
         Args:
-            agent     (VConnector): A VConnector instance
-            dialog (dialog.Dialog): A Dialog instance
+            agent        (VConnector): A VConnector instance
+            dialog    (dialog.Dialog): A Dialog instance
+            session (vim.UserSession): A vim.UserSession instance
 
         """
         self.agent = agent
         self.dialog = dialog
+        self.obj = obj
         self.display()
 
     def display(self):
-        self.dialog.infobox(
-            text='Retrieving information ...'
-        )
-
-        try:
-            sm = self.agent.si.content.sessionManager
-            session_list = sm.sessionList
-        except pyVmomi.vim.NoPermission:
-            self.dialog.msgbox(
-                title='Access Denied',
-                text='No permissions to view sessions'
-            )
-            return
-
-        items = [
-            pvc.widget.menu.MenuItem(
-                tag=session.key,
-                description='{}@{}'.format(session.userName, session.ipAddress),
-                on_select=self.session_menu,
-                on_select_args=(session,)
-            ) for session in session_list
-        ]
-
-        menu = pvc.widget.menu.Menu(
-            items=items,
-            dialog=self.dialog,
-            title='Sessions',
-            text='Select a session for more detais',
-            width=70
-        )
-
-        menu.display()
-
-    def session_menu(self, session):
-        """
-        User session menu
-
-        Args:
-            session (vim.UserSession): A vim.UserSession instance
-
-        """
         items = [
             pvc.widget.menu.MenuItem(
                 tag='Details',
                 description='View Session Details',
-                on_select=self.details,
-                on_select_args=(session,)
+                on_select=self.details
             ),
             pvc.widget.menu.MenuItem(
                 tag='Terminate',
                 description='Terminate Session',
-                on_select=self.terminate,
-                on_select_args=(session,)
+                on_select=self.terminate
             ),
         ]
 
         current_session = self.agent.si.content.sessionManager.currentSession
-        if current_session.key == session.key:
+        if current_session.key == self.obj.key:
             title = 'Session {}@{} (This Session)'
         else:
             title = 'Session {}@{}'
@@ -90,20 +50,13 @@ class SessionWidget(object):
         menu = pvc.widget.menu.Menu(
             items=items,
             dialog=self.dialog,
-            title=title.format(session.userName, session.ipAddress), 
+            title=title.format(self.obj.userName, self.obj.ipAddress),
             text='Select an action to be performed'
         )
 
         menu.display()
 
-    def details(self, session):
-        """
-        View details about a user session
-
-        Args:
-            session (vim.UserSession): A vim.UserSession instance
-
-        """
+    def details(self):
         self.dialog.infobox(
             text='Retrieving information ...'
         )
@@ -111,40 +64,40 @@ class SessionWidget(object):
         elements = [
             pvc.widget.form.FormElement(
                 label='Username',
-                item=session.userName
+                item=self.obj.userName
             ),
             pvc.widget.form.FormElement(
                 label='Full Name',
-                item=session.fullName
+                item=self.obj.fullName
             ),
             pvc.widget.form.FormElement(
                 label='Login Time',
-                item=str(session.loginTime)
+                item=str(self.obj.loginTime)
             ),
             pvc.widget.form.FormElement(
                 label='Last Active',
-                item=str(session.lastActiveTime)
+                item=str(self.obj.lastActiveTime)
             ),
             pvc.widget.form.FormElement(
                 label='Idle',
-                item=str(self.agent.si.CurrentTime() - session.lastActiveTime)
+                item=str(self.agent.si.CurrentTime() - self.obj.lastActiveTime)
             ),
             pvc.widget.form.FormElement(
                 label='IP Address',
-                item=session.ipAddress
+                item=self.obj.ipAddress
             ),
             pvc.widget.form.FormElement(
                 label='User Agent',
-                item=session.userAgent
+                item=self.obj.userAgent
             ),
             pvc.widget.form.FormElement(
                 label='API Invocations',
-                item=str(session.callCount)
+                item=str(self.obj.callCount)
             ),
         ]
 
         current_session = self.agent.si.content.sessionManager.currentSession
-        if current_session.key == session.key:
+        if current_session.key == self.obj.key:
             title = 'Session {}@{} (This Session)'
         else:
             title = 'Session {}@{}'
@@ -152,23 +105,16 @@ class SessionWidget(object):
         form = pvc.widget.form.Form(
             dialog=self.dialog,
             form_elements=elements,
-            title=title.format(session.userName, session.ipAddress),
+            title=title.format(self.obj.userName, self.obj.ipAddress),
             text='Session details'
         )
 
         form.display()
 
-    def terminate(self, session):
-        """
-        Terminate a user session
-
-        Args:
-            session (vim.UserSession): A vim.UserSession instance
-
-        """
+    def terminate(self):
         current_session = self.agent.si.content.sessionManager.currentSession
 
-        if current_session.key == session.key:
+        if current_session.key == self.obj.key:
             self.dialog.msgbox(
                 text='Cannot terminate current session'
             )
@@ -180,5 +126,5 @@ class SessionWidget(object):
 
         sm = self.agent.si.content.sessionManager
         sm.TerminateSession(
-            sessionId=session.key
+            sessionId=self.obj.key
         )

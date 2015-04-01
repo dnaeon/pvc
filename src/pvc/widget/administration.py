@@ -3,8 +3,8 @@ Administration module
 
 """
 
+import pvc.widget.common
 import pvc.widget.menu
-import pvc.widget.session
 import pvc.widget.motd
 
 __all__ = ['AdministrationWidget']
@@ -43,7 +43,7 @@ class AdministrationWidget(object):
             pvc.widget.menu.MenuItem(
                 tag='Sessions',
                 description='View Sessions',
-                on_select=pvc.widget.session.SessionWidget,
+                on_select=pvc.widget.common.session_menu,
                 on_select_args=(self.agent, self.dialog)
             ),
         ]

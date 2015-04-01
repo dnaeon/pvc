@@ -8,6 +8,7 @@ import pvc.widget.gauge
 import pvc.widget.datastore
 import pvc.widget.network
 import pvc.widget.hostsystem
+import pvc.widget.session
 import pvc.widget.virtualmachine
 
 __all__ = [
@@ -246,6 +247,48 @@ def datastore_menu(agent, dialog, obj, text=''):
         dialog=dialog,
         title=obj.name,
         text=text
+    )
+
+    menu.display()
+
+def session_menu(agent, dialog, text=''):
+    """
+    A widget to display a menu of current sessions
+
+    Args:
+        agent         (VConnector): A VConnector instance
+        dialog     (dialog.Dailog): A Dialog instance
+
+    """
+    dialog.infobox(
+        text='Retrieving information ...'
+    )
+
+    try:
+        sm = agent.si.content.sessionManager
+        session_list = sm.sessionList
+    except pyVmomi.vim.NoPermission:
+        dialog.msgbox(
+            title='Access Denied',
+            text='No permissions to view sessions'
+        )
+        return
+
+    items = [
+        pvc.widget.menu.MenuItem(
+            tag=session.key,
+            description='{}@{}'.format(session.userName, session.ipAddress),
+            on_select=pvc.widget.session.SessionWidget,
+            on_select_args=(agent, dialog, session)
+        ) for session in session_list
+    ]
+
+    menu = pvc.widget.menu.Menu(
+        items=items,
+        dialog=dialog,
+        title='Sessions',
+        text='Select a session for more detais',
+        width=70
     )
 
     menu.display()

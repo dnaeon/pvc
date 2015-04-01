@@ -34,25 +34,19 @@ class MenuItem(object):
 
 
 class Menu(object):
-    def __init__(self, items, dialog, title='', text='', height=0, width=0):
+    def __init__(self, items, dialog, **kwargs):
         """
         Menu class
 
         Args:
-            items           (list): List of MenuItem instances
-            dialog (dialog.Dialog): Dialog instance
-            title            (str): Title for the menu box
-            text             (str): Text to display in the menu box
-            height           (int): Height of the menu box
-            width            (int): Width of the menu box
+            items           (list): A list of MenuItem instances
+            dialog (dialog.Dialog): A Dialog instance
+            kwargs          (dict): Additional args to be passed to dialog(1)
 
         """
-        self.text = text
-        self.title = title
         self.items = items
         self.dialog = dialog
-        self.height = height
-        self.width = width
+        self.kwargs = kwargs
         self.choices = [(item.tag, item.description) for item in self.items]
         self._registry = {item.tag: item for item in items}
 
@@ -60,12 +54,9 @@ class Menu(object):
         default_item = ''
         while True:
             code, tag = self.dialog.menu(
-                title=self.title,
-                text=self.text,
                 choices=self.choices,
-                height=self.height,
-                width=self.width,
-                default_item=default_item
+                default_item=default_item,
+                **self.kwargs
             )
 
             if code in (self.dialog.CANCEL, self.dialog.ESC):

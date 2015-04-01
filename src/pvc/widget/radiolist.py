@@ -27,38 +27,29 @@ class RadioListItem(object):
 
 
 class RadioList(object):
-    def __init__(self, items, dialog, title='', text='', height=0, width=0):
+    def __init__(self, items, dialog, **kwargs):
         """
         Radio list class
 
         Args:
             items           (list): A list of RadioListItem instances
             dialog (dialog.Dialog): Dialog instance
-            title            (str): Title for the box
-            text             (str): Text to display
-            height           (int): Height of the box
-            width            (int): Width of the box
+            kwargs          (dict): Additional args to be passed to dialog(1)
 
         Returns:
             A tuple containing the code and selected tag
 
         """
-        self.text = text
-        self.title = title
         self.items = items
         self.dialog = dialog
-        self.height = height
-        self.width = width
+        self.kwargs = kwargs
         self.choices = [(item.tag, item.description, item.status) for item in self.items]
         self._registry = {item.tag: item for item in self.items}
 
     def display(self):
         code, tag = self.dialog.radiolist(
-            title=self.title,
-            text=self.text,
             choices=self.choices,
-            height=self.height,
-            width=self.width
+            **self.kwargs
         )
 
         return (code, tag)

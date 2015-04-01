@@ -1,5 +1,5 @@
 """
-Docstring should go here
+Gauge Widgets
 
 """
 
@@ -11,23 +11,21 @@ __all__ = ['TaskGauge']
 
 
 class TaskGauge(object):
-    def __init__(self, title, text, dialog, task, interval=0.5):
+    def __init__(self, dialog, task, interval=0.5, **kwargs):
         """
-        A task gauge displaying progress of a task
+        A gauge for displaying progress of a task
 
         Args:
-           title               (str): Title for the gauge
-           text                (str): A text to display while the gauge is running
            dialog    (dialog.Dialog): A Dialog instance
            task   (pyVmomi.vim.Task): A Task instance
            interval          (float): Check task state each 'interval' seconds
+           kwargs             (dict): Additional args to be passed to dialog(1)
 
         """
-        self.title = title
-        self.text = text
         self.dialog = dialog
         self.task = task
         self.interval = interval
+        self.kwargs = kwargs
 
     def display(self):
         """
@@ -35,8 +33,7 @@ class TaskGauge(object):
 
         """
         self.dialog.gauge_start(
-            title=self.title,
-            text=self.text
+            **self.kwargs
         )
 
         while True:
@@ -47,7 +44,7 @@ class TaskGauge(object):
                 break
             elif self.task.info.state == pyVmomi.vim.TaskInfoState.error:
                 self.dialog.msgbox(
-                    title=self.title,
+                    title='Task Error',
                     text=self.task.info.error.msg,
                     width=60
                 )

@@ -26,28 +26,23 @@ class FormElement(object):
         self.attributes = attributes
 
 class Form(object):
-    def __init__(self, dialog, form_elements, title='', text='', height=0, width=0, form_height=0, mixed_form=False):
+    def __init__(self, dialog, form_elements, mixed_form=False, **kwargs):
         """
         A form widget
 
         Args:
-            dialog   (dialog.Dialog): A Dialog instance
-            elements          (list): A list of FormElement instances to display
-            title              (str): Title of the form
-            text_              (str): Text to display in the form
-            height             (int): Height of the box
-            width              (int): Width of the box
-            form_height        (int): Number of lines displayed at the same time
+            dialog        (dialog.Dialog): A Dialog instance
+            form_elements          (list): A list of FormElement instances to display
+            mixed_form             (bool): If True then create a mixed form, otherwise
+                                           create a standard form
+            kwargs                 (dict): Additional args to be passed to dialog(1)
 
         """
+        self.form = None
         self.dialog = dialog
         self.form_elements = form_elements
-        self.title = title
-        self.text = text
-        self.height = height
-        self.width = width
-        self.form_height = form_height
         self.mixed_form = mixed_form
+        self.kwargs = kwargs
         self._labels = [e.label for e in self.form_elements]
 
         # Starting column at which to display the items' values
@@ -66,12 +61,8 @@ class Form(object):
 
         """
         code, items = self.form(
-            title=self.title,
-            text=self.text,
             elements=self._elements,
-            height=self.height,
-            width=self.width,
-            form_height=self.form_height
+            **self.kwargs
         )
 
         result = (code, {l:i for l, i in zip(self._labels, items)})

@@ -100,7 +100,7 @@ class VirtualMachineWidget(object):
             pvc.widget.menu.MenuItem(
                 tag='Alarms',
                 description='View triggered alarms',
-                on_select=pvc.widget.alarm.AlarmWidget,
+                on_select=pvc.widget.common.alarm_menu,
                 on_select_args=(self.agent, self.dialog, self.obj)
             ),
             pvc.widget.menu.MenuItem(

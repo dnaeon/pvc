@@ -3,6 +3,7 @@ Common Widgets Module
 
 """
 
+import pvc.widget.alarm
 import pvc.widget.menu
 import pvc.widget.gauge
 import pvc.widget.datastore
@@ -12,7 +13,9 @@ import pvc.widget.session
 import pvc.widget.virtualmachine
 
 __all__ = [
-    'rename', 'network_menu', 'datastore_menu', 'virtual_machine_menu',
+    'rename', 'network_menu', 'datastore_menu',
+    'host_menu', 'hostmount_menu', 'virtual_machine_menu',
+    'session_menu', 'alarm_menu',
 ]
 
 
@@ -289,6 +292,43 @@ def session_menu(agent, dialog, text=''):
         title='Sessions',
         text='Select a session for more detais',
         width=70
+    )
+
+    menu.display()
+
+def alarm_menu(agent, dialog, obj):
+    """
+    Args:
+        agent         (VConnector): A VConnector instance
+        dialog     (dialog.Dailog): A Dialog instance
+        obj    (vim.ManagedEntity): A Managed Entity
+
+    """
+    dialog.infobox(
+        text='Retrieving information ...'
+    )
+
+    if not obj.triggeredAlarmState:
+        dialog.msgbox(
+            title=obj.name,
+            text='No triggered alarms'
+        )
+        return
+
+    items = [
+        pvc.widget.menu.MenuItem(
+            tag=alarm.entity.name,
+            description=alarm.alarm.info.name,
+            on_select=pvc.widget.alarm.AlarmWidget,
+            on_select_args=(agent, dialog, alarm)
+        ) for alarm in obj.triggeredAlarmState
+    ]
+
+    menu = pvc.widget.menu.Menu(
+        items=items,
+        dialog=dialog,
+        title=obj.name,
+        text='Select an alarm for more details'
     )
 
     menu.display()

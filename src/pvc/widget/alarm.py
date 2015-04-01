@@ -17,9 +17,9 @@ class AlarmWidget(object):
         Alarm Widget
 
         Args:
-            agent         (VConnector): A VConnector instance
-            dialog     (dialog.Dialog): A Dialog instance
-            obj    (vim.ManagedEntity): A vim.ManagedEntity object
+            agent      (VConnector): A VConnector instance
+            dialog  (dialog.Dialog): A Dialog instance
+            obj    (vim.AlarmState): A vim.AlarmState instance
 
         """
         self.agent = agent
@@ -28,55 +28,16 @@ class AlarmWidget(object):
         self.display()
 
     def display(self):
-        self.dialog.infobox(
-            title=self.obj.name,
-            text='Retrieving information ...'
-        )
-
-        if not self.obj.triggeredAlarmState:
-            self.dialog.msgbox(
-                title=self.obj.name,
-                text='No triggered alarms'
-            )
-            return
-
-        items = [
-            pvc.widget.menu.MenuItem(
-                tag=alarm.entity.name,
-                description=alarm.alarm.info.name,
-                on_select=self.alarm_menu,
-                on_select_args=(alarm,)
-            ) for alarm in self.obj.triggeredAlarmState
-        ]
-
-        menu = pvc.widget.menu.Menu(
-            items=items,
-            dialog=self.dialog,
-            title=self.obj.name,
-            text='Select an alarm for more details'
-        )
-        menu.display()
-
-    def alarm_menu(self, alarm):
-        """
-        Alarm menu
-
-        Args:
-            alarm (vim.AlarmState): A vim.AlarmState instance
-
-        """
         items = [
             pvc.widget.menu.MenuItem(
                 tag='Details',
                 description='View Alarm Details',
-                on_select=self.details,
-                on_select_args=(alarm,)
+                on_select=self.details
             ),
             pvc.widget.menu.MenuItem(
                 tag='Acknowledge',
                 description='Acknowledge Alarm',
-                on_select=self.acknowledge,
-                on_select_args=(alarm,)
+                on_select=self.acknowledge
             ),
             pvc.widget.menu.MenuItem(
                 tag='Reset',
@@ -87,54 +48,52 @@ class AlarmWidget(object):
         menu = pvc.widget.menu.Menu(
             items=items,
             dialog=self.dialog,
-            title=self.obj.name,
+            title=self.obj.entity.name,
             text='Select an alarm action'
         )
+
         menu.display()
 
-    def details(self, alarm):
-        """
-        View details about a triggered alarm
+    def details(self):
+        self.dialog.infobox(
+            text='Retrieving information ...'
+        )
 
-        Args:
-            alarm (vim.AlarmState): A vim.AlarmState instance
-
-        """
         elements = [
             pvc.widget.form.FormElement(
                 label='Entity',
-                item=alarm.entity.name
+                item=self.obj.entity.name
             ),
             pvc.widget.form.FormElement(
                 label='Status',
-                item=alarm.overallStatus
+                item=self.obj.overallStatus
             ),
             pvc.widget.form.FormElement(
                 label='Name',
-                item=alarm.alarm.info.name
+                item=self.obj.alarm.info.name
             ),
             pvc.widget.form.FormElement(
                 label='Triggered',
-                item=str(alarm.time)
+                item=str(self.obj.time)
             ),
             pvc.widget.form.FormElement(
                 label='Acknowledged',
-                item=str(alarm.acknowledged)
+                item=str(self.obj.acknowledged)
             ),
             pvc.widget.form.FormElement(
                 label='Acknowledged At',
-                item=str(alarm.acknowledgedTime) if alarm.acknowledgedTime else ''
+                item=str(self.obj.acknowledgedTime) if self.obj.acknowledgedTime else ''
             ),
             pvc.widget.form.FormElement(
                 label='Acknowledged By',
-                item=alarm.acknowledgedByUser if alarm.acknowledgedByUser else ''
+                item=self.obj.acknowledgedByUser if self.obj.acknowledgedByUser else ''
             )
         ]
 
         form = pvc.widget.form.Form(
             dialog=self.dialog,
             form_elements=elements,
-            title=self.obj.name,
+            title=self.obj.entity.name,
             text='Alarm details'
         )
 
@@ -149,7 +108,7 @@ class AlarmWidget(object):
 
         """
         self.dialog.infobox(
-            title=self.obj.name,
+            title=self.obj.entity.name,
             text='Acnowledging alarm ...'
         )
 

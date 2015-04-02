@@ -14,7 +14,7 @@ import pvc.widget.gauge
 import pvc.widget.performance
 import pvc.widget.virtualmachine
 
-__all__ = ['DatastoreWidget']
+__all__ = ['DatastoreWidget', 'DatastoreActionWidget']
 
 
 class DatastoreWidget(object):
@@ -46,15 +46,21 @@ class DatastoreWidget(object):
                 on_select=self.capacity
             ),
             pvc.widget.menu.MenuItem(
-                tag='Virtual Machines',
-                description='Virtual Machines using the datastore',
-                on_select=pvc.widget.common.virtual_machine_menu,
+                tag='Actions',
+                description='Available Actions',
+                on_select=DatastoreActionWidget,
                 on_select_args=(self.agent, self.dialog, self.obj)
             ),
             pvc.widget.menu.MenuItem(
                 tag='Hosts',
                 description='Hosts using the datastore',
                 on_select=pvc.widget.common.hostmount_menu,
+                on_select_args=(self.agent, self.dialog, self.obj)
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='Virtual Machines',
+                description='Virtual Machines using the datastore',
+                on_select=pvc.widget.common.virtual_machine_menu,
                 on_select_args=(self.agent, self.dialog, self.obj)
             ),
             pvc.widget.menu.MenuItem(
@@ -72,12 +78,6 @@ class DatastoreWidget(object):
                 description='View triggered alarms',
                 on_select=pvc.widget.common.alarm_menu,
                 on_select_args=(self.agent, self.dialog, self.obj)
-            ),
-            pvc.widget.menu.MenuItem(
-                tag='Rename',
-                description='Rename Datastore',
-                on_select=pvc.widget.common.rename,
-                on_select_args=(self.obj, self.dialog)
             ),
         ]
 
@@ -168,3 +168,39 @@ class DatastoreWidget(object):
         )
 
         return form.display()
+
+
+class DatastoreActionWidget(object):
+    def __init__(self, agent, dialog, obj):
+        """
+        Datastore Actions Widget
+
+        Args:
+            agent     (VConnector): A VConnector instance
+            dialog (dialog.Dialog): A Dialog instance
+            obj    (vim.Datastore): A Datastore managed entity
+
+        """
+        self.agent = agent
+        self.dialog = dialog
+        self.obj = obj
+        self.display()
+
+    def display(self):
+        items = [
+            pvc.widget.menu.MenuItem(
+                tag='Rename',
+                description='Rename Datastore',
+                on_select=pvc.widget.common.rename,
+                on_select_args=(self.obj, self.dialog)
+            ),
+        ]
+
+        menu = pvc.widget.menu.Menu(
+            items=items,
+            dialog=self.dialog,
+            title=self.obj.name,
+            text='Select an action to be performed'
+        )
+
+        menu.display()

@@ -15,6 +15,7 @@ import pvc.widget.virtualmachine
 
 __all__ = [
     'choose_datacenter', 'inventory_search_by_dns',
+    'inventory_search_by_ip', 'inventory_search_by_uuid',
     'InventoryWidget', 'InventorySearchWidget',
     'InventorySearchHostWidget',
 ]
@@ -393,6 +394,41 @@ class InventorySearchHostWidget(object):
 
         menu.display()
 
+    def find_by_uuid(self):
+        """
+        Find hosts by their UUID
+
+        """
+        result = inventory_search_by_uuid(
+            agent=self.agent,
+            dialog=self.dialog,
+            vm_search=False
+        )
+
+        if not result:
+            self.dialog.msgbox(
+                title='Inventory Search',
+                text='No results found'
+            )
+            return
+
+        items = [
+            pvc.widget.menu.MenuItem(
+                tag=host.name,
+                description=host.runtime.connectionState,
+                on_select=pvc.widget.hostsystem.HostSystemWidget,
+                on_select_args=(self.agent, self.dialog, host)
+            ) for host in result
+        ]
+
+        menu = pvc.widget.menu.Menu(
+            items=items,
+            dialog=self.dialog,
+            title='Inventory Search Results',
+            text='Found {} hosts matching the search criteria'.format(len(result))
+        )
+
+        menu.display()
 
 def choose_datacenter(agent, dialog, all_datacenters_option):
     """
@@ -548,6 +584,53 @@ def inventory_search_by_ip(agent, dialog, vm_search):
     else:
         result = agent.si.content.searchIndex.FindAllByIp(
             ip=ipaddr,
+            vmSearch=vm_search
+        )
+
+    return result
+
+def inventory_search_by_uuid(agent, dialog, vm_search):
+    """
+    Search inventory for managed objects by their UUID
+
+    Args:
+        agent (VConnector): A VConnector instance
+        dialog    (Dialog): A Dialog instance
+        vm_search   (bool): If True search for VMs only, otherwise
+                            search for hosts only
+
+    """
+    datacenter = choose_datacenter(
+        agent=agent,
+        dialog=dialog,
+        all_datacenters_option=True
+    )
+
+    code, uuid = dialog.inputbox(
+            title='Inventory Search',
+            text='Specify UUID to search for'
+        )
+
+    if not uuid:
+        dialog.msgbox(
+            title='Error',
+            text='Invalid input provided'
+        )
+        return
+
+    dialog.infobox(
+        text='Searching Inventory ...'
+    )
+
+    if datacenter:
+        result = agent.si.content.searchIndex.FindAllByUuid(
+            datacenter=datacenter,
+            uuid=uuid,
+            vmSearch=vm_search
+        )
+    else:
+        result = agent.si.content.searchIndex.FindAllByUuid(
+            uuid=uuid,
             vmSearch=vm_search
         )
 

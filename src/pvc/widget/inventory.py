@@ -306,6 +306,7 @@ class InventorySearchHostWidget(object):
             pvc.widget.menu.MenuItem(
                 tag='IP',
                 description='Search for hosts by IP address',
+                on_select=self.find_by_ip
             ),
             pvc.widget.menu.MenuItem(
                 tag='UUID',
@@ -328,6 +329,42 @@ class InventorySearchHostWidget(object):
 
         """
         result = inventory_search_by_dns(
+            agent=self.agent,
+            dialog=self.dialog,
+            vm_search=False
+        )
+
+        if not result:
+            self.dialog.msgbox(
+                title='Inventory Search',
+                text='No results found'
+            )
+            return
+
+        items = [
+            pvc.widget.menu.MenuItem(
+                tag=host.name,
+                description=host.runtime.connectionState,
+                on_select=pvc.widget.hostsystem.HostSystemWidget,
+                on_select_args=(self.agent, self.dialog, host)
+            ) for host in result
+        ]
+
+        menu = pvc.widget.menu.Menu(
+            items=items,
+            dialog=self.dialog,
+            title='Inventory Search Results',
+            text='Found {} hosts matching the search criteria'.format(len(result))
+        )
+
+        menu.display()
+
+    def find_by_ip(self):
+        """
+        Find hosts by their IP address
+
+        """
+        result = inventory_search_by_ip(
             agent=self.agent,
             dialog=self.dialog,
             vm_search=False
@@ -462,6 +499,53 @@ def inventory_search_by_dns(agent, dialog, vm_search):
     else:
         result = agent.si.content.searchIndex.FindAllByDnsName(
             dnsName=name,
+            vmSearch=vm_search
+        )
+
+    return result
+
+def inventory_search_by_ip(agent, dialog, vm_search):
+    """
+    Search inventory for managed objects by their IP address
+
+    Args:
+        agent (VConnector): A VConnector instance
+        dialog    (Dialog): A Dialog instance
+        vm_search   (bool): If True search for VMs only, otherwise
+                            search for hosts only
+
+    """
+    datacenter = choose_datacenter(
+        agent=agent,
+        dialog=dialog,
+        all_datacenters_option=True
+    )
+
+    code, ipaddr = dialog.inputbox(
+            title='Inventory Search',
+            text='Specify IP address to search for'
+        )
+
+    if not ipaddr:
+        dialog.msgbox(
+            title='Error',
+            text='Invalid input provided'
+        )
+        return
+
+    dialog.infobox(
+        text='Searching Inventory ...'
+    )
+
+    if datacenter:
+        result = agent.si.content.searchIndex.FindAllByIp(
+            datacenter=datacenter,
+            ip=ipaddr,
+            vmSearch=vm_search
+        )
+    else:
+        result = agent.si.content.searchIndex.FindAllByIp(
+            ip=ipaddr,
             vmSearch=vm_search
         )
 

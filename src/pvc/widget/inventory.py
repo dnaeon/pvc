@@ -299,17 +299,18 @@ class InventorySearchHostWidget(object):
         items=[
             pvc.widget.menu.MenuItem(
                 tag='DNS',
-                description='Search for hosts by DNS name',
+                description='Find hosts by DNS name',
                 on_select=self.find_by_dns
             ),
             pvc.widget.menu.MenuItem(
                 tag='IP',
-                description='Search for hosts by IP address',
+                description='Find hosts by IP address',
                 on_select=self.find_by_ip
             ),
             pvc.widget.menu.MenuItem(
                 tag='UUID',
-                description='Search for hosts by UUID',
+                description='Find hosts by UUID',
+                on_select=self.find_by_uuid
             ),
         ]
 

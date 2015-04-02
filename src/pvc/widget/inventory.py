@@ -595,36 +595,38 @@ class InventorySearchVirtualMachineWidget(object):
 
         """
         datacenter = choose_datacenter(
-            agent=agent,
-            dialog=dialog,
-            all_datacenters_option=True
+            agent=self.agent,
+            dialog=self.dialog,
+            all_datacenters_option=False
         )
 
-        code, path = dialog.inputbox(
+        if not datacenter:
+            self.dialog.msgbox(
+                title='Error',
+                text='No datacenter specified for inventory search'
+            )
+            return
+
+        code, path = self.dialog.inputbox(
             title='Inventory Search',
             text='Specify datastore path to the .vmx file'
         )
 
         if not path:
-            dialog.msgbox(
+            self.dialog.msgbox(
                 title='Error',
                 text='Invalid input provided'
             )
             return
 
-        dialog.infobox(
+        self.dialog.infobox(
             text='Searching Inventory ...'
         )
 
-        if datacenter:
-            vm = agent.si.content.searchIndex.FindByDatastorePath(
-                datacenter=datacenter,
-                path=path
-            )
-        else:
-            vm = agent.si.content.searchIndex.FindByDatastorePath(
-                path=path
-            )
+        vm = self.agent.si.content.searchIndex.FindByDatastorePath(
+            datacenter=datacenter,
+            path=path
+        )
 
         if not vm:
             self.dialog.msgbox(

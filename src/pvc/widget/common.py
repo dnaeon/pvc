@@ -3,6 +3,8 @@ Common Widgets Module
 
 """
 
+import pyVmomi
+
 import pvc.widget.alarm
 import pvc.widget.menu
 import pvc.widget.gauge
@@ -223,7 +225,23 @@ def datastore_menu(agent, dialog, obj):
         text='Retrieving information ...'
     )
 
-    if not obj.datastore:
+    if not hasattr(obj, 'datastore'):
+        dialog.msgbox(
+            title=obj.name,
+            text='Entity does not contain a datastore property'
+        )
+        return
+
+    view = agent.get_list_view(obj.datastore)
+    properties = agent.collect_properties(
+        view_ref=view,
+        obj_type=pyVmomi.vim.Datastore,
+        path_set=['name', 'summary.accessible'],
+        include_mors=True
+    )
+    view.DestroyView()
+
+    if not properties:
         dialog.msgbox(
             title=obj.name,
             text='No datastores found for this managed entity'
@@ -232,11 +250,11 @@ def datastore_menu(agent, dialog, obj):
 
     items = [
         pvc.widget.menu.MenuItem(
-            tag=ds.name,
-            description='Accessible' if ds.summary.accessible else 'Not Accessible',
+            tag=ds['name'],
+            description='Accessible' if ds['summary.accessible'] else 'Not Accessible',
             on_select=pvc.widget.datastore.DatastoreWidget,
-            on_select_args=(agent, dialog, ds)
-        ) for ds in obj.datastore
+            on_select_args=(agent, dialog, ds['obj'])
+        ) for ds in properties
     ]
 
     menu = pvc.widget.menu.Menu(

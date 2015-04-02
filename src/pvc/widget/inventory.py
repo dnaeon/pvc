@@ -417,6 +417,10 @@ def choose_datacenter(agent, dialog, all_datacenters_option):
         if selected the 'All Datacenters' option.
 
     """
+    dialog.infobox(
+        text='Retrieving information ...'
+    )
+
     view = agent.get_datacenter_view()
     properties = agent.collect_properties(
         view_ref=view,
@@ -455,7 +459,7 @@ def choose_datacenter(agent, dialog, all_datacenters_option):
     elif all_datacenters_option and tag == 'All Datacenters':
         return
 
-    return properties[tag]['obj']
+    return [d['obj'] for d in properties if d['name'] == tag].pop()
 
 def inventory_search_by_dns(agent, dialog, vm_search):
     """

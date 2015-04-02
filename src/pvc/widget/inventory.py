@@ -10,9 +10,14 @@ import pvc.widget.menu
 import pvc.widget.datastore
 import pvc.widget.hostsystem
 import pvc.widget.network
+import pvc.widget.radiolist
 import pvc.widget.virtualmachine
 
-__all__ = ['InventoryWidget', 'InventorySearchWidget']
+__all__ = [
+    'choose_datacenter', 'inventory_search_by_dns',
+    'InventoryWidget', 'InventorySearchWidget',
+    'InventorySearchHostWidget',
+]
 
 
 class InventoryWidget(object):
@@ -257,7 +262,9 @@ class InventorySearchWidget(object):
         items = [
             pvc.widget.menu.MenuItem(
                 tag='Hosts',
-                description='Search inventory for hosts'
+                description='Search inventory for hosts',
+                on_select=InventorySearchHostWidget,
+                on_select_args=(self.agent, self.dialog)
             ),
             pvc.widget.menu.MenuItem(
                 tag='Virtual Machines',
@@ -273,3 +280,189 @@ class InventorySearchWidget(object):
         )
 
         menu.display()
+
+
+class InventorySearchHostWidget(object):
+    def __init__(self, agent, dialog):
+        """
+        Widget to search inventory for hosts
+
+        Args:
+            agent (VConnector): A VConnector instance
+            dialog    (Dialog): A Dialog instance
+
+        """
+        self.agent = agent
+        self.dialog = dialog
+        self.display()
+
+    def display(self):
+        items=[
+            pvc.widget.menu.MenuItem(
+                tag='DNS',
+                description='Search for hosts by DNS name',
+                on_select=self.find_by_dns
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='IP',
+                description='Search for hosts by IP address',
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='UUID',
+                description='Search for hosts by UUID',
+            ),
+        ]
+
+        menu = pvc.widget.menu.Menu(
+            items=items,
+            dialog=self.dialog,
+            title='Inventory Search',
+            text='Select criteria for searching of hosts'
+        )
+
+        menu.display()
+
+    def find_by_dns(self):
+        """
+        Find hosts by their DNS name
+
+        """
+        result = inventory_search_by_dns(
+            agent=self.agent,
+            dialog=self.dialog,
+            vm_search=False
+        )
+
+        if not result:
+            self.dialog.msgbox(
+                title='Inventory Search',
+                text='No results found'
+            )
+            return
+
+        items = [
+            pvc.widget.menu.MenuItem(
+                tag=host.name,
+                description=host.runtime.connectionState,
+                on_select=pvc.widget.hostsystem.HostSystemWidget,
+                on_select_args=(self.agent, self.dialog, host)
+            ) for host in result
+        ]
+
+        menu = pvc.widget.menu.Menu(
+            items=items,
+            dialog=self.dialog,
+            title='Inventory Search Results',
+            text='Found {} hosts matching the search criteria'.format(len(result))
+        )
+
+        menu.display()
+
+
+def choose_datacenter(agent, dialog, all_datacenters_option):
+    """
+    Prompts the user to choose a datacenter
+
+    Convinience function that can be used to choose a datacenter,
+    which result can be used for example to restrict search of
+    inventory to a specific datacenter only, or be used for other
+    purposes, e.g. choosing a datacenter where to deploy a Virtual Machine.
+
+    Args:
+        agent            (VConnector): A VConnector instance
+        dialog        (dialog.Dialog): A Dialog instance
+        all_datacenters_option (bool): If True then an option to choose all
+                                       datacenter is provided as well
+
+    Returns:
+        A vim.Datacenter managed entity if a datacenter has been
+        selected. Returns None if there are no datacenters found or
+        if selected the 'All Datacenters' option.
+
+    """
+    view = agent.get_datacenter_view()
+    properties = agent.collect_properties(
+        view_ref=view,
+        obj_type=pyVmomi.vim.Datacenter,
+        path_set=['name'],
+        include_mors=True
+    )
+    view.DestroyView()
+
+    if not properties:
+        return
+
+    items = []
+    if all_datacenters_option:
+        items.append(
+            pvc.widget.radiolist.RadioListItem(tag='All Datacenters')
+        )
+
+    datacenters = [
+        pvc.widget.radiolist.RadioListItem(tag=datacenter['name'])
+        for datacenter in properties
+    ]
+    items.extend(datacenters)
+
+    radiolist = pvc.widget.radiolist.RadioList(
+        items=items,
+        dialog=dialog,
+        title='Choose Datacenter',
+        text='Choose a Datacenter from the list below'
+    )
+
+    code, tag = radiolist.display()
+
+    if not tag:
+        return
+    elif all_datacenters_option and tag == 'All Datacenters':
+        return
+
+    return properties[tag]['obj']
+
+def inventory_search_by_dns(agent, dialog, vm_search):
+    """
+    Search inventory for managed objects by their DNS name
+
+    Args:
+        agent (VConnector): A VConnector instance
+        dialog    (Dialog): A Dialog instance
+        vm_search   (bool): If True search for VMs only, otherwise
+                            search for hosts only
+
+    """
+    datacenter = choose_datacenter(
+        agent=agent,
+        dialog=dialog,
+        all_datacenters_option=True
+    )
+
+    code, name = dialog.inputbox(
+            title='Inventory Search',
+            text='Specify DNS name to search for'
+        )
+
+    if not name:
+        dialog.msgbox(
+            title='Error',
+            text='Invalid input provided'
+        )
+        return
+
+    dialog.infobox(
+        text='Searching Inventory ...'
+    )
+
+    if datacenter:
+        result = agent.si.content.searchIndex.FindAllByDnsName(
+            datacenter=datacenter,
+            dnsName=name,
+            vmSearch=vm_search
+        )
+    else:
+        result = agent.si.content.searchIndex.FindAllByDnsName(
+            dnsName=name,
+            vmSearch=vm_search
+        )
+
+    return result

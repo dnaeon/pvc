@@ -63,7 +63,23 @@ def host_menu(agent, dialog, obj):
         text='Retrieving information ...'
     )
 
-    if not obj.host:
+    if not hasattr(obj, 'host'):
+        dialog.msgbox(
+            title=obj.name,
+            text='Entity does not contain a host property'
+        )
+        return
+
+    view = agent.get_list_view(obj.host)
+    properties = agent.collect_properties(
+        view_ref=view,
+        obj_type=pyVmomi.vim.HostSystem,
+        path_set=['name', 'runtime.connectionState'],
+        include_mors=True
+    )
+    view.DestroyView()
+
+    if not properties:
         dialog.msgbox(
             title=obj.name,
             text='No hosts found for this managed entity'
@@ -72,11 +88,11 @@ def host_menu(agent, dialog, obj):
 
     items = [
         pvc.widget.menu.MenuItem(
-            tag=host.name,
-            description=host.runtime.connectionState,
+            tag=host['name'],
+            description=host['runtime.connectionState'],
             on_select=pvc.widget.hostsystem.HostSystemWidget,
-            on_select_args=(agent, dialog, host)
-        ) for host in obj.host
+            on_select_args=(agent, dialog, host['obj'])
+        ) for host in properties
     ]
 
     menu = pvc.widget.menu.Menu(

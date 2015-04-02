@@ -176,8 +176,7 @@ class InventoryWidget(object):
 
     def virtual_machine_menu(self):
         self.dialog.infobox(
-            text='Retrieving information ...',
-            width=40
+            text='Retrieving information ...'
         )
 
         view = self.agent.get_vm_view()
@@ -209,8 +208,7 @@ class InventoryWidget(object):
 
     def network_menu(self):
         self.dialog.infobox(
-            text='Retrieving information ...',
-            width=40
+            text='Retrieving information ...'
         )
 
         view = self.agent.get_container_view(

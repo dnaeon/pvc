@@ -477,8 +477,7 @@ class VirtualMachineExportWidget(object):
 
         code, path = self.dialog.dselect(
             title='Directory to save OVF template',
-            filepath='',
-            width=60
+            filepath=''
         )
 
         path = os.path.join(path, self.obj.name)
@@ -509,8 +508,7 @@ class VirtualMachineExportWidget(object):
 
         self.dialog.infobox(
             title=self.obj.name,
-            text='Initializing OVF export ...',
-            width=60
+            text='Initializing OVF export ...'
         )
 
         lease = self.obj.ExportVm()
@@ -611,8 +609,7 @@ class VirtualMachineExportWidget(object):
 
         self.dialog.msgbox(
             title=self.obj.name,
-            text='\nExport successful. Files saved in:\n\n{}\n'.format(path),
-            width=60
+            text='\nExport successful. Files saved in:\n\n{}\n'.format(path)
         )
 
     def create_manifest_file(self, path, manifest, disks):
@@ -664,15 +661,13 @@ class VirtualMachineExportWidget(object):
         if dr.warning:
             self.dialog.msgbox(
                 title='Warning - {}'.format(self.obj.name),
-                text=str(dr.warning),
-                width=60
+                text=str(dr.warning)
             )
 
         if dr.error:
             self.dialog.msgbox(
                 title='Error - {}'.format(self.obj.name),
-                text=str(dr.error),
-                width=60
+                text=str(dr.error)
             )
 
         with open(os.path.join(path, '{}.ovf'.format(self.obj.name)), 'w') as f:
@@ -689,8 +684,7 @@ class VirtualMachineExportWidget(object):
         """
         self.dialog.infobox(
             title=self.obj.name,
-            text='Creating OVA file ...',
-            width=60
+            text='Creating OVA file ...'
         )
 
         old_cwd = os.getcwd()
@@ -943,8 +937,7 @@ class VirtualMachineActionWidget(object):
         """
         code = self.dialog.yesno(
             title='Confirm remove',
-            text='\nRemove {} from inventory?'.format(self.obj.name),
-            width=60
+            text='\nRemove {} from inventory?'.format(self.obj.name)
         )
 
         if code in (self.dialog.ESC, self.dialog.CANCEL):
@@ -952,8 +945,7 @@ class VirtualMachineActionWidget(object):
 
         self.dialog.infobox(
             title=self.obj.name,
-            text='Removing {} from inventory ...'.format(self.obj.name),
-            width=60
+            text='Removing {} from inventory ...'.format(self.obj.name)
         )
 
         self.obj.UnregisterVM()
@@ -965,8 +957,7 @@ class VirtualMachineActionWidget(object):
         """
         code = self.dialog.yesno(
             title='Confirm delete',
-            text='\nDelete {} from disk?'.format(self.obj.name),
-            width=60
+            text='\nDelete {} from disk?'.format(self.obj.name)
         )
 
         if code in (self.dialog.ESC, self.dialog.CANCEL):

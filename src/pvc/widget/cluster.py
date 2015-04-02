@@ -338,8 +338,7 @@ class ClusterHostWidget(object):
         )
         code = self.dialog.yesno(
             title='Confirm disconnect',
-            text=text.format('\n'.join(selected_hosts)),
-            width=60
+            text=text.format('\n'.join(selected_hosts))
         )
 
         if code in (self.dialog.ESC, self.dialog.CANCEL):

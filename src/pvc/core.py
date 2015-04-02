@@ -39,9 +39,7 @@ class MainApp(object):
         )
 
         self.dialog.msgbox(
-            text=welcome.format(__version__),
-            height=15,
-            width=60
+            text=welcome.format(__version__)
         )
 
     def login(self):
@@ -80,14 +78,12 @@ class MainApp(object):
             if not all(fields.values()):
                 self.dialog.msgbox(
                     title='Error',
-                    text='\nInvalid login details, please try again.',
-                    width=45
+                    text='Invalid login details, please try again.\n'
                 )
                 continue
 
             self.dialog.infobox(
                 text='Connecting to {} ...'.format(fields['Hostname']),
-                width=40
             )
 
             self.agent = VConnector(
@@ -109,8 +105,7 @@ class MainApp(object):
             except Exception as e:
                 self.dialog.msgbox(
                     title='Login failed',
-                    text='Failed to login to {}\n\n{}\n'.format(self.agent.host, e.msg),
-                    width=40
+                    text='Failed to login to {}\n\n{}\n'.format(self.agent.host, e.msg)
                 )
 
     def run(self):

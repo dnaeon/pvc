@@ -70,8 +70,7 @@ class HomeWidget(object):
 
         self.dialog.msgbox(
             title='Warning',
-            text=text.format(about.fullName),
-            width=70
+            text=text.format(about.fullName)
         )
 
         view = self.agent.get_host_view()
@@ -88,8 +87,7 @@ class HomeWidget(object):
             )
             self.dialog.msgbox(
                 title='Warning',
-                text=text.format(management_ip),
-                width=70
+                text=text.format(management_ip)
             )
 
     def show_motd(self):

@@ -105,8 +105,7 @@ class PerformanceProviderWidget(object):
         if not metrics:
             self.dialog.msgbox(
                 title=self.obj.name,
-                text='Performance data is currently not available for this entity',
-                width=70
+                text='Performance data is currently not available for this entity'
             )
             return
 
@@ -290,8 +289,7 @@ class PerformanceCounterWidget(object):
             items=items,
             dialog=self.dialog,
             title=self.obj.name,
-            text=title,
-            width=70
+            text=title
         )
 
         menu.display()

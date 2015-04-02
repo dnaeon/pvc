@@ -76,6 +76,12 @@ class VirtualMachineWidget(object):
                 description='Virtual Machine settings'
             ),
             pvc.widget.menu.MenuItem(
+                tag='Datastore',
+                description='Datastores used by the VM',
+                on_select=pvc.widget.common.datastore_menu,
+                on_select_args=(self.agent, self.dialog, self.obj)
+            ),
+            pvc.widget.menu.MenuItem(
                 tag='Network',
                 description='Virtual Machine Networking',
                 on_select=pvc.widget.common.network_menu,

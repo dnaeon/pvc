@@ -234,7 +234,23 @@ def virtual_machine_menu(agent, dialog, obj):
         text='Retrieving information ...'
     )
 
-    if not obj.vm:
+    if not hasattr(obj, 'vm'):
+        dialog.msgbox(
+            title=obj.name,
+            text='Entity does not contain a vm property'
+        )
+        return
+
+    view = agent.get_list_view(obj.vm)
+    properties = agent.collect_properties(
+        view_ref=view,
+        obj_type=pyVmomi.vim.VirtualMachine,
+        path_set=['name', 'runtime.powerState'],
+        include_mors=True
+    )
+    view.DestroyView()
+
+    if not properties:
         dialog.msgbox(
             title=obj.name,
             text='No virtual machines found for this managed entity'
@@ -243,11 +259,11 @@ def virtual_machine_menu(agent, dialog, obj):
 
     items = [
         pvc.widget.menu.MenuItem(
-            tag=vm.name,
-            description=vm.runtime.powerState,
+            tag=vm['name'],
+            description=vm['runtime.powerState'],
             on_select=pvc.widget.virtualmachine.VirtualMachineWidget,
-            on_select_args=(agent, dialog, vm)
-        ) for vm in obj.vm
+            on_select_args=(agent, dialog, vm['obj'])
+        ) for vm in properties
     ]
 
     menu = pvc.widget.menu.Menu(

@@ -128,7 +128,6 @@ def hostmount_menu(agent, dialog, obj):
         )
         return
 
-
     hosts = [h.key for h in obj.host]
     view = agent.get_list_view(hosts)
     properties = agent.collect_properties(
@@ -178,7 +177,23 @@ def network_menu(agent, dialog, obj):
         text='Retrieving information ...'
     )
 
-    if not obj.network:
+    if not hasattr(obj, 'network'):
+        dialog.msgbox(
+            title=obj.name,
+            text='Entity does not contain a network property'
+        )
+        return
+
+    view = agent.get_list_view(obj.network)
+    properties = agent.collect_properties(
+        view_ref=view,
+        obj_type=pyVmomi.vim.Network,
+        path_set=['name', 'summary.accessible'],
+        include_mors=True
+    )
+    view.DestroyView()
+
+    if not properties:
         dialog.msgbox(
             title=obj.name,
             text='No networks found for this managed entity'
@@ -187,11 +202,11 @@ def network_menu(agent, dialog, obj):
 
     items = [
         pvc.widget.menu.MenuItem(
-            tag=network.name,
-            description='Accessible' if network.summary.accessible else 'Not Accessible',
+            tag=network['name'],
+            description='Accessible' if network['summary.accessible'] else 'Not Accessible',
             on_select=pvc.widget.network.NetworkWidget,
-            on_select_args=(agent, dialog, network)
-        ) for network in obj.network
+            on_select_args=(agent, dialog, network['obj'])
+        ) for network in properties
     ]
 
     menu = pvc.widget.menu.Menu(

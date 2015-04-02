@@ -17,7 +17,7 @@ __all__ = [
     'choose_datacenter', 'inventory_search_by_dns',
     'inventory_search_by_ip', 'inventory_search_by_uuid',
     'InventoryWidget', 'InventorySearchWidget',
-    'InventorySearchHostWidget',
+    'InventorySearchHostWidget', 'InventorySearchVirtualMachineWidget',
 ]
 
 
@@ -267,7 +267,9 @@ class InventorySearchWidget(object):
             ),
             pvc.widget.menu.MenuItem(
                 tag='Virtual Machines',
-                description='Search inventory for VMs'
+                description='Search inventory for VMs',
+                on_select=InventorySearchVirtualMachineWidget,
+                on_select_args=(self.agent, self.dialog)
             ),
         ]
 
@@ -427,6 +429,224 @@ class InventorySearchHostWidget(object):
             dialog=self.dialog,
             title='Inventory Search Results',
             text='Found {} hosts matching the search criteria'.format(len(result))
+        )
+
+        menu.display()
+
+
+class InventorySearchVirtualMachineWidget(object):
+    def __init__(self, agent, dialog):
+        """
+        Widget to search inventory for virtual machines
+
+        Args:
+            agent (VConnector): A VConnector instance
+            dialog    (Dialog): A Dialog instance
+
+        """
+        self.agent = agent
+        self.dialog = dialog
+        self.display()
+
+    def display(self):
+        items=[
+            pvc.widget.menu.MenuItem(
+                tag='DNS',
+                description='Find VMs by DNS name',
+                on_select=self.find_by_dns
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='IP',
+                description='Find VMs by IP address',
+                on_select=self.find_by_ip
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='UUID',
+                description='Find VMs by UUID',
+                on_select=self.find_by_uuid
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='Datastore Path',
+                description='Find VM by its location on a datastore',
+                on_select=self.find_by_datastore_path
+            ),
+        ]
+
+        menu = pvc.widget.menu.Menu(
+            items=items,
+            dialog=self.dialog,
+            title='Inventory Search',
+            text='Select criteria for searching of hosts'
+        )
+
+        menu.display()
+
+    def find_by_dns(self):
+        """
+        Find virtual machines by their DNS name
+
+        """
+        result = inventory_search_by_dns(
+            agent=self.agent,
+            dialog=self.dialog,
+            vm_search=True
+        )
+
+        if not result:
+            self.dialog.msgbox(
+                title='Inventory Search',
+                text='No results found'
+            )
+            return
+
+        items = [
+            pvc.widget.menu.MenuItem(
+                tag=vm.name,
+                description=vm.runtime.powerState,
+                on_select=pvc.widget.virtualmachine.VirtualMachineWidget,
+                on_select_args=(self.agent, self.dialog, vm)
+            ) for vm in result
+        ]
+
+        menu = pvc.widget.menu.Menu(
+            items=items,
+            dialog=self.dialog,
+            title='Inventory Search Results',
+            text='Found {} virtual machines matching the search criteria'.format(len(result))
+        )
+
+        menu.display()
+
+    def find_by_ip(self):
+        """
+        Find virtual machines by their IP address
+
+        """
+        result = inventory_search_by_ip(
+            agent=self.agent,
+            dialog=self.dialog,
+            vm_search=True
+        )
+
+        if not result:
+            self.dialog.msgbox(
+                title='Inventory Search',
+                text='No results found'
+            )
+            return
+
+        items = [
+            pvc.widget.menu.MenuItem(
+                tag=vm.name,
+                description=vm.runtime.powerState,
+                on_select=pvc.widget.virtualmachine.VirtualMachineWidget,
+                on_select_args=(self.agent, self.dialog, vm)
+            ) for vm in result
+        ]
+
+        menu = pvc.widget.menu.Menu(
+            items=items,
+            dialog=self.dialog,
+            title='Inventory Search Results',
+            text='Found {} virtual machines matching the search criteria'.format(len(result))
+        )
+
+        menu.display()
+
+    def find_by_uuid(self):
+        """
+        Find virtual machines by their UUID
+
+        """
+        result = inventory_search_by_uuid(
+            agent=self.agent,
+            dialog=self.dialog,
+            vm_search=True
+        )
+
+        if not result:
+            self.dialog.msgbox(
+                title='Inventory Search',
+                text='No results found'
+            )
+            return
+
+        items = [
+            pvc.widget.menu.MenuItem(
+                tag=vm.name,
+                description=host.runtime.powerState,
+                on_select=pvc.widget.virtualmachine.VirtualMachineWidget,
+                on_select_args=(self.agent, self.dialog, vm)
+            ) for vm in result
+        ]
+
+        menu = pvc.widget.menu.Menu(
+            items=items,
+            dialog=self.dialog,
+            title='Inventory Search Results',
+            text='Found {} virtual machines matching the search criteria'.format(len(result))
+        )
+
+        menu.display()
+
+    def find_by_datastore_path(self):
+        """
+        Find virtual machine it's localtion on a datastore
+
+        """
+        datacenter = choose_datacenter(
+            agent=agent,
+            dialog=dialog,
+            all_datacenters_option=True
+        )
+
+        code, path = dialog.inputbox(
+            title='Inventory Search',
+            text='Specify datastore path to the .vmx file'
+        )
+
+        if not path:
+            dialog.msgbox(
+                title='Error',
+                text='Invalid input provided'
+            )
+            return
+
+        dialog.infobox(
+            text='Searching Inventory ...'
+        )
+
+        if datacenter:
+            vm = agent.si.content.searchIndex.FindByDatastorePath(
+                datacenter=datacenter,
+                path=path
+            )
+        else:
+            vm = agent.si.content.searchIndex.FindByDatastorePath(
+                path=path
+            )
+
+        if not vm:
+            self.dialog.msgbox(
+                title='Inventory Search',
+                text='No results found'
+            )
+            return
+
+        items = [
+            pvc.widget.menu.MenuItem(
+                tag=vm.name,
+                description=vm.runtime.powerState,
+                on_select=pvc.widget.virtualmachine.VirtualMachineWidget,
+                on_select_args=(self.agent, self.dialog, vm)
+            )
+        ]
+
+        menu = pvc.widget.menu.Menu(
+            items=items,
+            dialog=self.dialog,
+            title='Inventory Search Results',
+            text=''
         )
 
         menu.display()
@@ -636,3 +856,4 @@ def inventory_search_by_uuid(agent, dialog, vm_search):
         )
 
     return result
+

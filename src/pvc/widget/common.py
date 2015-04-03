@@ -17,7 +17,9 @@ import pvc.widget.virtualmachine
 __all__ = [
     'rename', 'network_menu', 'datastore_menu',
     'host_menu', 'hostmount_menu', 'virtual_machine_menu',
-    'session_menu', 'alarm_menu',
+    'session_menu', 'alarm_menu', 'choose_folder',
+    'choose_datacenter', 'inventory_search_by_dns',
+    'inventory_search_by_ip', 'inventory_search_by_uuid',
 ]
 
 

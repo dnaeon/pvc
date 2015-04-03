@@ -5,6 +5,7 @@ Inventory Widgets
 
 import pyVmomi
 
+import pvc.widget.common
 import pvc.widget.cluster
 import pvc.widget.menu
 import pvc.widget.datastore
@@ -14,8 +15,6 @@ import pvc.widget.radiolist
 import pvc.widget.virtualmachine
 
 __all__ = [
-    'choose_datacenter', 'inventory_search_by_dns', 'choose_folder',
-    'inventory_search_by_ip', 'inventory_search_by_uuid',
     'InventoryWidget', 'InventorySearchWidget',
     'InventorySearchHostWidget', 'InventorySearchVirtualMachineWidget',
     'InventoryDatacenterWidget',
@@ -337,7 +336,7 @@ class InventorySearchHostWidget(object):
         Find hosts by their DNS name
 
         """
-        result = inventory_search_by_dns(
+        result = pvc.widget.common.inventory_search_by_dns(
             agent=self.agent,
             dialog=self.dialog,
             vm_search=False
@@ -373,7 +372,7 @@ class InventorySearchHostWidget(object):
         Find hosts by their IP address
 
         """
-        result = inventory_search_by_ip(
+        result = pvc.widget.common.inventory_search_by_ip(
             agent=self.agent,
             dialog=self.dialog,
             vm_search=False
@@ -409,7 +408,7 @@ class InventorySearchHostWidget(object):
         Find hosts by their UUID
 
         """
-        result = inventory_search_by_uuid(
+        result = pvc.widget.common.inventory_search_by_uuid(
             agent=self.agent,
             dialog=self.dialog,
             vm_search=False
@@ -493,7 +492,7 @@ class InventorySearchVirtualMachineWidget(object):
         Find virtual machines by their DNS name
 
         """
-        result = inventory_search_by_dns(
+        result = pvc.widget.common.inventory_search_by_dns(
             agent=self.agent,
             dialog=self.dialog,
             vm_search=True
@@ -529,7 +528,7 @@ class InventorySearchVirtualMachineWidget(object):
         Find virtual machines by their IP address
 
         """
-        result = inventory_search_by_ip(
+        result = pvc.widget.common.inventory_search_by_ip(
             agent=self.agent,
             dialog=self.dialog,
             vm_search=True
@@ -565,7 +564,7 @@ class InventorySearchVirtualMachineWidget(object):
         Find virtual machines by their UUID
 
         """
-        result = inventory_search_by_uuid(
+        result = pvc.widget.common.inventory_search_by_uuid(
             agent=self.agent,
             dialog=self.dialog,
             vm_search=True
@@ -601,7 +600,7 @@ class InventorySearchVirtualMachineWidget(object):
         Find virtual machine it's localtion on a datastore
 
         """
-        datacenter = choose_datacenter(
+        datacenter = pvc.widget.common.choose_datacenter(
             agent=self.agent,
             dialog=self.dialog,
             all_datacenters_option=False
@@ -706,7 +705,7 @@ class InventoryDatacenterWidget(object):
         Create a new Datacenter
 
         """
-        folder = choose_folder(
+        folder = pvc.widget.common.choose_folder(
             agent=self.agent,
             dialog=self.dialog
         )

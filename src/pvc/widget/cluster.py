@@ -9,6 +9,7 @@ import humanize
 import pvc.widget.alarm
 import pvc.widget.common
 import pvc.widget.checklist
+import pvc.widget.event
 import pvc.widget.form
 import pvc.widget.gauge
 import pvc.widget.menu
@@ -79,6 +80,12 @@ class ClusterWidget(object):
                 tag='Alarms',
                 description='View triggered alarms',
                 on_select=pvc.widget.common.alarm_menu,
+                on_select_args=(self.agent, self.dialog, self.obj)
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='Events',
+                description='View Events',
+                on_select=pvc.widget.event.EventWidget,
                 on_select_args=(self.agent, self.dialog, self.obj)
             ),
         ]

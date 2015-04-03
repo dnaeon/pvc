@@ -829,13 +829,13 @@ class VirtualMachineTemplateWidget(object):
             ),
             pvc.widget.menu.MenuItem(
                 tag='Export OVA',
-                description='Single file (OVA)',
+                description='Export as single file (OVA)',
                 on_select=VirtualMachineExportWidget,
                 on_select_args=(self.agent, self.dialog, self.obj, True)
             ),
             pvc.widget.menu.MenuItem(
                 tag='Export OVF',
-                description='Directory of files (OVF)',
+                description='Export as directory of files (OVF)',
                 on_select=VirtualMachineExportWidget,
                 on_select_args=(self.agent, self.dialog, self.obj, False)
             ),

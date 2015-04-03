@@ -14,10 +14,11 @@ import pvc.widget.radiolist
 import pvc.widget.virtualmachine
 
 __all__ = [
-    'choose_datacenter', 'inventory_search_by_dns',
+    'choose_datacenter', 'inventory_search_by_dns', 'choose_folder',
     'inventory_search_by_ip', 'inventory_search_by_uuid',
     'InventoryWidget', 'InventorySearchWidget',
     'InventorySearchHostWidget', 'InventorySearchVirtualMachineWidget',
+    'InventoryDatacenterWidget',
 ]
 
 
@@ -37,6 +38,12 @@ class InventoryWidget(object):
 
     def display(self):
         items = [
+            pvc.widget.menu.MenuItem(
+                tag='Datacenters',
+                description='Manage Datacenters',
+                on_select=InventoryDatacenterWidget,
+                on_select_args=(self.agent, self.dialog)
+            ),
             pvc.widget.menu.MenuItem(
                 tag='Clusters',
                 description='Manage Clusters',
@@ -652,6 +659,80 @@ class InventorySearchVirtualMachineWidget(object):
         )
 
         menu.display()
+
+
+class InventoryDatacenterWidget(object):
+    def __init__(self, agent, dialog):
+        """
+        Inventory Datacenter Widget
+
+        Args:
+            agent (VConnector): A VConnector instance
+            dialog    (Dialog): A Dialog instance
+
+        """
+        self.agent = agent
+        self.dialog = dialog
+        self.display()
+
+    def display(self):
+        items = [
+            pvc.widget.menu.MenuItem(
+                tag='Create',
+                description='Create new datacenter',
+                on_select=self.create_datacenter
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='Remove',
+                description='Remove a datacenter'
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='View',
+                description='View datacenters'
+            ),
+        ]
+
+        menu = pvc.widget.menu.Menu(
+            items=items,
+            dialog=self.dialog,
+            title='Inventory Datacenter Menu',
+            text='Select an item from the inventory'
+        )
+
+        menu.display()
+
+    def create_datacenter(self):
+        """
+        Create a new Datacenter
+
+        """
+        folder = choose_folder(
+            agent=self.agent,
+            dialog=self.dialog
+        )
+
+        code, name = self.dialog.inputbox(
+            title='Create Datacenter',
+            text='Provide name for the Datacenter'
+        )
+
+        if code in (self.dialog.CANCEL, self.dialog.ESC):
+            return
+
+        if not name:
+            self.dialog.msgbox(
+                title='Error',
+                text='Invalid input provided'
+            )
+            return
+
+        try:
+            folder.CreateDatacenter(name=name)
+        except Exception as e:
+            self.dialog.msgbox(
+                title='Error',
+                text=e.msg
+            )
 
 def choose_datacenter(agent, dialog, all_datacenters_option):
     """

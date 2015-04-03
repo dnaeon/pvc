@@ -734,6 +734,57 @@ class InventoryDatacenterWidget(object):
                 text=e.msg
             )
 
+def choose_folder(agent, dialog):
+    """
+    Prompts the user to choose a folder
+
+    Args:
+        agent            (VConnector): A VConnector instance
+        dialog        (dialog.Dialog): A Dialog instance
+
+    Returns:
+        A vim.Folder managed entity
+
+    """
+    dialog.infobox(
+        text='Retrieving information ...'
+    )
+
+    view = agent.get_container_view(obj_type=[pyVmomi.vim.Folder])
+    properties = agent.collect_properties(
+        view_ref=view,
+        obj_type=pyVmomi.vim.Folder,
+        path_set=['name'],
+        include_mors=True
+    )
+    view.DestroyView()
+
+    # Remove all occurrencies of 'vm', 'host', 'datastore' and
+    # 'network' from the collected folders as these ones are
+    # reserved and we cannot create a datacenter there
+    folders = [f for f in properties if f['name'] not in ('vm', 'host', 'datastore', 'network')]
+
+    if not folders:
+        return agent.si.content.rootFolder
+
+    items = [
+        pvc.widget.radiolist.RadioListItem(tag=folder['name'])
+        for folder in folders
+    ]
+    radiolist = pvc.widget.radiolist.RadioList(
+        items=items,
+        dialog=dialog,
+        title='Choose Folder',
+        text='Choose a folder or CANCEL to select the root folder',
+    )
+
+    code, tag = radiolist.display()
+
+    if not tag:
+        return agent.si.content.rootFolder
+
+    return [f['obj'] for f in properties if f['name'] == tag].pop()
+
 def choose_datacenter(agent, dialog, all_datacenters_option):
     """
     Prompts the user to choose a datacenter

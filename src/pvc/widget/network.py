@@ -5,6 +5,7 @@ Network Widget module
 
 import pyVmomi
 
+import pvc.widget.event
 import pvc.widget.menu
 import pvc.widget.form
 import pvc.widget.common
@@ -54,7 +55,9 @@ class NetworkWidget(object):
             ),
             pvc.widget.menu.MenuItem(
                 tag='Events',
-                description='View Events'
+                description='View Events',
+                on_select=pvc.widget.event.EventWidget,
+                on_select_args=(self.agent, self.dialog, self.obj)
             ),
         ]
 

@@ -13,6 +13,7 @@ import requests
 
 import pvc.widget.alarm
 import pvc.widget.common
+import pvc.widget.event
 import pvc.widget.menu
 import pvc.widget.form
 import pvc.widget.gauge
@@ -100,8 +101,10 @@ class VirtualMachineWidget(object):
                 on_select_args=(self.agent, self.dialog, self.obj)
             ),
             pvc.widget.menu.MenuItem(
-                tag='Tasks & Events',
-                description='View Tasks & Events'
+                tag='Events',
+                description='View Events',
+                on_select=pvc.widget.event.EventWidget,
+                on_select_args=(self.agent, self.dialog, self.obj)
             ),
             pvc.widget.menu.MenuItem(
                 tag='Alarms',

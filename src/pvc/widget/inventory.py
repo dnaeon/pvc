@@ -1,5 +1,5 @@
 """
-Docstring should go here
+Inventory Widgets
 
 """
 

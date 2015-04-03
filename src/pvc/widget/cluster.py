@@ -77,15 +77,15 @@ class ClusterWidget(object):
                 on_select_args=(self.agent, self.dialog, self.obj)
             ),
             pvc.widget.menu.MenuItem(
-                tag='Alarms',
-                description='View triggered alarms',
-                on_select=pvc.widget.common.alarm_menu,
-                on_select_args=(self.agent, self.dialog, self.obj)
-            ),
-            pvc.widget.menu.MenuItem(
                 tag='Events',
                 description='View Events',
                 on_select=pvc.widget.event.EventWidget,
+                on_select_args=(self.agent, self.dialog, self.obj)
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='Alarms',
+                description='View triggered alarms',
+                on_select=pvc.widget.common.alarm_menu,
                 on_select_args=(self.agent, self.dialog, self.obj)
             ),
         ]

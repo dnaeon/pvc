@@ -6,6 +6,7 @@ Datacenter Widgets
 import pyVmomi
 
 import pvc.widget.menu
+import pvc.widget.performance
 
 __all__ = ['DatacenterWidget']
 
@@ -32,6 +33,12 @@ class DatacenterWidget(object):
                 tag='Summary',
                 description='General information',
                 on_select=self.summary
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='Performance',
+                description='Performance Metrics',
+                on_select=pvc.widget.performance.PerformanceProviderWidget,
+                on_select_args=(self.agent, self.dialog, self.obj)
             ),
         ]
 

@@ -11,7 +11,10 @@ import pvc.widget.event
 import pvc.widget.menu
 import pvc.widget.performance
 
-__all__ = ['DatacenterWidget', 'DatacenterActionWidget']
+__all__ = [
+    'DatacenterWidget', 'DatacenterActionWidget',
+    'DatacenterClusterWidget',
+]
 
 
 class DatacenterWidget(object):
@@ -41,6 +44,12 @@ class DatacenterWidget(object):
                 tag='Actions',
                 description='Available Action',
                 on_select=DatacenterActionWidget,
+                on_select_args=(self.agent, self.dialog, self.obj)
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='Clusters',
+                descriptions='Manage clusters in datacenter',
+                on_select=DatacenterClusterWidget,
                 on_select_args=(self.agent, self.dialog, self.obj)
             ),
             pvc.widget.menu.MenuItem(
@@ -140,6 +149,48 @@ class DatacenterActionWidget(object):
             dialog=self.dialog,
             title=self.obj.name,
             text='Select an action to be performed'
+        )
+
+        menu.display()
+
+
+class DatacenterClusterWidget(object):
+    def __init__(self, agent, dialog, obj):
+        """
+        Datacenter Cluster Widget
+
+        Args:
+            agent      (VConnector): A VConnector instance
+            dialog  (dialog.Dialog): A Dialog instance
+            obj    (vim.Datacenter): A vim.Datacenter managed entity
+
+        """
+        self.agent = agent
+        self.dialog = dialog
+        self.obj = obj
+        self.display()
+
+    def display(self):
+        items = [
+            pvc.widget.menu.MenuItem(
+                tag='Create',
+                description='Create new cluster in datacenter'
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='Remove',
+                description='Remove cluster from datacenter'
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='View',
+                description='View clusters in datacenter'
+            ),
+        ]
+
+        menu = pvc.widget.menu.Menu(
+            items=items,
+            dialog=self.dialog,
+            title=self.obj.name,
+            text='Select a host action to be performed'
         )
 
         menu.display()

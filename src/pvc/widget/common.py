@@ -6,6 +6,7 @@ Common Widgets Module
 import pyVmomi
 
 import pvc.widget.alarm
+import pvc.widget.datacenter
 import pvc.widget.menu
 import pvc.widget.gauge
 import pvc.widget.datastore
@@ -20,6 +21,7 @@ __all__ = [
     'session_menu', 'alarm_menu', 'choose_folder',
     'choose_datacenter', 'inventory_search_by_dns',
     'inventory_search_by_ip', 'inventory_search_by_uuid',
+    'datacenter_menu',
 ]
 
 
@@ -91,7 +93,7 @@ def datacenter_menu(agent, dialog, folder=None):
         pvc.widget.menu.MenuItem(
             tag=dc['name'],
             description=dc['overallStatus'],
-            on_select=pvc.widget.hostsystem.DatacenterWidget,
+            on_select=pvc.widget.datacenter.DatacenterWidget,
             on_select_args=(agent, dialog, dc['obj'])
         ) for dc in properties
     ]
@@ -99,7 +101,7 @@ def datacenter_menu(agent, dialog, folder=None):
     menu = pvc.widget.menu.Menu(
         items=items,
         dialog=dialog,
-        title=obj.name,
+        title='Select Datacenter',
         text=''
     )
 

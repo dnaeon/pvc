@@ -49,7 +49,7 @@ class DatacenterWidget(object):
             ),
             pvc.widget.menu.MenuItem(
                 tag='Clusters',
-                descriptions='Manage clusters in datacenter',
+                description='Manage clusters in datacenter',
                 on_select=DatacenterClusterWidget,
                 on_select_args=(self.agent, self.dialog, self.obj)
             ),

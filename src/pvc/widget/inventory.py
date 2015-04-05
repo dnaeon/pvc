@@ -687,7 +687,9 @@ class InventoryDatacenterWidget(object):
             ),
             pvc.widget.menu.MenuItem(
                 tag='View',
-                description='View datacenters'
+                description='View datacenters',
+                on_select=pvc.widget.common.datacenter_menu,
+                on_select_args=(self.agent, self.dialog)
             ),
         ]
 

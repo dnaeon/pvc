@@ -99,7 +99,7 @@ class VncWidget(object):
             A dictionary of the extra config options
 
         """
-        return {o.key:o.value for o in self.obj.config.extraConfig}
+        return {o.key: o.value for o in self.obj.config.extraConfig}
 
     def _configure_vnc_options(self, enabled, port, password):
         """

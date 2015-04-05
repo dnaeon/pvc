@@ -5,10 +5,11 @@ Datacenter Widgets
 
 import pyVmomi
 
+import pvc.widget.common
 import pvc.widget.menu
 import pvc.widget.performance
 
-__all__ = ['DatacenterWidget']
+__all__ = ['DatacenterWidget', 'DatacenterActionWidget']
 
 
 class DatacenterWidget(object):
@@ -33,6 +34,12 @@ class DatacenterWidget(object):
                 tag='Summary',
                 description='General information',
                 on_select=self.summary
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='Actions',
+                description='Available Action',
+                on_select=DatacenterActionWidget,
+                on_select_args=(self.agent, self.dialog, self.obj)
             ),
             pvc.widget.menu.MenuItem(
                 tag='Performance',
@@ -76,3 +83,43 @@ class DatacenterWidget(object):
         )
 
         form.display()
+
+
+class DatacenterActionWidget(object):
+    def __init__(self, agent, dialog, obj):
+        """
+        Datacenter Actions Widget
+
+        Args:
+            agent      (VConnector): A VConnector instance
+            dialog  (dialog.Dialog): A Dialog instance
+            obj    (vim.Datacenter): A vim.Datacenter managed entity
+
+        """
+        self.agent = agent
+        self.dialog = dialog
+        self.obj = obj
+        self.display()
+
+    def display(self):
+        items = [
+            pvc.widget.menu.MenuItem(
+                tag='Rename',
+                description='Rename datacenter',
+                on_select=pvc.widget.common.rename,
+                on_select_args=(self.obj, self.dialog)
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='Remove',
+                description='Remove datacenter'
+            ),
+        ]
+
+        menu = pvc.widget.menu.Menu(
+            items=items,
+            dialog=self.dialog,
+            title=self.obj.name,
+            text='Select an action to be performed'
+        )
+
+        menu.display()

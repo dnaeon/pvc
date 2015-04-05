@@ -44,6 +44,12 @@ class DatacenterWidget(object):
                 on_select_args=(self.agent, self.dialog, self.obj)
             ),
             pvc.widget.menu.MenuItem(
+                tag='Datastore',
+                description='Datastores in datacenter',
+                on_select=pvc.widget.common.datastore_menu,
+                on_select_args=(self.agent, self.dialog, self.obj)
+            ),
+            pvc.widget.menu.MenuItem(
                 tag='Performance',
                 description='Performance Metrics',
                 on_select=pvc.widget.performance.PerformanceProviderWidget,

@@ -8,6 +8,7 @@ import pyVmomi
 import pvc.widget.alarm
 import pvc.widget.common
 import pvc.widget.event
+import pvc.widget.hostsystem
 import pvc.widget.menu
 import pvc.widget.performance
 
@@ -51,6 +52,11 @@ class DatacenterWidget(object):
                 descriptions='Manage clusters in datacenter',
                 on_select=DatacenterClusterWidget,
                 on_select_args=(self.agent, self.dialog, self.obj)
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='Hosts',
+                description='Manage hosts in datacenter',
+                on_select=self.datacenter_host_menu
             ),
             pvc.widget.menu.MenuItem(
                 tag='Datastore',
@@ -112,6 +118,53 @@ class DatacenterWidget(object):
         )
 
         form.display()
+
+    def datacenter_host_menu(self):
+        """
+        Menu of hosts in the datacenter
+
+        """
+        self.dialog.infobox(
+            title=self.obj.name,
+            text='Retrieving information ...'
+        )
+
+        view = self.agent.get_container_view(
+            obj_type=[pyVmomi.vim.HostSystem],
+            container=self.obj
+        )
+        properties = self.agent.collect_properties(
+            view_ref=view,
+            obj_type=pyVmomi.vim.HostSystem,
+            path_set=['name', 'runtime.connectionState'],
+            include_mors=True
+        )
+        view.DestroyView()
+
+        if not properties:
+            self.dialog.msgbox(
+                title=self.obj.name,
+                text='No hosts found in datacenter'
+            )
+            return
+
+        items = [
+            pvc.widget.menu.MenuItem(
+                tag=host['name'],
+                description=host['runtime.connectionState'],
+                on_select=pvc.widget.hostsystem.HostSystemWidget,
+                on_select_args=(self.agent, self.dialog, host['obj'])
+            ) for host in properties
+        ]
+
+        menu = pvc.widget.menu.Menu(
+            items=items,
+            dialog=self.dialog,
+            title=self.obj.name,
+            text='Select a host from the menu'
+        )
+
+        menu.display()
 
 
 class DatacenterActionWidget(object):

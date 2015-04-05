@@ -190,6 +190,10 @@ class ClusterActionWidget(object):
                 on_select=pvc.widget.common.rename,
                 on_select_args=(self.obj, self.dialog)
             ),
+            pvc.widget.menu.MenuItem(
+                tag='Remove',
+                description='Remove cluster'
+            ),
         ]
 
         menu = pvc.widget.menu.Menu(

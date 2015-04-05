@@ -51,6 +51,60 @@ def rename(obj, dialog):
 
     gauge.display()
 
+def datacenter_menu(agent, dialog, folder=None):
+    """
+    A widget to display a menu of Datacenter entities
+
+    Args:
+        agent         (VConnector): A VConnector instance
+        dialog     (dialog.Dailog): A Dialog instance
+        folder        (vim.Folder): A vim.Folder entity
+
+    """
+    dialog.infobox(
+        text='Retrieving information ...'
+    )
+
+    if not folder:
+        folder = agent.si.content.rootFolder
+
+    view = agent.get_container_view(
+        obj_type=[pyVmomi.vim.Datacenter],
+        container=folder
+    )
+    properties = agent.collect_properties(
+        view_ref=view,
+        obj_type=pyVmomi.vim.Datacenter,
+        path_set=['name', 'overallStatus'],
+        include_mors=True
+    )
+    view.DestroyView()
+
+    if not properties:
+        dialog.msgbox(
+            title=obj.name,
+            text='No datacenters found'
+        )
+        return
+
+    items = [
+        pvc.widget.menu.MenuItem(
+            tag=dc['name'],
+            description=dc['overallStatus'],
+            on_select=pvc.widget.hostsystem.DatacenterWidget,
+            on_select_args=(agent, dialog, dc['obj'])
+        ) for dc in properties
+    ]
+
+    menu = pvc.widget.menu.Menu(
+        items=items,
+        dialog=dialog,
+        title=obj.name,
+        text=''
+    )
+
+    menu.display()
+
 def host_menu(agent, dialog, obj):
     """
     A widget to display a menu of HostSystem entities

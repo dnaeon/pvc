@@ -269,6 +269,28 @@ class DatacenterActionWidget(object):
 
         menu.display()
 
+    def remove(self):
+        """
+        Remove datacenter and all child objects
+
+        """
+        code = self.dialog.yesno(
+            title='Confirm remove',
+            text='Remove datacenter and all child objects?'
+        )
+
+        if code in (self.dialog.CANCEL, self.dialog.ESC):
+            return
+
+        task = self.obj.Destroy()
+        gauge = pvc.widget.gauge.TaskGauge(
+            title=self.obj.name,
+            text='Removing Datacenter ...'
+            dialog=self.dialog,
+            task=task
+        )
+        gauge.display()
+
 
 class DatacenterClusterWidget(object):
     def __init__(self, agent, dialog, obj):

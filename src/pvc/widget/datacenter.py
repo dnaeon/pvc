@@ -314,7 +314,8 @@ class DatacenterClusterWidget(object):
         items = [
             pvc.widget.menu.MenuItem(
                 tag='Create',
-                description='Create new cluster in datacenter'
+                description='Create new cluster in datacenter',
+                on_select=self.create_cluster
             ),
             pvc.widget.menu.MenuItem(
                 tag='Remove',
@@ -336,3 +337,38 @@ class DatacenterClusterWidget(object):
         )
 
         menu.display()
+
+    def create_cluster(self):
+        """
+        Create a new cluster in the datacenter
+
+        """
+        code, name = self.dialog.inputbox(
+            title='Create Cluster',
+            text='Provide name for the cluster'
+        )
+
+        if code in (self.dialog.CANCEL, self.dialog.ESC):
+            return
+
+        if not name:
+            self.dialog.msgbox(
+                title='Error',
+                text='Invalid input provided'
+            )
+            return
+
+        self.dialog.infobox(
+            text='Creating cluster {} ...'.format(name)
+        )
+
+        try:
+            self.obj.hostFolder.CreateClusterEx(
+                name=name,
+                spec=pyVmomi.vim.cluster.ConfigSpecEx()
+            )
+        except Exception as e:
+            self.dialog.msgbox(
+                title='Error',
+                text=e.msg
+            )

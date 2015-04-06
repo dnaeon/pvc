@@ -188,7 +188,7 @@ class DatacenterWidget(object):
         )
         properties = self.agent.collect_properties(
             view_ref=view,
-            obj_type=pyVmomi.vim.HostSystem,
+            obj_type=pyVmomi.vim.VirtualMachine,
             path_set=['name', 'runtime.powerState'],
             include_mors=True
         )

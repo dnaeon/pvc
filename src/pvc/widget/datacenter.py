@@ -285,7 +285,7 @@ class DatacenterActionWidget(object):
         task = self.obj.Destroy()
         gauge = pvc.widget.gauge.TaskGauge(
             title=self.obj.name,
-            text='Removing Datacenter ...'
+            text='Removing Datacenter ...',
             dialog=self.dialog,
             task=task
         )

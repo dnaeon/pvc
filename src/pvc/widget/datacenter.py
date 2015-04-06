@@ -7,6 +7,7 @@ import pyVmomi
 
 import pvc.widget.alarm
 import pvc.widget.common
+import pvc.widget.cluster
 import pvc.widget.event
 import pvc.widget.hostsystem
 import pvc.widget.menu
@@ -321,7 +322,9 @@ class DatacenterClusterWidget(object):
             ),
             pvc.widget.menu.MenuItem(
                 tag='View',
-                description='View clusters in datacenter'
+                description='View clusters in datacenter',
+                on_select=pvc.widget.common.cluster_menu,
+                on_select_args=(self.agent, self.dialog, self.obj)
             ),
         ]
 

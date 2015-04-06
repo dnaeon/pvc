@@ -6,6 +6,7 @@ Common Widgets Module
 import pyVmomi
 
 import pvc.widget.alarm
+import pvc.widget.cluster
 import pvc.widget.datacenter
 import pvc.widget.menu
 import pvc.widget.gauge
@@ -102,6 +103,60 @@ def datacenter_menu(agent, dialog, folder=None):
         items=items,
         dialog=dialog,
         title='Select Datacenter',
+        text=''
+    )
+
+    menu.display()
+
+def cluster_menu(agent, dialog, folder=None):
+    """
+    A widget to display a menu of vim.ClusterComputeResource entities
+
+    Args:
+        agent     (VConnector): A VConnector instance
+        dialog (dialog.Dailog): A Dialog instance
+        folder    (vim.Folder): A vim.Folder entity
+
+    """
+    dialog.infobox(
+        text='Retrieving information ...'
+    )
+
+    if not folder:
+        folder = agent.si.content.rootFolder
+
+    view = agent.get_container_view(
+        obj_type=[pyVmomi.vim.ClusterComputeResource],
+        container=folder
+    )
+    properties = agent.collect_properties(
+        view_ref=view,
+        obj_type=pyVmomi.vim.ClusterComputeResource,
+        path_set=['name', 'overallStatus'],
+        include_mors=True
+    )
+    view.DestroyView()
+
+    if not properties:
+        dialog.msgbox(
+            title=obj.name,
+            text='No clusters found'
+        )
+        return
+
+    items = [
+        pvc.widget.menu.MenuItem(
+            tag=cluster['name'],
+            description=cluster['overallStatus'],
+            on_select=pvc.widget.cluster.ClusterWidget,
+            on_select_args=(agent, dialog, cluster['obj'])
+        ) for cluster in properties
+    ]
+
+    menu = pvc.widget.menu.Menu(
+        items=items,
+        dialog=dialog,
+        title='Select Cluster',
         text=''
     )
 

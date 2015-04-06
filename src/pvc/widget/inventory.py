@@ -727,6 +727,10 @@ class InventoryDatacenterWidget(object):
             )
             return
 
+        self.dialog.infobox(
+            text='Creating datacenter {} ...'.format(name)
+        )
+
         try:
             folder.CreateDatacenter(name=name)
         except Exception as e:

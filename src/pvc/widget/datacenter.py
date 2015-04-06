@@ -256,7 +256,8 @@ class DatacenterActionWidget(object):
             ),
             pvc.widget.menu.MenuItem(
                 tag='Remove',
-                description='Remove datacenter'
+                description='Remove datacenter',
+                on_select=self.remove
             ),
         ]
 

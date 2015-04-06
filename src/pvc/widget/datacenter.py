@@ -11,6 +11,7 @@ import pvc.widget.event
 import pvc.widget.hostsystem
 import pvc.widget.menu
 import pvc.widget.performance
+import pvc.widget.virtualmachine
 
 __all__ = [
     'DatacenterWidget', 'DatacenterActionWidget',
@@ -57,6 +58,11 @@ class DatacenterWidget(object):
                 tag='Hosts',
                 description='Manage hosts in datacenter',
                 on_select=self.datacenter_host_menu
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='VMs',
+                description='Virtual Machines in datacenter',
+                on_select=self.datacenter_vm_menu
             ),
             pvc.widget.menu.MenuItem(
                 tag='Datastore',
@@ -162,6 +168,53 @@ class DatacenterWidget(object):
             dialog=self.dialog,
             title=self.obj.name,
             text='Select a host from the menu'
+        )
+
+        menu.display()
+
+    def datacenter_vm_menu(self):
+        """
+        Menu of virtual machines in the datacenter
+
+        """
+        self.dialog.infobox(
+            title=self.obj.name,
+            text='Retrieving information ...'
+        )
+
+        view = self.agent.get_container_view(
+            obj_type=[pyVmomi.vim.VirtualMachine],
+            container=self.obj
+        )
+        properties = self.agent.collect_properties(
+            view_ref=view,
+            obj_type=pyVmomi.vim.HostSystem,
+            path_set=['name', 'runtime.powerState'],
+            include_mors=True
+        )
+        view.DestroyView()
+
+        if not properties:
+            self.dialog.msgbox(
+                title=self.obj.name,
+                text='No virtual machines found in datacenter'
+            )
+            return
+
+        items = [
+            pvc.widget.menu.MenuItem(
+                tag=vm['name'],
+                description=vm['runtime.powerState'],
+                on_select=pvc.widget.virtualmachine.VirtualMachineWidget,
+                on_select_args=(self.agent, self.dialog, vm['obj'])
+            ) for vm in properties
+        ]
+
+        menu = pvc.widget.menu.Menu(
+            items=items,
+            dialog=self.dialog,
+            title=self.obj.name,
+            text='Select a virtual machine from the menu'
         )
 
         menu.display()

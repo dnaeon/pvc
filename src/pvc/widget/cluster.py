@@ -192,7 +192,9 @@ class ClusterActionWidget(object):
             ),
             pvc.widget.menu.MenuItem(
                 tag='Remove',
-                description='Remove cluster'
+                description='Remove cluster',
+                on_select=pvc.widget.common.remove,
+                on_select_args=(self.obj, self.agent)
             ),
         ]
 

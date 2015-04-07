@@ -198,7 +198,7 @@ class PerformanceCounterWidget(object):
 
         """
         # The data we save is expected to be retrieved from a single entity
-        # TODO: Add support for multiple entities as well
+        # TODO: Add support for multiple entities as well, e.g. multiple VMs
         data = data.pop()
         all_values = [v.value for v in data.value]
         samples = zip(data.sampleInfo, *all_values)

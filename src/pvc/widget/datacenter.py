@@ -259,7 +259,7 @@ class DatacenterActionWidget(object):
                 tag='Remove',
                 description='Remove datacenter',
                 on_select=pvc.widget.common.remove,
-                on_select=(self.obj, self.dialog)
+                on_select_args=(self.obj, self.dialog)
             ),
         ]
 

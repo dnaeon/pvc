@@ -112,7 +112,7 @@ class InventoryWidget(object):
             items=items,
             dialog=self.dialog,
             title='Clusters',
-            text='\nSelect a cluster from the menu\n'
+            text='Select a cluster from the menu'
         )
 
         menu.display()

@@ -136,7 +136,7 @@ class EventCollector(threading.Thread):
 
         # The last event is the one with the largest key
         self.last_event_key = max([e.key for e in latest_page])
-        latest_events.reverse()
+        latest_events.sort(key=lambda x: x.key)
 
         return latest_events
 

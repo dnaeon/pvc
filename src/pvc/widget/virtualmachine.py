@@ -192,6 +192,10 @@ class VirtualMachineWidget(object):
                 label='Folder',
                 item=self.obj.parent.name
             ),
+            pvc.widget.form.FormElement(
+                label='VMX Path',
+                item=self.obj.config.files.vmPathName
+            ),
         ]
 
         form = pvc.widget.form.Form(

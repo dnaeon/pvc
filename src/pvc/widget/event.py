@@ -145,7 +145,7 @@ class EventCollector(threading.Thread):
         Append new events to a file
 
         Args:
-            events (list): A list of events to be appended
+            events (list): A list of vim.event.Event instances
 
         """
         with open(self.path, 'a') as f:

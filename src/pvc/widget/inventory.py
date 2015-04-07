@@ -682,10 +682,6 @@ class InventoryDatacenterWidget(object):
                 on_select=self.create_datacenter
             ),
             pvc.widget.menu.MenuItem(
-                tag='Remove',
-                description='Remove a datacenter'
-            ),
-            pvc.widget.menu.MenuItem(
                 tag='View',
                 description='View datacenters',
                 on_select=pvc.widget.common.datacenter_menu,

@@ -22,7 +22,7 @@ __all__ = [
     'session_menu', 'alarm_menu', 'choose_folder',
     'choose_datacenter', 'inventory_search_by_dns',
     'inventory_search_by_ip', 'inventory_search_by_uuid',
-    'datacenter_menu',
+    'datacenter_menu', 'remove',
 ]
 
 
@@ -50,6 +50,36 @@ def rename(obj, dialog):
         task=task,
         title=obj.name,
         text='Renaming {} to {} ...'.format(obj.name, new_name)
+    )
+
+    gauge.display()
+
+def remove(obj, dialog):
+    """
+    Remove a Managed Entity
+
+    NOTE: This operation also removes any child objects of the
+          managed entity.
+
+    Args:
+        obj    (vim.ManagedEntity): A Managed Entity
+        dialog     (dialog.Dialog): A Dialog instance
+
+    """
+    code = dialog.yesno(
+        title='Confirm remove',
+        text='Remove {} and all child objects?'.format(obj.name)
+    )
+
+    if code in (dialog.CANCEL, dialog.ESC):
+        return
+
+    task = obj.Destroy()
+    gauge = pvc.widget.gauge.TaskGauge(
+        dialog=dialog,
+        task=task,
+        title=obj.name,
+        text='Removing {} ...'.format(obj.name)
     )
 
     gauge.display()

@@ -202,7 +202,7 @@ class VirtualMachineWidget(object):
             dialog=self.dialog,
             form_elements=elements,
             title=self.obj.name,
-            text='\nVirtual Machine General Information'
+            text='Virtual Machine General Information'
         )
 
         form.display()

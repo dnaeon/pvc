@@ -193,8 +193,14 @@ class DatastoreActionWidget(object):
         items = [
             pvc.widget.menu.MenuItem(
                 tag='Rename',
-                description='Rename Datastore',
+                description='Rename datastore',
                 on_select=pvc.widget.common.rename,
+                on_select_args=(self.obj, self.dialog)
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='Remove',
+                description='Remove datastore',
+                on_select=pvc.widget.common.remove,
                 on_select_args=(self.obj, self.dialog)
             ),
         ]

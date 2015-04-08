@@ -42,7 +42,7 @@ class EventWidget(object):
         # data in the file, so the operation can take long enough
         # to create the file and dialog(1) needs a valid and
         # already existing file in order to display the widget
-        with open(path, 'w') as f:
+        with open(path, 'w'):
             pass
 
         collector = EventCollector(

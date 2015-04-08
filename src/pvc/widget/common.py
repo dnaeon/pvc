@@ -54,6 +54,7 @@ def rename(obj, dialog):
 
     gauge.display()
 
+
 def remove(obj, dialog):
     """
     Remove a Managed Entity
@@ -83,6 +84,7 @@ def remove(obj, dialog):
     )
 
     gauge.display()
+
 
 def datacenter_menu(agent, dialog, folder=None):
     """
@@ -115,7 +117,6 @@ def datacenter_menu(agent, dialog, folder=None):
 
     if not properties:
         dialog.msgbox(
-            title=obj.name,
             text='No datacenters found'
         )
         return
@@ -137,6 +138,7 @@ def datacenter_menu(agent, dialog, folder=None):
     )
 
     menu.display()
+
 
 def cluster_menu(agent, dialog, folder=None):
     """
@@ -169,7 +171,6 @@ def cluster_menu(agent, dialog, folder=None):
 
     if not properties:
         dialog.msgbox(
-            title=obj.name,
             text='No clusters found'
         )
         return
@@ -191,6 +192,7 @@ def cluster_menu(agent, dialog, folder=None):
     )
 
     menu.display()
+
 
 def host_menu(agent, dialog, obj):
     """
@@ -246,6 +248,7 @@ def host_menu(agent, dialog, obj):
     )
 
     menu.display()
+
 
 def hostmount_menu(agent, dialog, obj):
     """
@@ -306,6 +309,7 @@ def hostmount_menu(agent, dialog, obj):
 
     menu.display()
 
+
 def network_menu(agent, dialog, obj):
     """
     A widget to display the networks by a Managed Entity
@@ -360,6 +364,7 @@ def network_menu(agent, dialog, obj):
     )
 
     menu.display()
+
 
 def virtual_machine_menu(agent, dialog, obj):
     """
@@ -418,6 +423,7 @@ def virtual_machine_menu(agent, dialog, obj):
 
     menu.display()
 
+
 def datastore_menu(agent, dialog, obj):
     """
     A widget to get all Datastores used by a managed entity, e.g.
@@ -474,6 +480,7 @@ def datastore_menu(agent, dialog, obj):
 
     menu.display()
 
+
 def session_menu(agent, dialog):
     """
     A widget to display a menu of current sessions
@@ -515,6 +522,7 @@ def session_menu(agent, dialog):
 
     menu.display()
 
+
 def alarm_menu(agent, dialog, obj):
     """
     Args:
@@ -551,6 +559,7 @@ def alarm_menu(agent, dialog, obj):
     )
 
     menu.display()
+
 
 def choose_folder(agent, dialog):
     """
@@ -602,6 +611,7 @@ def choose_folder(agent, dialog):
         return agent.si.content.rootFolder
 
     return [f['obj'] for f in properties if f['name'] == tag].pop()
+
 
 def choose_datacenter(agent, dialog, all_datacenters_option):
     """
@@ -668,6 +678,7 @@ def choose_datacenter(agent, dialog, all_datacenters_option):
 
     return [d['obj'] for d in properties if d['name'] == tag].pop()
 
+
 def inventory_search_by_dns(agent, dialog, vm_search):
     """
     Search inventory for managed objects by their DNS name
@@ -686,9 +697,9 @@ def inventory_search_by_dns(agent, dialog, vm_search):
     )
 
     code, name = dialog.inputbox(
-            title='Inventory Search',
-            text='Specify DNS name to search for'
-        )
+        title='Inventory Search',
+        text='Specify DNS name to search for'
+    )
 
     if not name:
         dialog.msgbox(
@@ -715,6 +726,7 @@ def inventory_search_by_dns(agent, dialog, vm_search):
 
     return result
 
+
 def inventory_search_by_ip(agent, dialog, vm_search):
     """
     Search inventory for managed objects by their IP address
@@ -733,9 +745,9 @@ def inventory_search_by_ip(agent, dialog, vm_search):
     )
 
     code, ipaddr = dialog.inputbox(
-            title='Inventory Search',
-            text='Specify IP address to search for'
-        )
+        title='Inventory Search',
+        text='Specify IP address to search for'
+    )
 
     if not ipaddr:
         dialog.msgbox(
@@ -762,6 +774,7 @@ def inventory_search_by_ip(agent, dialog, vm_search):
 
     return result
 
+
 def inventory_search_by_uuid(agent, dialog, vm_search):
     """
     Search inventory for managed objects by their UUID
@@ -780,9 +793,9 @@ def inventory_search_by_uuid(agent, dialog, vm_search):
     )
 
     code, uuid = dialog.inputbox(
-            title='Inventory Search',
-            text='Specify UUID to search for'
-        )
+        title='Inventory Search',
+        text='Specify UUID to search for'
+    )
 
     if not uuid:
         dialog.msgbox(

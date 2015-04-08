@@ -3,8 +3,6 @@ Session module
 
 """
 
-import pyVmomi
-
 import pvc.widget.menu
 import pvc.widget.form
 

@@ -3,8 +3,6 @@ Alarm Widgets
 
 """
 
-import pyVmomi
-
 import pvc.widget.form
 import pvc.widget.menu
 

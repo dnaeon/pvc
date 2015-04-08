@@ -304,7 +304,7 @@ class InventorySearchHostWidget(object):
         self.display()
 
     def display(self):
-        items=[
+        items = [
             pvc.widget.menu.MenuItem(
                 tag='DNS',
                 description='Find hosts by DNS name',
@@ -455,7 +455,7 @@ class InventorySearchVirtualMachineWidget(object):
         self.display()
 
     def display(self):
-        items=[
+        items = [
             pvc.widget.menu.MenuItem(
                 tag='DNS',
                 description='Find VMs by DNS name',
@@ -580,7 +580,7 @@ class InventorySearchVirtualMachineWidget(object):
         items = [
             pvc.widget.menu.MenuItem(
                 tag=vm.name,
-                description=host.runtime.powerState,
+                description=vm.runtime.powerState,
                 on_select=pvc.widget.virtualmachine.VirtualMachineWidget,
                 on_select_args=(self.agent, self.dialog, vm)
             ) for vm in result

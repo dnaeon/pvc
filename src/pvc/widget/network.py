@@ -3,8 +3,6 @@ Network Widget module
 
 """
 
-import pyVmomi
-
 import pvc.widget.event
 import pvc.widget.menu
 import pvc.widget.form
@@ -103,4 +101,3 @@ class NetworkWidget(object):
         )
 
         form.display()
-

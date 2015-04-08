@@ -5,7 +5,6 @@ HostSystem Widgets
 
 import datetime
 
-import pyVmomi
 import humanize
 
 import pvc.widget.alarm

@@ -4,7 +4,6 @@ Performance Metrics Widgets
 """
 
 import os
-import time
 import datetime
 import tempfile
 import subprocess
@@ -453,7 +452,7 @@ class PerformanceCounterGraphWidget(object):
 
     def display(self):
         try:
-            p = subprocess.Popen(
+            subprocess.Popen(
                 args=['gnuplot', '--version'],
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE

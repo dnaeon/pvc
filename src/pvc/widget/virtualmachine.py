@@ -218,7 +218,7 @@ class VirtualMachineWidget(object):
         )
 
         provisioned_storage = self.obj.summary.storage.committed + \
-                              self.obj.summary.storage.uncommitted
+            self.obj.summary.storage.uncommitted
 
         elements = [
             pvc.widget.form.FormElement(
@@ -551,7 +551,7 @@ class VirtualMachineExportWidget(object):
         )
 
         for url in lease.info.deviceUrl:
-            if not url.disk: # skip non-vmdk disks
+            if not url.disk:  # skip non-vmdk disks
                 continue
 
             self.dialog.gauge_update(
@@ -579,7 +579,7 @@ class VirtualMachineExportWidget(object):
                         lease.HttpNfcLeaseProgress(percent=percent)
                         f.write(chunk)
 
-            m = [m for m in lease.HttpNfcLeaseGetManifest() if m.key == url.key].pop()
+            m = [me for me in lease.HttpNfcLeaseGetManifest() if me.key == url.key].pop()
             manifest.append(m)
 
             of = pyVmomi.vim.OvfManager.OvfFile(
@@ -592,7 +592,7 @@ class VirtualMachineExportWidget(object):
             ovf_files.append(of)
 
             exported_disks[url.key] = url.targetId
-            total_transfered_bytes = sum([m.capacity for m in manifest])
+            total_transfered_bytes = sum([me.capacity for me in manifest])
             percent = round(
                 total_transfered_bytes / 1024 / lease.info.totalDiskCapacityInKB * 100
             )
@@ -787,7 +787,7 @@ class VirtualMachineConsoleWidget(object):
         ticket = self.agent.si.content.sessionManager.AcquireCloneTicket()
 
         try:
-            p = Popen(
+            Popen(
                 args=['vmplayer', '-h', self.agent.host, '-p', ticket, '-M', self.obj._moId],
                 stdout=PIPE,
                 stderr=PIPE

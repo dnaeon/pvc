@@ -25,6 +25,7 @@ class FormElement(object):
         self.input_length = input_length
         self.attributes = attributes
 
+
 class Form(object):
     def __init__(self, dialog, form_elements, mixed_form=False, **kwargs):
         """
@@ -65,6 +66,6 @@ class Form(object):
             **self.kwargs
         )
 
-        result = (code, {l:i for l, i in zip(self._labels, items)})
+        result = (code, {l: i for l, i in zip(self._labels, items)})
 
         return result

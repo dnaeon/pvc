@@ -3,7 +3,6 @@ Datastore Widgets
 
 """
 
-import pyVmomi
 import humanize
 
 import pvc.widget.alarm

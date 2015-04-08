@@ -499,6 +499,11 @@ class PerformanceCounterGraphWidget(object):
 
         New samples are appended to the file
 
+        NOTE: If the performance counter unit is percentage we need
+              to make sure that the sample value is divided by
+              a hundred, as the returned sample value
+              represents a 1/100th of the percent.
+
         Args:
             path                                      (str): Path to the datafile
             data  (vim.PerformanceManager.EntityMetricBase): The data to be saved
@@ -510,7 +515,10 @@ class PerformanceCounterGraphWidget(object):
         with open(path, 'a') as f:
             for sample in samples:
                 timestamp, values = sample[0].timestamp, sample[1:]
-                f.write('{},{}\n'.format(str(timestamp), ','.join([str(v) for v in values])))
+                if self.counter.unitInfo.key == 'percent':
+                    f.write('{},{}\n'.format(str(timestamp), ','.join([str(v / 100) for v in values])))
+                else:
+                    f.write('{},{}\n'.format(str(timestamp), ','.join([str(v) for v in values])))
 
     def create_gnuplot_script(self, datafile, instances):
         """
@@ -549,6 +557,7 @@ class PerformanceCounterGraphWidget(object):
             "set key outside right center\n"
             "set datafile separator ','\n"
             "set autoscale fix\n"
+            "set yrange [{yrange}]\n"
             "plot {lines}\n"
             "pause {pause}\n"
         )
@@ -568,13 +577,17 @@ class PerformanceCounterGraphWidget(object):
             # Historical counters
             pause = -1
 
+        # Set a yrange for counters which unit is percentage
+        yrange = '0:100' if self.counter.unitInfo.key == 'percent' else ''
+
         gnuplot_script = script_template.format(
             name=self.obj.name,
             title=self.counter.nameInfo.summary,
             term=gnuplot_term,
             unit=self.counter.unitInfo.label,
             lines=', '.join(lines),
-            pause=pause
+            pause=pause,
+            yrange=yrange
         )
 
         fd, path = tempfile.mkstemp(prefix='pvcgnuplot-script-')

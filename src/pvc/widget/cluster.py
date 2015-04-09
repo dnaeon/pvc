@@ -357,7 +357,7 @@ class ClusterHostWidget(object):
         if code in (self.dialog.ESC, self.dialog.CANCEL):
             return
 
-        host_objects = [h for sh in selected_hosts for h in self.obj.host if sh == h.name]
+        host_objects = [h for h in self.obj.host if h.name in selected_hosts]
         for host_obj in host_objects:
             task = host_obj.Disconnect()
             gauge = pvc.widget.gauge.TaskGauge(

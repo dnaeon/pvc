@@ -644,14 +644,14 @@ class PerformanceCounterGraphWidget(object):
             pvc.widget.radiolist.RadioListItem(tag=interval) for interval in intervals
         ]
 
-        checklist = pvc.widget.radiolist.RadioList(
+        radiolist = pvc.widget.radiolist.RadioList(
             items=items,
             dialog=self.dialog,
             title='Historical Performance Intervals',
             text='Select a historical performance interval',
         )
 
-        return checklist.display()
+        return radiolist.display()
 
     def realtime_graph(self, metric_id, datafile, script):
         """

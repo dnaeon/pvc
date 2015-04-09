@@ -5,6 +5,7 @@ HostSystem Widgets
 
 import datetime
 
+import pyVmomi
 import humanize
 
 import pvc.widget.alarm
@@ -15,7 +16,10 @@ import pvc.widget.form
 import pvc.widget.network
 import pvc.widget.performance
 
-__all__ = ['HostSystemWidget']
+__all__ = [
+    'HostSystemWidget', 'HostSystemDatastoreWidget',
+    'HostSystemAddNfsStorage',
+]
 
 
 class HostSystemWidget(object):
@@ -60,8 +64,8 @@ class HostSystemWidget(object):
             ),
             pvc.widget.menu.MenuItem(
                 tag='Datastores',
-                description='Datastores on this host',
-                on_select=pvc.widget.common.datastore_menu,
+                description='Manage datastores on this host',
+                on_select=HostSystemDatastoreWidget,
                 on_select_args=(self.agent, self.dialog, self.obj)
             ),
             pvc.widget.menu.MenuItem(
@@ -188,3 +192,141 @@ class HostSystemWidget(object):
         )
 
         form.display()
+
+
+class HostSystemDatastoreWidget(object):
+    def __init__(self, agent, dialog, obj):
+        """
+        Widget for managing datastores on a HostSystem
+
+        Args:
+            agent      (VConnector): A VConnector instance
+            dialog  (dialog.Dialog): A Dialog instance
+            obj    (vim.HostSystem): A HostSystem managed entity
+
+        """
+        self.agent = agent
+        self.dialog = dialog
+        self.obj = obj
+        self.display()
+
+    def display(self):
+        items = [
+            pvc.widget.menu.MenuItem(
+                tag='Create',
+                description='Create new datastore',
+                on_select=self.create_datastore
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='View',
+                description='View datastores',
+                on_select=pvc.widget.common.datastore_menu,
+                on_select_args=(self.agent, self.dialog, self.obj)
+            ),
+        ]
+
+        menu = pvc.widget.menu.Menu(
+            items=items,
+            dialog=self.dialog,
+            title=self.obj.name,
+            text='Select an action to be performed'
+        )
+
+        menu.display()
+
+    def create_datastore(self):
+        """
+        Create new datastore menu
+
+        """
+        items = [
+            pvc.widget.menu.MenuItem(
+                tag='NFS',
+                description='Mount NFS volume',
+                on_select=HostSystemAddNfsStorage,
+                on_select_args=(self.agent, self.dialog, self.obj)
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='CIFS',
+                description='Mount CIFS volume'
+            ),
+        ]
+
+        menu = pvc.widget.menu.Menu(
+            items=items,
+            dialog=self.dialog,
+            title='Add Storage',
+            text='Select an action to be performed'
+        )
+
+        menu.display()
+
+
+class HostSystemAddNfsStorage(object):
+    def __init__(self, agent, dialog, obj):
+        """
+        Add new datastore to host from an NFS volume
+
+        Args:
+            agent      (VConnector): A VConnector instance
+            dialog  (dialog.Dialog): A Dialog instance
+            obj    (vim.HostSystem): A HostSystem managed entity
+
+        """
+        self.agent = agent
+        self.dialog = dialog
+        self.obj = obj
+        self.display()
+
+    def display(self):
+        elements = [
+            pvc.widget.form.FormElement(label='Server'),
+            pvc.widget.form.FormElement(label='Path', item='/vol0/datastore'),
+            pvc.widget.form.FormElement(label='Read-Only', item='False'),
+            pvc.widget.form.FormElement(label='Datastore Name'),
+        ]
+
+        form = pvc.widget.form.Form(
+            dialog=self.dialog,
+            form_elements=elements,
+            title='Add Storage',
+            text='Provide details of the remote NFS volume'
+        )
+
+        code, fields = form.display()
+
+        if code in (self.dialog.CANCEL, self.dialog.ESC):
+            return
+
+        if not all(fields.values()):
+            self.dialog.msgbox(
+                text='Invalid input provided'
+            )
+            return
+
+        if fields['Read-Only'].lower() in ('yes', 'true'):
+            access_mode = pyVmomi.vim.HostMountMode.readOnly
+        else:
+            access_mode = pyVmomi.vim.HostMountMode.readWrite
+
+        self.dialog.infobox(
+            title=self.obj.name,
+            text='Creating datastore {} ...'.format(fields['Datastore Name'])
+        )
+
+        spec = pyVmomi.vim.HostNasVolumeSpec(
+            accessMode=access_mode,
+            localPath=fields['Datastore Name'],
+            remoteHost=fields['Server'],
+            remotePath=fields['Path']
+        )
+
+        try:
+            self.obj.configManager.datastoreSystem.CreateNasDatastore(
+                spec=spec
+            )
+        except Exception as e:
+            self.dialog.msgbox(
+                title='Error',
+                text=e.msg
+            )

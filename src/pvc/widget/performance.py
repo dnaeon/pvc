@@ -730,16 +730,15 @@ class PerformanceCounterGraphWidget(object):
             script     (str): Path to a gnuplot(1) script used to plot the graph
 
         """
-        self.dialog.infobox(
-            text='Retrieving information ...'
-        )
-
         code, interval = self.select_historical_interval()
         if code in (self.dialog.CANCEL, self.dialog.ESC) or not interval:
             return
 
-        interval_id = [i.samplingPeriod for i in self.pm.historicalInterval if i.name == interval].pop()
+        self.dialog.infobox(
+            text='Retrieving information ...'
+        )
 
+        interval_id = [i.samplingPeriod for i in self.pm.historicalInterval if i.name == interval].pop()
         query_spec = pyVmomi.vim.PerformanceManager.QuerySpec(
             entity=self.obj,
             metricId=metric_id,

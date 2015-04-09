@@ -246,10 +246,6 @@ class HostSystemDatastoreWidget(object):
                 on_select=HostSystemAddNfsStorage,
                 on_select_args=(self.agent, self.dialog, self.obj)
             ),
-            pvc.widget.menu.MenuItem(
-                tag='CIFS',
-                description='Mount CIFS volume'
-            ),
         ]
 
         menu = pvc.widget.menu.Menu(
@@ -265,7 +261,7 @@ class HostSystemDatastoreWidget(object):
 class HostSystemAddNfsStorage(object):
     def __init__(self, agent, dialog, obj):
         """
-        Add new datastore to host from an NFS volume
+        Create new datastore using a NFS volume
 
         Args:
             agent      (VConnector): A VConnector instance

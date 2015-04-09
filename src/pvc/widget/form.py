@@ -57,10 +57,6 @@ class Form(object):
             self._elements = [(e.label, row + 1, 1, e.item, row + 1, self._xi, e.field_length, e.input_length) for row, e in enumerate(self.form_elements)]
 
     def display(self):
-        """
-        docstring
-
-        """
         code, items = self.form(
             elements=self._elements,
             **self.kwargs

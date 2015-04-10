@@ -336,6 +336,7 @@ class ClusterHostWidget(object):
                 title=self.obj.name,
                 text='There are no hosts connected to cluster'
             )
+            return
 
         checklist = pvc.widget.checklist.CheckList(
             items=items,

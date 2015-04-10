@@ -339,25 +339,25 @@ class ClusterHostWidget(object):
         )
 
         checklist.display()
-        selected_hosts = checklist.selected()
+        selected = checklist.selected()
 
-        if not selected_hosts:
+        if not selected:
             return
 
         text = (
-            'The following host(s) will be disconnected from the cluster.\n\n'
-            '{}\n\n'
+            'The following host(s) will be disconnected from cluster.'
+            '\n\n{}\n\n'
             'Disconnect host(s) from cluster?\n'
         )
         code = self.dialog.yesno(
-            title='Confirm disconnect',
-            text=text.format('\n'.join(selected_hosts))
+            title='Confirm Disconnect',
+            text=text.format('\n'.join(selected))
         )
 
         if code in (self.dialog.ESC, self.dialog.CANCEL):
             return
 
-        host_objects = [h for h in self.obj.host if h.name in selected_hosts]
+        host_objects = [h for h in self.obj.host if h.name in selected]
         for host_obj in host_objects:
             task = host_obj.Disconnect()
             gauge = pvc.widget.gauge.TaskGauge(

@@ -198,6 +198,11 @@ class DatastoreActionWidget(object):
                 on_select_args=(self.obj, self.dialog)
             ),
             pvc.widget.menu.MenuItem(
+                tag='Refresh',
+                description='Refresh storage information',
+                on_select=self.refresh
+            ),
+            pvc.widget.menu.MenuItem(
                 tag='Remove',
                 description='Remove datastore',
                 on_select=pvc.widget.common.remove,
@@ -213,3 +218,14 @@ class DatastoreActionWidget(object):
         )
 
         menu.display()
+
+    def refresh(self):
+        """
+        Refresh storage related information
+
+        """
+        self.dialog.infobox(
+            text='Refreshing storage information ...'
+        )
+
+        self.obj.RefreshDatastoreStorageInfo()

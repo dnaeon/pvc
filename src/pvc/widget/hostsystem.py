@@ -9,6 +9,7 @@ import pyVmomi
 import humanize
 
 import pvc.widget.alarm
+import pvc.widget.checklist
 import pvc.widget.common
 import pvc.widget.event
 import pvc.widget.menu
@@ -18,7 +19,7 @@ import pvc.widget.performance
 
 __all__ = [
     'HostSystemWidget', 'HostSystemDatastoreWidget',
-    'HostSystemAddNfsStorage',
+    'HostSystemAddNfsStorage', 'HostSystemUnmountStorage',
 ]
 
 
@@ -218,6 +219,12 @@ class HostSystemDatastoreWidget(object):
                 on_select=self.create_datastore
             ),
             pvc.widget.menu.MenuItem(
+                tag='Unmount',
+                description='Unmount datastores',
+                on_select=HostSystemUnmountStorage,
+                on_select_args=(self.agent, self.dialog, self.obj)
+            ),
+            pvc.widget.menu.MenuItem(
                 tag='View',
                 description='View datastores',
                 on_select=pvc.widget.common.datastore_menu,
@@ -325,4 +332,69 @@ class HostSystemAddNfsStorage(object):
             self.dialog.msgbox(
                 title='Error',
                 text=e.msg
+            )
+
+
+class HostSystemUnmountStorage(object):
+    def __init__(self, agent, dialog, obj):
+        """
+        Widget for unmount datastores from host
+
+        Args:
+            agent      (VConnector): A VConnector instance
+            dialog  (dialog.Dialog): A Dialog instance
+            obj    (vim.HostSystem): A HostSystem managed entity
+
+        """
+        self.agent = agent
+        self.dialog = dialog
+        self.obj = obj
+        self.display()
+
+    def display(self):
+        self.dialog.infobox(
+            text='Retrieving information ...'
+        )
+
+        items = [
+            pvc.widget.checklist.CheckListItem(
+                tag=d.name,
+                description=d.summary.accessible
+            ) for d in self.obj.datastore
+        ]
+
+        checklist = pvc.widget.checklist.CheckList(
+            items=items,
+            dialog=self.dialog,
+            title=self.obj.name,
+            text='Select datastore(s) to be unmounted'
+        )
+
+        checklist.display()
+        selected = checklist.selected()
+
+        if not selected:
+            return
+
+        text = (
+            'The following datastore(s) will be unmounted.'
+            '\n\n{}\n\n'
+            'Unmount datastore(s) from host?\n'
+        )
+
+        code = self.dialog.yesno(
+            title='Confirm Unmount',
+            text=text.format('\n'.join(selected))
+        )
+
+        if code in (self.dialog.ESC, self.dialog.CANCEL):
+            return
+
+        datastore_objects = [d for d in self.obj.datastore if d.name in selected]
+        for datastore_obj in datastore_objects:
+            self.dialog.infobox(
+                text='Unmount datastore {} ...'.format(datastore_obj.name)
+            )
+            self.obj.configManager.datastoreSystem.RemoveDatastore(
+                datastore=datastore_obj
             )

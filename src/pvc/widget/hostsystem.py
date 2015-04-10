@@ -356,10 +356,17 @@ class HostSystemUnmountStorage(object):
             text='Retrieving information ...'
         )
 
+        if not self.obj.datastore:
+            self.dialog.msgbox(
+                title=self.obj.name,
+                text='There are no datastores mounted on this host'
+            )
+            return
+
         items = [
             pvc.widget.checklist.CheckListItem(
                 tag=d.name,
-                description=d.summary.accessible
+                description='Accessible' if d.summary.accessible else 'Not Accessible',
             ) for d in self.obj.datastore
         ]
 

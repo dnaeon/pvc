@@ -132,7 +132,7 @@ class DatastoreWidget(object):
             dialog=self.dialog,
             form_elements=elements,
             title=self.obj.name,
-            text='\Datastore general information'
+            text='Datastore general information'
         )
 
         form.display()

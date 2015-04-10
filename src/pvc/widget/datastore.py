@@ -167,7 +167,7 @@ class DatastoreWidget(object):
             dialog=self.dialog,
             form_elements=elements,
             title=self.obj.name,
-            text='\nDatastore capacity information'
+            text='Datastore capacity information'
         )
 
         return form.display()

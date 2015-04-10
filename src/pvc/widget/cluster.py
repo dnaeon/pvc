@@ -264,7 +264,7 @@ class ClusterHostWidget(object):
 
         """
         text = (
-            '\nEnter hostname or IP address of the '
+            'Enter hostname or IP address of the '
             'host to be connected to cluster {}\n'
         )
 
@@ -311,7 +311,7 @@ class ClusterHostWidget(object):
             dialog=self.dialog,
             task=task,
             title=self.obj.name,
-            text='\nConnecting {} to cluster ...'.format(fields['Hostname'])
+            text='Connecting {} to cluster ...'.format(fields['Hostname'])
         )
 
         gauge.display()
@@ -369,7 +369,7 @@ class ClusterHostWidget(object):
             task = host_obj.Disconnect()
             gauge = pvc.widget.gauge.TaskGauge(
                 title=self.obj.name,
-                text='\nDisconnecting {} from cluster ...'.format(host_obj.name),
+                text='Disconnecting {} from cluster ...'.format(host_obj.name),
                 dialog=self.dialog,
                 task=task
             )
@@ -401,7 +401,7 @@ class ClusterHostWidget(object):
             items=items,
             dialog=self.dialog,
             title=self.obj.name,
-            text='\nSelect host(s) to be reconnected to the cluster'
+            text='Select host(s) to be reconnected to the cluster'
         )
 
         checklist.display()
@@ -415,7 +415,7 @@ class ClusterHostWidget(object):
             task = host_obj.Reconnect()
             gauge = pvc.widget.gauge.TaskGauge(
                 title=self.obj.name,
-                text='\nReconnecting {} to cluster ...'.format(host_obj.name),
+                text='Reconnecting {} to cluster ...'.format(host_obj.name),
                 dialog=self.dialog,
                 task=task
             )

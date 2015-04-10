@@ -52,7 +52,7 @@ class AdministrationWidget(object):
             items=items,
             dialog=self.dialog,
             title='Administration',
-            text='\nSelect administration item'
+            text='Select administration item'
         )
 
         menu.display()

@@ -251,7 +251,7 @@ class VirtualMachineWidget(object):
             dialog=self.dialog,
             form_elements=elements,
             title=self.obj.name,
-            text='\nVirtual Machine Resources Usage Information'
+            text='Virtual Machine Resources Usage Information'
         )
 
         return form.display()
@@ -556,7 +556,7 @@ class VirtualMachineExportWidget(object):
 
             self.dialog.gauge_update(
                 percent=percent,
-                text='\nExporting {} ...\n'.format(url.targetId),
+                text='Exporting {} ...\n'.format(url.targetId),
                 update_text=True
             )
 
@@ -622,7 +622,7 @@ class VirtualMachineExportWidget(object):
 
         self.dialog.msgbox(
             title=self.obj.name,
-            text='\nExport successful. Files saved in:\n\n{}\n'.format(path)
+            text='Export successful. Files saved in:\n\n{}\n'.format(path)
         )
 
     def create_manifest_file(self, path, manifest, disks):

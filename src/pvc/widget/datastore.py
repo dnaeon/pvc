@@ -147,6 +147,7 @@ class DatastoreWidget(object):
             text='Retrieving information ...'
         )
 
+        uncommitted = self.obj.summary.uncommitted if self.obj.summary.uncommitted else 0
         elements = [
             pvc.widget.form.FormElement(
                 label='Capacity',
@@ -158,7 +159,7 @@ class DatastoreWidget(object):
             ),
             pvc.widget.form.FormElement(
                 label='Uncommitted Space',
-                item=humanize.naturalsize(self.obj.summary.uncommitted, binary=True)
+                item=humanize.naturalsize(uncommitted, binary=True)
             ),
         ]
 

@@ -331,6 +331,12 @@ class ClusterHostWidget(object):
             for h in self.obj.host if h.runtime.connectionState == pyVmomi.vim.HostSystemConnectionState.connected
         ]
 
+        if not items:
+            self.dialog.msgbox(
+                title=self.obj.name,
+                text='There are no hosts connected to cluster'
+            )
+
         checklist = pvc.widget.checklist.CheckList(
             items=items,
             dialog=self.dialog,
@@ -386,7 +392,7 @@ class ClusterHostWidget(object):
         if not items:
             self.dialog.msgbox(
                 title=self.obj.name,
-                text='\nThere are no disconnected hosts in the cluster'
+                text='There are no disconnected hosts in the cluster'
             )
             return
 

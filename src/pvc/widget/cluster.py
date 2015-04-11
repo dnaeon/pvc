@@ -115,6 +115,14 @@ class ClusterWidget(object):
                 item=str(self.obj.summary.numHosts)
             ),
             pvc.widget.form.FormElement(
+                label='DRS Enabled',
+                item=str(self.obj.configuration.drsConfig.enabled)
+            ),
+            pvc.widget.form.FormElement(
+                label='DRS Mode',
+                item=self.obj.configuration.drsConfig.defaultVmBehavior
+            ),
+            pvc.widget.form.FormElement(
                 label='vMotion Migrations',
                 item=str(self.obj.summary.numVmotions)
             ),

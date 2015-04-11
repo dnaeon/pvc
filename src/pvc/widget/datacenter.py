@@ -17,6 +17,7 @@ import pvc.widget.virtualmachine
 __all__ = [
     'DatacenterWidget', 'DatacenterActionWidget',
     'DatacenterClusterWidget', 'DatacenterHostSystemWidget',
+    'DatacenterDatastoreWidget',
 ]
 
 
@@ -72,8 +73,8 @@ class DatacenterWidget(object):
             ),
             pvc.widget.menu.MenuItem(
                 tag='Datastore',
-                description='Datastores in datacenter',
-                on_select=pvc.widget.common.datastore_menu,
+                description='Manage datastores in datacenter',
+                on_select=DatacenterDatastoreWidget,
                 on_select_args=(self.agent, self.dialog, self.obj)
             ),
             pvc.widget.menu.MenuItem(
@@ -306,6 +307,7 @@ class DatacenterClusterWidget(object):
                 text=e.msg
             )
 
+
 class DatacenterHostSystemWidget(object):
     def __init__(self, agent, dialog, obj):
         """
@@ -379,6 +381,42 @@ class DatacenterHostSystemWidget(object):
             dialog=self.dialog,
             title=self.obj.name,
             text='Select a host from the menu'
+        )
+
+        menu.display()
+
+
+class DatacenterDatastoreWidget(object):
+    def __init__(self, agent, dialog, obj):
+        """
+        Widget for managing datastores in a datacenter
+
+        Args:
+            agent      (VConnector): A VConnector instance
+            dialog  (dialog.Dialog): A Dialog instance
+            obj    (vim.Datacenter): A vim.Datacenter managed entity
+
+        """
+        self.agent = agent
+        self.dialog = dialog
+        self.obj = obj
+        self.display()
+
+    def display(self):
+        items = [
+            pvc.widget.menu.MenuItem(
+                tag='View',
+                description='View datastores in datacenter',
+                on_select=pvc.widget.common.datastore_menu,
+                on_select_args=(self.agent, self.dialog, self.obj)
+            ),
+        ]
+
+        menu = pvc.widget.menu.Menu(
+            items=items,
+            dialog=self.dialog,
+            title=self.obj.name,
+            text='Select item from menu'
         )
 
         menu.display()

@@ -804,14 +804,14 @@ def choose_host(agent, dialog, folder=None):
     return [h['obj'] for h in properties if h['name'] == tag].pop()
 
 
-def choose_datastore(agent, dialog, folder):
+def choose_datastore(agent, dialog, obj):
     """
     Prompts the user to choose a datastore
 
     Args:
-        agent     (VConnector): A VConnector instance
-        dialog (dialog.Dailog): A Dialog instance
-        folder    (vim.Folder): A vim.Folder instance
+        agent         (VConnector): A VConnector instance
+        dialog     (dialog.Dailog): A Dialog instance
+        obj    (vim.ManagedEntity): A Managed Entity
 
     Returns:
         A vim.Datastore managed entity if a datastore has been
@@ -825,14 +825,10 @@ def choose_datastore(agent, dialog, folder):
         text='Retrieving information ...'
     )
 
-    if not folder:
-        folder = agent.si.content.rootFolder
+    if not hasattr(obj, 'datastore'):
+        return
 
-    view = agent.get_container_view(
-        obj_type=[pyVmomi.vim.Datastore],
-        container=folder
-    )
-
+    view = agent.get_list_view(obj.datastore)
     properties = agent.collect_properties(
         view_ref=view,
         obj_type=pyVmomi.vim.Datastore,

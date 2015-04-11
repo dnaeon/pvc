@@ -613,7 +613,7 @@ def choose_folder(agent, dialog):
     return [f['obj'] for f in properties if f['name'] == tag].pop()
 
 
-def choose_datacenter(agent, dialog, all_datacenters_option):
+def choose_datacenter(agent, dialog, all_datacenters_option=False):
     """
     Prompts the user to choose a datacenter
 

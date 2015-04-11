@@ -27,14 +27,6 @@ class AdministrationWidget(object):
     def display(self):
         items = [
             pvc.widget.menu.MenuItem(
-                tag='Events',
-                description='View Events'
-            ),
-            pvc.widget.menu.MenuItem(
-                tag='Tasks',
-                description='View Tasks'
-            ),
-            pvc.widget.menu.MenuItem(
                 tag='Message',
                 description='Message Of The Day',
                 on_select=pvc.widget.motd.MOTDWidget,

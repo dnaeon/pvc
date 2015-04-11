@@ -20,6 +20,7 @@ import pvc.widget.gauge
 import pvc.widget.vnc
 import pvc.widget.network
 import pvc.widget.performance
+import pvc.widget.radiolist
 
 from subprocess import Popen, PIPE
 
@@ -1010,6 +1011,7 @@ class CreateVirtualMachineWidget(object):
 
         folder = self.datacenter.vmFolder
         pool = self.cluster.resourcePool
+        vmx_version = self.select_vmx_version(obj=self.cluster)
 
     def select_datacenter(self):
         """
@@ -1133,3 +1135,33 @@ class CreateVirtualMachineWidget(object):
         )
 
         return datastore
+
+    def select_vmx_version(self, obj):
+        """
+        Select a VMX version for the Virtual Machine
+
+        Args:
+            obj (vim.ComputeResource): Entity to query for supported versions
+
+        """
+        versions = obj.environmentBrowser.QueryConfigOptionDescriptor()
+        items = [
+            pvc.widget.radiolist.RadioListItem(
+                tag=v.key,
+                description=v.description
+            ) for v in versions if v.createSupported
+        ]
+
+        radiolist = pvc.widget.radiolist.RadioList(
+            items=items,
+            dialog=self.dialog,
+            title='Create New Virtual Machine',
+            text='Select Virtual Machine hardware version'
+        )
+
+        code, tag = radiolist.display()
+
+        if code in (self.dialog.CANCEL, self.dialog.ESC) or not tag:
+            return
+
+        return tag

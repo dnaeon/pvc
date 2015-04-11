@@ -28,7 +28,8 @@ __all__ = [
     'VirtualMachineActionWidget',
     'VirtualMachineConsoleWidget',
     'VirtualMachinePowerWidget',
-    'VirtualMachineExportWidget'
+    'VirtualMachineExportWidget',
+    'CreateVirtualMachineWidget',
 ]
 
 
@@ -963,3 +964,172 @@ class VirtualMachineActionWidget(object):
         )
 
         self.obj.UnregisterVM()
+
+
+class CreateVirtualMachineWidget(object):
+    def __init__(self, agent, dialog, datacenter=None, cluster=None, host=None):
+        """
+        Widget for creating a new Virtual Machine
+
+        Args:
+            agent                      (VConnector): A VConnector instance
+            dialog                  (dialog.Dialog): A Dialog instance
+            datacenter             (vim.Datacenter): A vim.Datacenter instance
+            cluster    (vim.ClusterComputeResource): A vim.CluterComputeResource instance
+            host                   (vim.HostSystem): A vim.HostSystem instance
+
+        """
+        self.agent = agent
+        self.dialog = dialog
+        self.datacenter = datacenter
+        self.cluster = cluster
+        self.host = host
+        self.display()
+
+    def display(self):
+        if not self.datacenter:
+            self.datacenter = self.select_datacenter()
+            if not self.datacenter:
+                return
+
+        if not self.cluster:
+            self.cluster = self.select_cluster(folder=self.datacenter)
+            if not self.cluster:
+                return
+
+        if not self.select_host(cluster=self.cluster):
+            return
+
+        if self.host:
+            datastore = self.select_datastore(obj=self.host)
+        else:
+            datastore = self.select_datastore(obj=self.cluster)
+
+        if not datastore:
+            return
+
+        folder = self.datacenter.vmFolder
+        pool = self.cluster.resourcePool
+
+    def select_datacenter(self):
+        """
+        Select datacenter for Virtual Machine placement
+
+        Returns:
+            A vim.Datacenter managed entity upon successfuly selecting
+            an existing vim.Datacenter instance, None otherwise
+
+        """
+        datacenter = pvc.widget.common.choose_datacenter(
+            agent=self.agent,
+            dialog=self.dialog
+        )
+
+        if not datacenter:
+            return
+
+        if not datacenter.hostFolder.childEntity:
+            self.dialog.msgbox(
+                title='Create New Virtual Machine',
+                text='No compute resources found in datacenter {}'.format(datacenter.name)
+            )
+            return
+
+        return datacenter
+
+    def select_cluster(self, folder):
+        """
+        Select a cluster for Virtual Machine placement
+
+        Args:
+            folder (vim.Folder): A vim.Folder instance
+
+        Returns:
+            A vim.ClusterComputeResource managed entity upon successufuly
+            selecting an existing cluster, None otherwise
+
+        """
+        cluster = pvc.widget.common.choose_cluster(
+            agent=self.agent,
+            dialog=self.dialog,
+            folder=folder
+        )
+
+        if not cluster:
+            return
+
+        if not cluster.host:
+            self.dialog.msgbox(
+                title='Create New Virtual Machine',
+                text='No valid hosts found in cluster {}'.format(cluster.name)
+            )
+            return
+
+        return cluster
+
+    def select_host(self, cluster):
+        """
+        Select host for Virtual Machine placement
+
+        If a target host has been provided use that host for the
+        Virtual Machine placement.
+
+        If the cluster has DRS enabled in Fully Automated mode then
+        let vSphere decide where to place the Virtual Machine instead.
+
+        Args:
+            cluster (vim.ClusterComputeResource): A cluster managed entity
+
+        Returns:
+            True on successfully selecting a host or if the cluster is
+            configured with DRS in fully automated mode allowing for
+            dynamic Virtual Machine placement, otherwise returns False.
+
+        """
+        drs_config = cluster.configuration.drsConfig
+        drs_enabled = drs_config.enabled
+        drs_fully_automated = drs_config.defaultVmBehavior == pyVmomi.vim.cluster.DrsConfigInfo.DrsBehavior.fullyAutomated
+        dynamic_placement = drs_enabled and drs_fully_automated
+
+        if not self.host and not dynamic_placement:
+            self.host = pvc.widget.common.choose_host(
+                agent=self.agent,
+                dialog=self.dialog,
+                folder=cluster
+            )
+
+            if not self.host:
+                self.dialog.msgbox(
+                    title='Create New Virtual Machine',
+                    text='No valid host selected'
+                )
+                return False
+
+        return True
+
+    def select_datastore(self, obj):
+        """
+        Select datastore for Virtual Machine placement
+
+        Args:
+            obj (vim.ManagedEntity): A Managed Entity containing datastores
+
+        Returns:
+            A vim.Datastore managed entity upon successfully
+            selecting a datastore, None otherwise
+
+        """
+        if not obj.datastore:
+            self.dialog.msgbox(
+                title='Create New Virtual Machine',
+                text='No datastores found on {}'.format(obj.name)
+            )
+            return
+
+        datastore = pvc.widget.common.choose_datastore(
+            agent=self.agent,
+            dialog=self.dialog,
+            obj=obj
+        )
+
+        return datastore

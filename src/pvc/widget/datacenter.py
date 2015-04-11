@@ -17,7 +17,7 @@ import pvc.widget.virtualmachine
 __all__ = [
     'DatacenterWidget', 'DatacenterActionWidget',
     'DatacenterClusterWidget', 'DatacenterHostSystemWidget',
-    'DatacenterDatastoreWidget',
+    'DatacenterDatastoreWidget', 'DatacenterNetworkWidget',
 ]
 
 
@@ -79,8 +79,8 @@ class DatacenterWidget(object):
             ),
             pvc.widget.menu.MenuItem(
                 tag='Networking',
-                description='Networks in datacenter',
-                on_select=pvc.widget.common.network_menu,
+                description='Manage networking in datacenter',
+                on_select=DatacenterNetworkWidget,
                 on_select_args=(self.agent, self.dialog, self.obj)
             ),
             pvc.widget.menu.MenuItem(
@@ -408,6 +408,42 @@ class DatacenterDatastoreWidget(object):
                 tag='View',
                 description='View datastores in datacenter',
                 on_select=pvc.widget.common.datastore_menu,
+                on_select_args=(self.agent, self.dialog, self.obj)
+            ),
+        ]
+
+        menu = pvc.widget.menu.Menu(
+            items=items,
+            dialog=self.dialog,
+            title=self.obj.name,
+            text='Select item from menu'
+        )
+
+        menu.display()
+
+
+class DatacenterNetworkWidget(object):
+    def __init__(self, agent, dialog, obj):
+        """
+        Widget for managing networking in a datacenter
+
+        Args:
+            agent      (VConnector): A VConnector instance
+            dialog  (dialog.Dialog): A Dialog instance
+            obj    (vim.Datacenter): A vim.Datacenter managed entity
+
+        """
+        self.agent = agent
+        self.dialog = dialog
+        self.obj = obj
+        self.display()
+
+    def display(self):
+        items = [
+            pvc.widget.menu.MenuItem(
+                tag='View',
+                description='View networks in datacenter',
+                on_select=pvc.widget.common.network_menu,
                 on_select_args=(self.agent, self.dialog, self.obj)
             ),
         ]

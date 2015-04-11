@@ -14,8 +14,12 @@ import pvc.widget.form
 import pvc.widget.gauge
 import pvc.widget.menu
 import pvc.widget.performance
+import pvc.widget.virtualmachine
 
-__all__ = ['ClusterWidget', 'ClusterActionWidget', 'ClusterHostWidget']
+__all__ = [
+    'ClusterWidget', 'ClusterActionWidget',
+    'ClusterHostWidget', 'ClusterVirtualMachineWidget',
+]
 
 
 class ClusterWidget(object):
@@ -56,6 +60,12 @@ class ClusterWidget(object):
                 tag='Hosts',
                 description='Manage hosts in cluster',
                 on_select=ClusterHostWidget,
+                on_select_args=(self.agent, self.dialog, self.obj)
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='Virtual Machines',
+                description='Manage Virtual Machines in cluster',
+                on_select=ClusterVirtualMachineWidget,
                 on_select_args=(self.agent, self.dialog, self.obj)
             ),
             pvc.widget.menu.MenuItem(
@@ -428,3 +438,87 @@ class ClusterHostWidget(object):
                 task=task
             )
             gauge.display()
+
+
+class ClusterVirtualMachineWidget(object):
+    def __init__(self, agent, dialog, obj):
+        """
+        Widget for managing virtual machines in a cluster
+
+        Args:
+            agent                  (VConnector): A VConnector instance
+            dialog              (dialog.Dialog): A Dialog instance
+            obj    (vim.ClusterComputeResource): A vim.ClusterComputeResource instance
+
+        """
+        self.agent = agent
+        self.dialog = dialog
+        self.obj = obj
+        self.display()
+
+    def display(self):
+        items = [
+            pvc.widget.menu.MenuItem(
+                tag='Create',
+                description='Create new Virtual Machine',
+                on_select=pvc.widget.virtualmachine.CreateVirtualMachineWidget,
+                on_select_args=(self.agent, self.dialog, self.obj.parent.parent, self.obj)
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='View',
+                description='Virtual Machines in cluster',
+                on_select=self.virtual_machine_menu
+            ),
+        ]
+
+        menu = pvc.widget.menu.Menu(
+            items=items,
+            dialog=self.dialog,
+            title=self.obj.name,
+            text='Select item from menu'
+        )
+
+        menu.display()
+
+    def virtual_machine_menu(self):
+        self.dialog.infobox(
+            title=self.obj.name,
+            text='Retrieving information ...'
+        )
+
+        view = self.agent.get_container_view(
+            obj_type=[pyVmomi.vim.VirtualMachine],
+            container=self.obj
+        )
+        properties = self.agent.collect_properties(
+            view_ref=view,
+            obj_type=pyVmomi.vim.VirtualMachine,
+            path_set=['name', 'runtime.powerState'],
+            include_mors=True
+        )
+        view.DestroyView()
+
+        if not properties:
+            self.dialog.msgbox(
+                title=self.obj.name,
+                text='No virtual machines found in cluster'
+            )
+            return
+
+        items = [
+            pvc.widget.menu.MenuItem(
+                tag=vm['name'],
+                description=vm['runtime.powerState'],
+                on_select=pvc.widget.virtualmachine.VirtualMachineWidget,
+                on_select_args=(self.agent, self.dialog, vm['obj'])
+            ) for vm in properties
+        ]
+
+        menu = pvc.widget.menu.Menu(
+            items=items,
+            dialog=self.dialog,
+            title=self.obj.name,
+            text='Select a virtual machine from the menu'
+        )
+
+        menu.display()

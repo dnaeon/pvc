@@ -432,6 +432,12 @@ class DatacenterVirtualMachineWidget(object):
     def display(self):
         items = [
             pvc.widget.menu.MenuItem(
+                tag='Create',
+                description='Create new Virtual Machine',
+                on_select=pvc.widget.virtualmachine.CreateVirtualMachineWidget,
+                on_select_args=(self.agent, self.dialog, self.obj)
+            ),
+            pvc.widget.menu.MenuItem(
                 tag='View',
                 description='Virtual Machines in datacenter',
                 on_select=self.virtual_machine_menu

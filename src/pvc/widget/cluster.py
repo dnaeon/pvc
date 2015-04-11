@@ -261,7 +261,7 @@ class ClusterHostWidget(object):
             items=items,
             dialog=self.dialog,
             title=self.obj.name,
-            text='Select a host action to be performed'
+            text='Select action to be performed'
         )
 
         menu.display()

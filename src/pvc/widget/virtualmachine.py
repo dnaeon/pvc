@@ -997,7 +997,6 @@ class CreateVirtualMachineWidget(object):
             self.cluster = self.select_cluster(folder=self.datacenter)
             if not self.cluster:
                 return
-
         if not self.select_host(cluster=self.cluster):
             return
 
@@ -1005,13 +1004,48 @@ class CreateVirtualMachineWidget(object):
             datastore = self.select_datastore(obj=self.host)
         else:
             datastore = self.select_datastore(obj=self.cluster)
-
         if not datastore:
+            return
+
+        vmx_version = self.select_vmx_version(obj=self.cluster)
+        if not vmx_version:
+            return
+
+        # TODO: Add guest operation system
+        # TODO: Add virtual disks
+        # TODO: Add networking
+
+        specs = self.get_vm_specs()
+        if not specs:
             return
 
         folder = self.datacenter.vmFolder
         pool = self.cluster.resourcePool
-        vmx_version = self.select_vmx_version(obj=self.cluster)
+
+        vmx_file = pyVmomi.vim.VirtualMachineFileInfo(
+            vmPathName='[{}] {}'.format(datastore.name, specs['Name'])
+        )
+
+        config_spec = pyVmomi.vim.VirtualMachineConfigSpec(
+            name=specs['Name'],
+            numCPUs=int(specs['vCPU(s)']),
+            memoryMB=int(specs['Memory Size (MB)']),
+            files=vmx_file,
+            version=vmx_version
+        )
+
+        task = folder.CreateVM_Task(
+            config=config_spec,
+            pool=pool,
+            host=self.host
+        )
+        gauge = pvc.widget.gauge.TaskGauge(
+            dialog=self.dialog,
+            task=task,
+            title='Creating New Virtual Machine',
+            text='Creating virtual machine {}'.format(specs['Name'])
+        )
+        gauge.display()
 
     def select_datacenter(self):
         """

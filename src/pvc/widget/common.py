@@ -14,6 +14,7 @@ import pvc.widget.datastore
 import pvc.widget.network
 import pvc.widget.hostsystem
 import pvc.widget.session
+import pvc.widget.radiolist
 import pvc.widget.virtualmachine
 
 __all__ = [
@@ -677,6 +678,192 @@ def choose_datacenter(agent, dialog, all_datacenters_option=False):
         return
 
     return [d['obj'] for d in properties if d['name'] == tag].pop()
+
+
+def choose_cluster(agent, dialog, folder=None):
+    """
+    Prompts the user to choose a cluster
+
+    Args:
+        agent     (VConnector): A VConnector instance
+        dialog (dialog.Dailog): A Dialog instance
+        folder    (vim.Folder): A vim.Folder entity
+
+    Returns:
+        A vim.ClusterComputeResource managed entity if the
+        user chose a cluster.
+
+        Returns None if no cluster has been
+        selected or there are no clusters existing
+
+    """
+    dialog.infobox(
+        text='Retrieving information ...'
+    )
+
+    if not folder:
+        folder = agent.si.content.rootFolder
+
+    view = agent.get_container_view(
+        obj_type=[pyVmomi.vim.ClusterComputeResource],
+        container=folder
+    )
+
+    properties = agent.collect_properties(
+        view_ref=view,
+        obj_type=pyVmomi.vim.ClusterComputeResource,
+        path_set=['name', 'overallStatus'],
+        include_mors=True
+    )
+    view.DestroyView()
+
+    if not properties:
+        return
+
+    items = [
+        pvc.widget.radiolist.RadioListItem(
+            tag=cluster['name'],
+            description=cluster['overallStatus'],
+        ) for cluster in properties
+    ]
+
+    radiolist = pvc.widget.radiolist.RadioList(
+        items=items,
+        dialog=dialog,
+        title='Choose Cluster',
+        text='Choose a cluster from the list below'
+    )
+
+    code, tag = radiolist.display()
+
+    if code in (dialog.CANCEL, dialog.ESC) or not tag:
+        return
+
+    return [c['obj'] for c in properties if c['name'] == tag].pop()
+
+
+def choose_host(agent, dialog, folder=None):
+    """
+    Prompts the user to choose a host
+
+    Args:
+        agent     (VConnector): A VConnector instance
+        dialog (dialog.Dailog): A Dialog instance
+        folder    (vim.Folder): A vim.Folder entity
+
+    Returns:
+        A vim.HostSystem managed entity if the
+        user chose a host.
+
+        Returns None if no host has been
+        selected or there are no hosts existing
+
+    """
+    dialog.infobox(
+        text='Retrieving information ...'
+    )
+
+    if not folder:
+        folder = agent.si.content.rootFolder
+
+    view = agent.get_container_view(
+        obj_type=[pyVmomi.vim.HostSystem],
+        container=folder
+    )
+
+    properties = agent.collect_properties(
+        view_ref=view,
+        obj_type=pyVmomi.vim.HostSystem,
+        path_set=['name', 'runtime.connectionState'],
+        include_mors=True
+    )
+    view.DestroyView()
+
+    if not properties:
+        return
+
+    items = [
+        pvc.widget.radiolist.RadioListItem(
+            tag=host['name'],
+            description=host['runtime.connectionState'],
+        ) for host in properties
+    ]
+
+    radiolist = pvc.widget.radiolist.RadioList(
+        items=items,
+        dialog=dialog,
+        title='Choose Host',
+        text='Choose a host from the list below'
+    )
+
+    code, tag = radiolist.display()
+
+    if code in (dialog.CANCEL, dialog.ESC) or not tag:
+        return
+
+    return [h['obj'] for h in properties if h['name'] == tag].pop()
+
+
+def choose_datastore(agent, dialog, folder):
+    """
+    Prompts the user to choose a datastore
+
+    Args:
+        agent     (VConnector): A VConnector instance
+        dialog (dialog.Dailog): A Dialog instance
+        folder    (vim.Folder): A vim.Folder instance
+
+    Returns:
+        A vim.Datastore managed entity if a datastore has been
+        chosen
+
+        Return None if no datastore has been selected or
+        there are no datastores existing
+
+    """
+    dialog.infobox(
+        text='Retrieving information ...'
+    )
+
+    if not folder:
+        folder = agent.si.content.rootFolder
+
+    view = agent.get_container_view(
+        obj_type=[pyVmomi.vim.Datastore],
+        container=folder
+    )
+
+    properties = agent.collect_properties(
+        view_ref=view,
+        obj_type=pyVmomi.vim.Datastore,
+        path_set=['name', 'summary.accessible'],
+        include_mors=True
+    )
+    view.DestroyView()
+
+    if not properties:
+        return
+
+    items = [
+        pvc.widget.radiolist.RadioListItem(
+            tag=ds['name'],
+            description='Accessible' if ds['summary.accessible'] else 'Not Accessible',
+        ) for ds in properties
+    ]
+
+    radiolist = pvc.widget.radiolist.RadioList(
+        items=items,
+        dialog=dialog,
+        title='Choose Datastore',
+        text='Choose a datastore from the list below'
+    )
+
+    code, tag = radiolist.display()
+
+    if code in (dialog.CANCEL, dialog.ESC) or not tag:
+        return
+
+    return [ds['obj'] for ds in properties if ds['name'] == tag].pop()
 
 
 def inventory_search_by_dns(agent, dialog, vm_search):

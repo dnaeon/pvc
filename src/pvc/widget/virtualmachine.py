@@ -1144,6 +1144,10 @@ class CreateVirtualMachineWidget(object):
             obj (vim.ComputeResource): Entity to query for supported versions
 
         """
+        self.dialog.infobox(
+            text='Retrieving information ...'
+        )
+
         versions = obj.environmentBrowser.QueryConfigOptionDescriptor()
         items = [
             pvc.widget.radiolist.RadioListItem(

@@ -16,7 +16,7 @@ import pvc.widget.virtualmachine
 
 __all__ = [
     'DatacenterWidget', 'DatacenterActionWidget',
-    'DatacenterClusterWidget',
+    'DatacenterClusterWidget', 'DatacenterHostSystemWidget',
 ]
 
 
@@ -62,11 +62,12 @@ class DatacenterWidget(object):
             pvc.widget.menu.MenuItem(
                 tag='Hosts',
                 description='Manage hosts in datacenter',
-                on_select=self.datacenter_host_menu
+                on_select=DatacenterHostSystemWidget,
+                on_select_args=(self.agent, self.dialog, self.obj)
             ),
             pvc.widget.menu.MenuItem(
-                tag='VMs',
-                description='Virtual Machines in datacenter',
+                tag='Virtual Machines',
+                description='Manage Virtual Machines',
                 on_select=self.datacenter_vm_menu
             ),
             pvc.widget.menu.MenuItem(
@@ -135,53 +136,6 @@ class DatacenterWidget(object):
         )
 
         form.display()
-
-    def datacenter_host_menu(self):
-        """
-        Menu of hosts in the datacenter
-
-        """
-        self.dialog.infobox(
-            title=self.obj.name,
-            text='Retrieving information ...'
-        )
-
-        view = self.agent.get_container_view(
-            obj_type=[pyVmomi.vim.HostSystem],
-            container=self.obj
-        )
-        properties = self.agent.collect_properties(
-            view_ref=view,
-            obj_type=pyVmomi.vim.HostSystem,
-            path_set=['name', 'runtime.connectionState'],
-            include_mors=True
-        )
-        view.DestroyView()
-
-        if not properties:
-            self.dialog.msgbox(
-                title=self.obj.name,
-                text='No hosts found in datacenter'
-            )
-            return
-
-        items = [
-            pvc.widget.menu.MenuItem(
-                tag=host['name'],
-                description=host['runtime.connectionState'],
-                on_select=pvc.widget.hostsystem.HostSystemWidget,
-                on_select_args=(self.agent, self.dialog, host['obj'])
-            ) for host in properties
-        ]
-
-        menu = pvc.widget.menu.Menu(
-            items=items,
-            dialog=self.dialog,
-            title=self.obj.name,
-            text='Select a host from the menu'
-        )
-
-        menu.display()
 
     def datacenter_vm_menu(self):
         """
@@ -351,3 +305,80 @@ class DatacenterClusterWidget(object):
                 title='Error',
                 text=e.msg
             )
+
+class DatacenterHostSystemWidget(object):
+    def __init__(self, agent, dialog, obj):
+        """
+        Widget for managing hosts in a datacenter
+
+        Args:
+            agent      (VConnector): A VConnector instance
+            dialog  (dialog.Dialog): A Dialog instance
+            obj    (vim.Datacenter): A vim.Datacenter managed entity
+
+        """
+        self.agent = agent
+        self.dialog = dialog
+        self.obj = obj
+        self.display()
+
+    def display(self):
+        items = [
+            pvc.widget.menu.MenuItem(
+                tag='View',
+                description='View hosts in datacenter',
+                on_select=self.host_menu
+            ),
+        ]
+
+        menu = pvc.widget.menu.Menu(
+            items=items,
+            dialog=self.dialog,
+            title=self.obj.name,
+            text='Select item from menu'
+        )
+
+        menu.display()
+
+    def host_menu(self):
+        self.dialog.infobox(
+            title=self.obj.name,
+            text='Retrieving information ...'
+        )
+
+        view = self.agent.get_container_view(
+            obj_type=[pyVmomi.vim.HostSystem],
+            container=self.obj
+        )
+        properties = self.agent.collect_properties(
+            view_ref=view,
+            obj_type=pyVmomi.vim.HostSystem,
+            path_set=['name', 'runtime.connectionState'],
+            include_mors=True
+        )
+        view.DestroyView()
+
+        if not properties:
+            self.dialog.msgbox(
+                title=self.obj.name,
+                text='No hosts found in datacenter'
+            )
+            return
+
+        items = [
+            pvc.widget.menu.MenuItem(
+                tag=host['name'],
+                description=host['runtime.connectionState'],
+                on_select=pvc.widget.hostsystem.HostSystemWidget,
+                on_select_args=(self.agent, self.dialog, host['obj'])
+            ) for host in properties
+        ]
+
+        menu = pvc.widget.menu.Menu(
+            items=items,
+            dialog=self.dialog,
+            title=self.obj.name,
+            text='Select a host from the menu'
+        )
+
+        menu.display()

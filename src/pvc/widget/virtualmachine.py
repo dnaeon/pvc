@@ -1169,3 +1169,35 @@ class CreateVirtualMachineWidget(object):
             return
 
         return tag
+
+    def get_vm_specs(self):
+        """
+        Get Virtual Machine specs
+
+        """
+        elements = [
+            pvc.widget.form.FormElement(label='Name'),
+            pvc.widget.form.FormElement(label='vCPU(s)'),
+            pvc.widget.form.FormElement(label='Memory Size (MB)'),
+        ]
+
+        form = pvc.widget.form.Form(
+            dialog=self.dialog,
+            form_elements=elements,
+            title='Create New Virtual Machine',
+            text='Virtual Machine details'
+        )
+
+        code, fields = form.display()
+
+        if code in (self.dialog.CANCEL, self.dialog.ESC):
+            return
+
+        if not all(fields.values()):
+            self.dialog.msgbox(
+                title='Create New Virtual Machine',
+                text='Invalid input provided'
+            )
+            return
+
+        return fields

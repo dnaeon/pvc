@@ -16,6 +16,7 @@ import pvc.widget.menu
 import pvc.widget.form
 import pvc.widget.network
 import pvc.widget.performance
+import pvc.widget.virtualmachine
 
 __all__ = [
     'HostSystemWidget', 'HostSystemDatastoreWidget',
@@ -53,8 +54,8 @@ class HostSystemWidget(object):
             ),
             pvc.widget.menu.MenuItem(
                 tag='Virtual Machines',
-                description='Virtual Machines on this host',
-                on_select=pvc.widget.common.virtual_machine_menu,
+                description='Manage Virtual Machines',
+                on_select=HostSystemVirtualMachineWidget,
                 on_select_args=(self.agent, self.dialog, self.obj)
             ),
             pvc.widget.menu.MenuItem(
@@ -193,6 +194,48 @@ class HostSystemWidget(object):
         )
 
         form.display()
+
+
+class HostSystemVirtualMachineWidget(object):
+    def __init__(self, agent, dialog, obj):
+        """
+        Widget for managing Virtual Machines on a HostSystem
+
+        Args:
+            agent      (VConnector): A VConnector instance
+            dialog  (dialog.Dialog): A Dialog instance
+            obj    (vim.HostSystem): A HostSystem managed entity
+
+        """
+        self.agent = agent
+        self.dialog = dialog
+        self.obj = obj
+        self.display()
+
+    def display(self):
+        items = [
+            pvc.widget.menu.MenuItem(
+                tag='Create',
+                description='Create new Virtual Machine',
+                on_select=pvc.widget.virtualmachine.CreateVirtualMachineWidget,
+                on_select_args=(self.agent, self.dialog, self.obj.parent.parent.parent, self.obj.parent, self.obj)
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='View',
+                description='View Virtual Machines on host',
+                on_select=pvc.widget.common.virtual_machine_menu,
+                on_select_args=(self.agent, self.dialog, self.obj)
+            ),
+        ]
+
+        menu = pvc.widget.menu.Menu(
+            items=items,
+            dialog=self.dialog,
+            title=self.obj.name,
+            text='Select action to be performed'
+        )
+
+        menu.display()
 
 
 class HostSystemDatastoreWidget(object):

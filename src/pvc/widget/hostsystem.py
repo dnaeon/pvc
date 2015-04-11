@@ -21,6 +21,7 @@ import pvc.widget.virtualmachine
 __all__ = [
     'HostSystemWidget', 'HostSystemDatastoreWidget',
     'HostSystemAddNfsStorage', 'HostSystemUnmountStorage',
+    'HostSystemVirtualMachineWidget',
 ]
 
 

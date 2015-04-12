@@ -11,7 +11,7 @@ Managed Entities.
 
 PVC is Open Source and licensed under the `BSD License`_.
 
-.. image:: docs/images/pvc-screenshot.jpg
+.. image:: images/pvc-screenshot.jpg
 
 Status
 ======

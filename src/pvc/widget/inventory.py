@@ -6,7 +6,6 @@ Inventory Widgets
 import pyVmomi
 
 import pvc.widget.common
-import pvc.widget.cluster
 import pvc.widget.menu
 import pvc.widget.datastore
 import pvc.widget.hostsystem

@@ -38,8 +38,8 @@ Getting started with PVC is easy - simply go over the
 :ref:`installation` and :ref:`configuration` pages, which
 provide all the details about how to install and configure PVC.
 
-Make sure to also check the :ref:`examples` page, which contains
-examples and screenshots of using PVC in a VMware vSphere environment.
+Make sure to also check the :ref:`screenshots` page, which contains
+example screenshots of using PVC in a VMware vSphere environment.
 
 .. _`dialog(1)`: http://invisible-island.net/dialog/
 .. _`pyVmomi`: https://github.com/vmware/pyvmomi
@@ -62,4 +62,4 @@ Contents
    .. toctree::
    :maxdepth: 2
 
-   examples
+   screenshots

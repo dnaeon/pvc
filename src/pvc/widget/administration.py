@@ -1,4 +1,3 @@
-
 # Copyright (c) 2015 Marin Atanasov Nikolov <dnaeon@gmail.com>
 # All rights reserved.
 #

@@ -26,6 +26,7 @@ class NetworkWidget(object):
         self.agent = agent
         self.dialog = dialog
         self.obj = obj
+        self.title = '{} ({})'.format(self.obj.name, self.obj.__class__.__name__)
         self.display()
 
     def display(self):
@@ -62,8 +63,8 @@ class NetworkWidget(object):
         menu = pvc.widget.menu.Menu(
             items=items,
             dialog=self.dialog,
-            title=self.obj.name,
-            text='Select item from menu'
+            title=self.title,
+            text='Select an item from the menu'
         )
 
         menu.display()
@@ -74,7 +75,7 @@ class NetworkWidget(object):
 
         """
         self.dialog.infobox(
-            title=self.obj.name,
+            title=self.title,
             text='Retrieving information ...'
         )
 
@@ -96,7 +97,7 @@ class NetworkWidget(object):
         form = pvc.widget.form.Form(
             dialog=self.dialog,
             form_elements=elements,
-            title=self.obj.name,
+            title=self.title,
             text='Network summary information'
         )
 

@@ -119,7 +119,6 @@ class SessionWidget(object):
             return
 
         code, tag = self.dialog.yesno(
-            title='Confirmation',
             text='Terminate session {}@{}?'.format(self.obj.userName, self.obj.ipAddress)
         )
 

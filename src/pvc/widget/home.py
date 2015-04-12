@@ -46,7 +46,7 @@ class HomeWidget(object):
             items=items,
             dialog=self.dialog,
             title='Home',
-            text='Select an item from menu',
+            text='Select an item from the menu',
             cancel_label='Logout'
         )
 

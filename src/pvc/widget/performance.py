@@ -37,6 +37,7 @@ class PerformanceProviderWidget(object):
         self.dialog = dialog
         self.obj = obj
         self.pm = self.agent.si.content.perfManager
+        self.title = '{} ({})'.format(self.obj.name, self.obj.__class__.__name__)
         self.display()
 
     def display(self):
@@ -57,8 +58,8 @@ class PerformanceProviderWidget(object):
         menu = pvc.widget.menu.Menu(
             items=items,
             dialog=self.dialog,
-            title=self.obj.name,
-            text='Performance Metrics',
+            title=self.title,
+            text='Select an item from the menu',
         )
 
         menu.display()
@@ -69,7 +70,7 @@ class PerformanceProviderWidget(object):
 
         """
         self.dialog.infobox(
-            title=self.obj.name,
+            title=self.title,
             text='Retrieving information ...'
         )
 
@@ -95,7 +96,7 @@ class PerformanceProviderWidget(object):
         form = pvc.widget.form.Form(
             dialog=self.dialog,
             form_elements=elements,
-            title=self.obj.name,
+            title=self.title,
             text='Performance provider summary information'
         )
 
@@ -117,6 +118,7 @@ class PerformanceGroupWidget(object):
         self.dialog = dialog
         self.obj = obj
         self.pm = self.agent.si.content.perfManager
+        self.title = '{} ({})'.format(self.obj.name, self.obj.__class__.__name__)
         self.display()
 
     def display(self):
@@ -136,7 +138,7 @@ class PerformanceGroupWidget(object):
         menu = pvc.widget.menu.Menu(
             items=items,
             dialog=self.dialog,
-            title=self.obj.name,
+            title=self.title,
             text='Select an item from the menu',
         )
 
@@ -148,6 +150,7 @@ class PerformanceGroupWidget(object):
 
         """
         self.dialog.infobox(
+            title=self.title,
             text='Retrieving information ...'
         )
 
@@ -157,7 +160,7 @@ class PerformanceGroupWidget(object):
 
         if not provider_summary.currentSupported:
             self.dialog.msgbox(
-                title=self.obj.name,
+                title=self.title,
                 text='Provider does not support real-time statistics'
             )
             return
@@ -169,7 +172,7 @@ class PerformanceGroupWidget(object):
 
         if not metric_id:
             self.dialog.msgbox(
-                title=self.obj.name,
+                title=self.title,
                 text='Performance data is currently not available for entity'
             )
             return
@@ -190,7 +193,7 @@ class PerformanceGroupWidget(object):
         menu = pvc.widget.menu.Menu(
             items=items,
             dialog=self.dialog,
-            title=self.obj.name,
+            title=self.title,
             text='Select a performance counter group'
         )
 
@@ -202,6 +205,7 @@ class PerformanceGroupWidget(object):
 
         """
         self.dialog.infobox(
+            title=self.title,
             text='Retrieving information ...'
         )
 
@@ -211,7 +215,7 @@ class PerformanceGroupWidget(object):
 
         if not provider_summary.summarySupported:
             self.dialog.msgbox(
-                title=self.obj.name,
+                title=self.title,
                 text='Provider does not support historical statistics'
             )
             return
@@ -222,7 +226,7 @@ class PerformanceGroupWidget(object):
 
         if not metric_id:
             self.dialog.msgbox(
-                title=self.obj.name,
+                title=self.title,
                 text='Performance data is currently not available for entity'
             )
             return
@@ -243,7 +247,7 @@ class PerformanceGroupWidget(object):
         menu = pvc.widget.menu.Menu(
             items=items,
             dialog=self.dialog,
-            title=self.obj.name,
+            title=self.title,
             text='Select a performance counter group'
         )
 
@@ -276,10 +280,12 @@ class PerformanceCounterInGroupWidget(object):
         self.metric_id = metric_id
         self.label = label
         self.realtime = realtime
+        self.title = '{} ({})'.format(self.obj.name, self.obj.__class__.__name__)
         self.display()
 
     def display(self):
         self.dialog.infobox(
+            title=self.title,
             text='Retrieving information ...'
         )
 
@@ -304,7 +310,7 @@ class PerformanceCounterInGroupWidget(object):
         menu = pvc.widget.menu.Menu(
             items=items,
             dialog=self.dialog,
-            title=self.obj.name,
+            title=self.title,
             text="Performance counters in group '{}'".format(self.label)
         )
 
@@ -335,6 +341,7 @@ class PerformanceCounterWidget(object):
         self.counter = counter
         self.realtime = realtime
         self.pm = self.agent.si.content.perfManager
+        self.title = '{} ({})'.format(self.obj.name, self.obj.__class__.__name__)
         self.display()
 
     def display(self):
@@ -361,7 +368,7 @@ class PerformanceCounterWidget(object):
         menu = pvc.widget.menu.Menu(
             items=items,
             dialog=self.dialog,
-            title=self.obj.name,
+            title=self.title,
             text=title
         )
 
@@ -373,6 +380,7 @@ class PerformanceCounterWidget(object):
 
         """
         self.dialog.infobox(
+            title=self.title,
             text='Retrieving information ...'
         )
 
@@ -417,7 +425,7 @@ class PerformanceCounterWidget(object):
         form = pvc.widget.form.Form(
             dialog=self.dialog,
             form_elements=elements,
-            title=self.obj.name,
+            title=self.title,
             text='Performance counter information'
         )
 
@@ -448,6 +456,7 @@ class PerformanceCounterGraphWidget(object):
         self.counter = counter
         self.realtime = realtime
         self.pm = self.agent.si.content.perfManager
+        self.title = '{} ({})'.format(self.obj.name, self.obj.__class__.__name__)
         self.display()
 
     def display(self):
@@ -459,7 +468,7 @@ class PerformanceCounterGraphWidget(object):
             )
         except OSError as e:
             self.dialog.msgbox(
-                title=self.obj.name,
+                title=self.title,
                 text='Unable to find gnuplot(1): \n{}\n'.format(e)
             )
             return
@@ -467,6 +476,7 @@ class PerformanceCounterGraphWidget(object):
         selected_instances = self.select_counter_instances()
         if not selected_instances:
             self.dialog.msgbox(
+                title=self.title,
                 text='No counter instances selected'
             )
             return
@@ -600,6 +610,11 @@ class PerformanceCounterGraphWidget(object):
         Prompts the user to select counter instances
 
         """
+        self.dialog.infobox(
+            title=self.title,
+            text='Retrieving information ...'
+        )
+
         if self.realtime:
             provider_summary = self.pm.QueryPerfProviderSummary(
                 entity=self.obj
@@ -627,7 +642,7 @@ class PerformanceCounterGraphWidget(object):
         checklist = pvc.widget.checklist.CheckList(
             items=items,
             dialog=self.dialog,
-            title=self.obj.name,
+            title=self.title,
             text=checklist_text,
         )
         checklist.display()
@@ -639,6 +654,11 @@ class PerformanceCounterGraphWidget(object):
         Prompts the user to select an existing historical interval
 
         """
+        self.dialog.infobox(
+            title=self.title,
+            text='Retrieving information ...'
+        )
+
         intervals = [i.name for i in self.pm.historicalInterval]
         items = [
             pvc.widget.radiolist.RadioListItem(tag=interval) for interval in intervals
@@ -647,7 +667,7 @@ class PerformanceCounterGraphWidget(object):
         radiolist = pvc.widget.radiolist.RadioList(
             items=items,
             dialog=self.dialog,
-            title='Historical Performance Intervals',
+            title=self.title,
             text='Select a historical performance interval',
         )
 
@@ -664,8 +684,10 @@ class PerformanceCounterGraphWidget(object):
 
         """
         self.dialog.infobox(
+            title=self.title,
             text='Retrieving information ...'
         )
+
         provider_summary = self.pm.QueryPerfProviderSummary(
             entity=self.obj
         )
@@ -710,6 +732,7 @@ class PerformanceCounterGraphWidget(object):
                 data=data
             )
             code = self.dialog.pause(
+                title=self.title,
                 text=text.format(interval_id),
                 height=15,
                 width=60,
@@ -735,6 +758,7 @@ class PerformanceCounterGraphWidget(object):
             return
 
         self.dialog.infobox(
+            title=self.title,
             text='Retrieving information ...'
         )
 

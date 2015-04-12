@@ -36,8 +36,10 @@ def rename(obj, dialog):
         dialog     (dialog.Dialog): A Dialog instance
 
     """
+    title = '{} ({})'.format(obj.name, obj.__class__.__name__)
+
     code, new_name = dialog.inputbox(
-        title=obj.name,
+        title=title,
         text='New name for {}?'.format(obj.name),
         init=obj.name
     )
@@ -49,7 +51,7 @@ def rename(obj, dialog):
     gauge = pvc.widget.gauge.TaskGauge(
         dialog=dialog,
         task=task,
-        title=obj.name,
+        title=title,
         text='Renaming {} to {} ...'.format(obj.name, new_name)
     )
 
@@ -68,8 +70,10 @@ def remove(obj, dialog):
         dialog     (dialog.Dialog): A Dialog instance
 
     """
+    title = '{} ({})'.format(obj.name, obj.__class__.__name__)
+
     code = dialog.yesno(
-        title='Confirm remove',
+        title=title,
         text='Remove {} and all child objects?'.format(obj.name)
     )
 
@@ -80,8 +84,8 @@ def remove(obj, dialog):
     gauge = pvc.widget.gauge.TaskGauge(
         dialog=dialog,
         task=task,
-        title=obj.name,
-        text='Removing {} ...'.format(obj.name)
+        title=title,
+        text='Removing {} and any child objects ...'.format(obj.name)
     )
 
     gauge.display()
@@ -118,7 +122,8 @@ def datacenter_menu(agent, dialog, folder=None):
 
     if not properties:
         dialog.msgbox(
-            text='No datacenters found'
+            title='No objects found',
+            text='No datacenters managed entities found'
         )
         return
 
@@ -172,7 +177,8 @@ def cluster_menu(agent, dialog, folder=None):
 
     if not properties:
         dialog.msgbox(
-            text='No clusters found'
+            title='No objects found',
+            text='No cluster managed entities found'
         )
         return
 
@@ -205,13 +211,16 @@ def host_menu(agent, dialog, obj):
         obj    (vim.ManagedEntity): A Managed Entity
 
     """
+    title = '{} ({})'.format(obj.name, obj.__class__.__name__)
+
     dialog.infobox(
+        title=title,
         text='Retrieving information ...'
     )
 
     if not hasattr(obj, 'host'):
         dialog.msgbox(
-            title=obj.name,
+            title=title,
             text='Entity does not contain a host property'
         )
         return
@@ -227,8 +236,8 @@ def host_menu(agent, dialog, obj):
 
     if not properties:
         dialog.msgbox(
-            title=obj.name,
-            text='No hosts found for this managed entity'
+            title=title,
+            text='No hosts found on this managed entity'
         )
         return
 
@@ -244,7 +253,7 @@ def host_menu(agent, dialog, obj):
     menu = pvc.widget.menu.Menu(
         items=items,
         dialog=dialog,
-        title=obj.name,
+        title=title,
         text=''
     )
 
@@ -264,13 +273,16 @@ def hostmount_menu(agent, dialog, obj):
         obj    (vim.Datastore): A Managed Entity
 
     """
+    title = '{} ({})'.format(obj.name, obj.__class__.__name__)
+
     dialog.infobox(
+        title=title,
         text='Retrieving information ...'
     )
 
     if not hasattr(obj, 'host'):
         dialog.msgbox(
-            title=obj.name,
+            title=title,
             text='Entity does not contain a host property'
         )
         return
@@ -287,7 +299,7 @@ def hostmount_menu(agent, dialog, obj):
 
     if not properties:
         dialog.msgbox(
-            title=obj.name,
+            title=title,
             text='No hosts have mounted the datastore'
         )
         return
@@ -304,7 +316,7 @@ def hostmount_menu(agent, dialog, obj):
     menu = pvc.widget.menu.Menu(
         items=items,
         dialog=dialog,
-        title=obj.name,
+        title=title,
         text='',
     )
 
@@ -321,13 +333,16 @@ def network_menu(agent, dialog, obj):
         obj    (vim.ManagedEntity): A Managed Entity
 
     """
+    title = '{} ({})'.format(obj.name, obj.__class__.__name__)
+
     dialog.infobox(
+        title=title,
         text='Retrieving information ...'
     )
 
     if not hasattr(obj, 'network'):
         dialog.msgbox(
-            title=obj.name,
+            title=title,
             text='Entity does not contain a network property'
         )
         return
@@ -343,7 +358,7 @@ def network_menu(agent, dialog, obj):
 
     if not properties:
         dialog.msgbox(
-            title=obj.name,
+            title=title,
             text='No networks found for this managed entity'
         )
         return
@@ -360,7 +375,7 @@ def network_menu(agent, dialog, obj):
     menu = pvc.widget.menu.Menu(
         items=items,
         dialog=dialog,
-        title=obj.name,
+        title=title,
         text=''
     )
 
@@ -378,14 +393,16 @@ def virtual_machine_menu(agent, dialog, obj):
         obj    (vim.ManagedEntity): A Managed Entity
 
     """
+    title = '{} ({})'.format(obj.name, obj.__class__.__name__)
+
     dialog.infobox(
-        title=obj.name,
+        title=title,
         text='Retrieving information ...'
     )
 
     if not hasattr(obj, 'vm'):
         dialog.msgbox(
-            title=obj.name,
+            title=title,
             text='Entity does not contain a vm property'
         )
         return
@@ -401,7 +418,7 @@ def virtual_machine_menu(agent, dialog, obj):
 
     if not properties:
         dialog.msgbox(
-            title=obj.name,
+            title=title,
             text='No virtual machines found for this managed entity'
         )
         return
@@ -418,7 +435,7 @@ def virtual_machine_menu(agent, dialog, obj):
     menu = pvc.widget.menu.Menu(
         items=items,
         dialog=dialog,
-        title=obj.name,
+        title=title,
         text=''
     )
 
@@ -436,13 +453,16 @@ def datastore_menu(agent, dialog, obj):
         obj    (vim.ManagedEntity): A Managed Entity
 
     """
+    title = '{} ({})'.format(obj.name, obj.__class__.__name__)
+
     dialog.infobox(
+        title=title,
         text='Retrieving information ...'
     )
 
     if not hasattr(obj, 'datastore'):
         dialog.msgbox(
-            title=obj.name,
+            title=title,
             text='Entity does not contain a datastore property'
         )
         return
@@ -458,7 +478,7 @@ def datastore_menu(agent, dialog, obj):
 
     if not properties:
         dialog.msgbox(
-            title=obj.name,
+            title=title,
             text='No datastores found for this managed entity'
         )
         return
@@ -475,7 +495,7 @@ def datastore_menu(agent, dialog, obj):
     menu = pvc.widget.menu.Menu(
         items=items,
         dialog=dialog,
-        title=obj.name,
+        title=title,
         text=''
     )
 
@@ -492,6 +512,7 @@ def session_menu(agent, dialog):
 
     """
     dialog.infobox(
+        title='Sessions',
         text='Retrieving information ...'
     )
 
@@ -532,13 +553,16 @@ def alarm_menu(agent, dialog, obj):
         obj    (vim.ManagedEntity): A Managed Entity
 
     """
+    title = '{} ({})'.format(obj.name, obj.__class__.__name__)
+
     dialog.infobox(
+        title=title,
         text='Retrieving information ...'
     )
 
     if not obj.triggeredAlarmState:
         dialog.msgbox(
-            title=obj.name,
+            title=title,
             text='No triggered alarms'
         )
         return
@@ -555,7 +579,7 @@ def alarm_menu(agent, dialog, obj):
     menu = pvc.widget.menu.Menu(
         items=items,
         dialog=dialog,
-        title=obj.name,
+        title=title,
         text='Select an alarm for more details'
     )
 
@@ -821,7 +845,10 @@ def choose_datastore(agent, dialog, obj):
         there are no datastores existing
 
     """
+    title = '{} ({})'.format(obj.name, obj.__class__.__name__)
+
     dialog.infobox(
+        title=title,
         text='Retrieving information ...'
     )
 

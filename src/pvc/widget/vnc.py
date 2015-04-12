@@ -32,6 +32,7 @@ class VncWidget(object):
         """
         self.dialog = dialog
         self.obj = obj
+        self.title = '{} ({})'.format(self.obj.name, self.obj.__class__.__name__)
         self.display()
 
     def _port_is_open(self, host, port, timeout=3.0):
@@ -65,7 +66,7 @@ class VncWidget(object):
 
         """
         self.dialog.infobox(
-            title=self.obj.name,
+            title=self.title,
             text='Searching for available port ...'
         )
 
@@ -120,7 +121,7 @@ class VncWidget(object):
 
         task = self.obj.Reconfigure(spec=spec)
         gauge = pvc.widget.gauge.TaskGauge(
-            title=self.obj.name,
+            title=self.title,
             text='Configuring VNC Settings',
             dialog=self.dialog,
             task=task
@@ -158,7 +159,7 @@ class VncWidget(object):
         menu = pvc.widget.menu.Menu(
             items=items,
             dialog=self.dialog,
-            title=self.obj.name,
+            title=self.title,
             text='Select an action to be performed'
         )
 
@@ -169,7 +170,10 @@ class VncWidget(object):
         Enable VNC Console for the Virtual Machine
 
         """
-        self.dialog.infobox('Enabling VNC Console ...')
+        self.dialog.infobox(
+            title=self.title,
+            text='Enabling VNC Console ...'
+        )
 
         extra_config = self._get_extra_config_options()
         enabled = extra_config.get('RemoteDisplay.vnc.enabled')
@@ -178,7 +182,7 @@ class VncWidget(object):
 
         if str(enabled).lower() == 'true':
             self.dialog.msgbox(
-                title=self.obj.name,
+                title=self.title,
                 text='VNC console is already enabled'
             )
             return
@@ -186,7 +190,7 @@ class VncWidget(object):
         port = port if port else self._get_available_port(attempts=10)
         if not port:
             self.dialog.msgbox(
-                title=self.obj.name,
+                title=self.title,
                 text='No available ports for VNC connection, try again later.'
             )
             return
@@ -210,11 +214,12 @@ class VncWidget(object):
 
         task = self.obj.Reconfigure(spec=spec)
         gauge = pvc.widget.gauge.TaskGauge(
-            title=self.obj.name,
-            text='Disabling VNC Console',
             dialog=self.dialog,
-            task=task
+            task=task,
+            title=self.title,
+            text='Disabling VNC Console',
         )
+
         gauge.display()
 
     def settings(self):
@@ -246,14 +251,14 @@ class VncWidget(object):
         form = pvc.widget.form.Form(
             dialog=self.dialog,
             form_elements=elements,
-            title=self.obj.name,
+            title=self.title,
             text='VNC Configuration Options'
         )
 
         code, fields = form.display()
         if not all(fields.values()):
             self.dialog.msgbox(
-                title=self.obj.name,
+                title=self.title,
                 text='Invalid configuration settings'
             )
             return
@@ -272,7 +277,7 @@ class VncWidget(object):
         """
         if self.obj.runtime.powerState != pyVmomi.vim.VirtualMachinePowerState.poweredOn:
             self.dialog.msgbox(
-                title=self.obj.name,
+                title=self.title,
                 text='You need to power on the Virtual Machine first'
             )
             return
@@ -284,7 +289,7 @@ class VncWidget(object):
 
         if str(enabled).lower() != 'true':
             self.dialog.msgbox(
-                title=self.obj.name,
+                title=self.title,
                 text='VNC console is disabled, enable the console first'
             )
             return
@@ -293,6 +298,7 @@ class VncWidget(object):
         host_ip = host.config.network.vnic[0].spec.ip.ipAddress
 
         self.dialog.infobox(
+            title=self.title,
             text='Launching console ...'
         )
 
@@ -302,7 +308,7 @@ class VncWidget(object):
                 'Cannot establish a connection to the Virtual Machine console\n'
             )
             self.dialog.msgbox(
-                title=self.obj.name,
+                title=self.title,
                 text=text.format(host.name, host_ip, port)
             )
             return
@@ -316,7 +322,7 @@ class VncWidget(object):
                 f.write(out)
         except OSError as e:
             self.dialog.msgbox(
-                title=self.obj.name,
+                title=self.title,
                 text='Cannot create a vncpasswd(1) file: \n{}\n'.format(e)
             )
             return
@@ -329,7 +335,7 @@ class VncWidget(object):
             )
         except OSError as e:
             self.dialog.msgbox(
-                title=self.obj.name,
+                title=self.title,
                 text='Cannot launch console: \n{}\n'.format(e)
             )
 

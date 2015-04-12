@@ -22,6 +22,7 @@ class AdministrationWidget(object):
         """
         self.agent = agent
         self.dialog = dialog
+        self.title = 'Administration'
         self.display()
 
     def display(self):
@@ -43,8 +44,8 @@ class AdministrationWidget(object):
         menu = pvc.widget.menu.Menu(
             items=items,
             dialog=self.dialog,
-            title='Administration',
-            text='Select administration item'
+            title=self.title,
+            text='Select an action to be performed'
         )
 
         menu.display()

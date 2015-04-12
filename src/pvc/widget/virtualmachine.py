@@ -48,6 +48,7 @@ class VirtualMachineWidget(object):
         self.agent = agent
         self.dialog = dialog
         self.obj = obj
+        self.title = '{} ({})'.format(self.obj.name, self.obj.__class__.__name__)
         self.display()
 
     def display(self):
@@ -125,8 +126,8 @@ class VirtualMachineWidget(object):
         menu = pvc.widget.menu.Menu(
             items=items,
             dialog=self.dialog,
-            title=self.obj.name,
-            text='Select an item from menu'
+            title=self.title,
+            text='Select an item from the menu'
         )
 
         menu.display()
@@ -137,7 +138,7 @@ class VirtualMachineWidget(object):
 
         """
         self.dialog.infobox(
-            title=self.obj.name,
+            title=self.title,
             text='Retrieving information ...'
         )
 
@@ -203,8 +204,8 @@ class VirtualMachineWidget(object):
         form = pvc.widget.form.Form(
             dialog=self.dialog,
             form_elements=elements,
-            title=self.obj.name,
-            text='Virtual Machine General Information'
+            title=self.title,
+            text='Virtual Machine general information'
         )
 
         form.display()
@@ -215,7 +216,7 @@ class VirtualMachineWidget(object):
 
         """
         self.dialog.infobox(
-            title=self.obj.name,
+            title=self.title,
             text='Retrieving information ...'
         )
 
@@ -252,8 +253,8 @@ class VirtualMachineWidget(object):
         form = pvc.widget.form.Form(
             dialog=self.dialog,
             form_elements=elements,
-            title=self.obj.name,
-            text='Virtual Machine Resources Usage Information'
+            title=self.title,
+            text='Virtual Machine resource usage'
         )
 
         return form.display()
@@ -275,6 +276,7 @@ class VirtualMachinePowerWidget(object):
         self.agent = agent
         self.dialog = dialog
         self.obj = obj
+        self.title = '{} ({})'.format(self.obj.name, self.obj.__class__.__name__)
         self.display()
 
     def display(self):
@@ -314,7 +316,7 @@ class VirtualMachinePowerWidget(object):
         menu = pvc.widget.menu.Menu(
             items=items,
             dialog=self.dialog,
-            title=self.obj.name,
+            title=self.title,
             text='Select an action to be performed'
         )
 
@@ -327,7 +329,7 @@ class VirtualMachinePowerWidget(object):
         """
         if self.obj.runtime.powerState == pyVmomi.vim.VirtualMachinePowerState.poweredOn:
             self.dialog.msgbox(
-                title=self.obj.name,
+                title=self.title,
                 text='Virtual Machine is already powered on.'
             )
             return
@@ -336,7 +338,7 @@ class VirtualMachinePowerWidget(object):
         gauge = pvc.widget.gauge.TaskGauge(
             dialog=self.dialog,
             task=task,
-            title=self.obj.name,
+            title=self.title,
             text='Powering On Virtual Machine'
         )
 
@@ -349,7 +351,7 @@ class VirtualMachinePowerWidget(object):
         """
         if self.obj.runtime.powerState == pyVmomi.vim.VirtualMachinePowerState.poweredOff:
             self.dialog.msgbox(
-                title=self.obj.name,
+                title=self.title,
                 text='Virtual Machine is already powered off.'
             )
             return
@@ -358,7 +360,7 @@ class VirtualMachinePowerWidget(object):
         gauge = pvc.widget.gauge.TaskGauge(
             dialog=self.dialog,
             task=task,
-            title=self.obj.name,
+            title=self.title,
             text='Powering Off Virtual Machine'
         )
 
@@ -371,7 +373,7 @@ class VirtualMachinePowerWidget(object):
         """
         if self.obj.runtime.powerState != pyVmomi.vim.VirtualMachinePowerState.poweredOn:
             self.dialog.msgbox(
-                title=self.obj.name,
+                title=self.title,
                 text='Virtual Machine is not powered on, cannot suspend.'
             )
             return
@@ -380,7 +382,7 @@ class VirtualMachinePowerWidget(object):
         gauge = pvc.widget.gauge.TaskGauge(
             dialog=self.dialog,
             task=task,
-            title=self.obj.name,
+            title=self.title,
             text='Suspending Virtual Machine'
         )
 
@@ -393,7 +395,7 @@ class VirtualMachinePowerWidget(object):
         """
         if self.obj.runtime.powerState != pyVmomi.vim.VirtualMachinePowerState.poweredOn:
             self.dialog.msgbox(
-                title=self.obj.name,
+                title=self.title,
                 text='Virtual Machine is not powered on, cannot reset.'
             )
             return
@@ -402,7 +404,7 @@ class VirtualMachinePowerWidget(object):
         gauge = pvc.widget.gauge.TaskGauge(
             dialog=self.dialog,
             task=task,
-            title=self.obj.name,
+            title=self.title,
             text='Resetting Virtual Machine'
         )
 
@@ -417,20 +419,20 @@ class VirtualMachinePowerWidget(object):
         """
         if self.obj.runtime.powerState != pyVmomi.vim.VirtualMachinePowerState.poweredOn:
             self.dialog.msgbox(
-                title=self.obj.name,
+                title=self.title,
                 text='Virtual Machine is not powered on, cannot shutdown.'
             )
             return
 
         if self.obj.guest.toolsRunningStatus != pyVmomi.vim.VirtualMachineToolsRunningStatus.guestToolsRunning:
             self.dialog.msgbox(
-                title=self.obj.name,
+                title=self.title,
                 text='VMware Tools is not running, cannot shutdown system'
             )
             return
 
         self.dialog.infobox(
-            title=self.obj.name,
+            title=self.title,
             text='Shutting down guest system ...'
         )
         self.obj.ShutdownGuest()
@@ -444,20 +446,20 @@ class VirtualMachinePowerWidget(object):
         """
         if self.obj.runtime.powerState != pyVmomi.vim.VirtualMachinePowerState.poweredOn:
             self.dialog.msgbox(
-                title=self.obj.name,
+                title=self.title,
                 text='Virtual Machine is not powered on, cannot reboot.'
             )
             return
 
         if self.obj.guest.toolsRunningStatus != pyVmomi.vim.VirtualMachineToolsRunningStatus.guestToolsRunning:
             self.dialog.msgbox(
-                title=self.obj.name,
+                title=self.title,
                 text='VMware Tools is not running, cannot reboot system'
             )
             return
 
         self.dialog.infobox(
-            title=self.obj.name,
+            title=self.title,
             text='Rebooting guest system ...'
         )
         self.obj.RebootGuest()
@@ -480,12 +482,13 @@ class VirtualMachineExportWidget(object):
         self.dialog = dialog
         self.obj = obj
         self.create_ova = create_ova
+        self.title = '{} ({})'.format(self.obj.name, self.obj.__class__.__name__)
         self.display()
 
     def display(self):
         if self.obj.runtime.powerState != pyVmomi.vim.VirtualMachinePowerState.poweredOff:
             self.dialog.msgbox(
-                title=self.obj.name,
+                title=self.title,
                 text='Virtual Machine must be powered off in order to be exported'
             )
             return
@@ -499,7 +502,7 @@ class VirtualMachineExportWidget(object):
 
         if code in (self.dialog.ESC, self.dialog.CANCEL):
             self.dialog.msgbox(
-                title=self.obj.name,
+                title=self.title,
                 text='No destination directory specified'
             )
             return
@@ -522,7 +525,7 @@ class VirtualMachineExportWidget(object):
         #       downloading the actual VMDK files
 
         self.dialog.infobox(
-            title=self.obj.name,
+            title=self.title,
             text='Initializing OVF export ...'
         )
 
@@ -623,7 +626,7 @@ class VirtualMachineExportWidget(object):
             )
 
         self.dialog.msgbox(
-            title=self.obj.name,
+            title=self.title,
             text='Export successful. Files saved in:\n\n{}\n'.format(path)
         )
 
@@ -638,7 +641,7 @@ class VirtualMachineExportWidget(object):
 
         """
         self.dialog.infobox(
-            title=self.obj.name,
+            title=self.title,
             text='Creating OVF manifest ...'
         )
 
@@ -660,7 +663,7 @@ class VirtualMachineExportWidget(object):
 
         """
         self.dialog.infobox(
-            title=self.obj.name,
+            title=self.title,
             text='Creating OVF descriptor ...'
         )
 
@@ -675,13 +678,13 @@ class VirtualMachineExportWidget(object):
 
         if dr.warning:
             self.dialog.msgbox(
-                title='Warning - {}'.format(self.obj.name),
+                title='Warning - {}'.format(self.title),
                 text=str(dr.warning)
             )
 
         if dr.error:
             self.dialog.msgbox(
-                title='Error - {}'.format(self.obj.name),
+                title='Error - {}'.format(self.title),
                 text=str(dr.error)
             )
 
@@ -698,7 +701,7 @@ class VirtualMachineExportWidget(object):
 
         """
         self.dialog.infobox(
-            title=self.obj.name,
+            title=self.title,
             text='Creating OVA file ...'
         )
 
@@ -742,6 +745,7 @@ class VirtualMachineConsoleWidget(object):
         self.agent = agent
         self.dialog = dialog
         self.obj = obj
+        self.title = '{} ({})'.format(self.obj.name, self.obj.__class__.__name__)
         self.display()
 
     def display(self):
@@ -762,8 +766,8 @@ class VirtualMachineConsoleWidget(object):
         menu = pvc.widget.menu.Menu(
             items=items,
             dialog=self.dialog,
-            title=self.obj.name,
-            text='Select console to be launched'
+            title=self.title,
+            text='Select a console to be launched'
         )
 
         menu.display()
@@ -782,7 +786,7 @@ class VirtualMachineConsoleWidget(object):
 
         """
         self.dialog.infobox(
-            title=self.obj.name,
+            title=self.title,
             text='Launching console ...'
         )
 
@@ -796,7 +800,7 @@ class VirtualMachineConsoleWidget(object):
             )
         except OSError as e:
             self.dialog.msgbox(
-                title=self.obj.name,
+                title=self.title,
                 text='Cannot launch console: \n{}\n'.format(e)
             )
             return
@@ -819,6 +823,7 @@ class VirtualMachineTemplateWidget(object):
         self.agent = agent
         self.dialog = dialog
         self.obj = obj
+        self.title = '{} ({})'.format(self.obj.name, self.obj.__class__.__name__)
         self.display()
 
     def display(self):
@@ -850,7 +855,7 @@ class VirtualMachineTemplateWidget(object):
         menu = pvc.widget.menu.Menu(
             dialog=self.dialog,
             items=items,
-            title=self.obj.name,
+            title=self.title,
             text='Select an action to be performed'
         )
 
@@ -863,13 +868,13 @@ class VirtualMachineTemplateWidget(object):
         """
         if self.obj.runtime.powerState != pyVmomi.vim.VirtualMachinePowerState.poweredOff:
             self.dialog.msgbox(
-                title=self.obj.name,
+                title=self.title,
                 text='Virtual Machine must be powered off first'
             )
             return
 
         self.dialog.infobox(
-            title=self.obj.name,
+            title=self.title,
             text='Marking {} as template ...'.format(self.obj.name)
         )
 
@@ -877,7 +882,7 @@ class VirtualMachineTemplateWidget(object):
             self.obj.MarkAsTemplate()
         except Exception as e:
             self.dialog.msgbox(
-                title=self.obj.name,
+                title=self.title,
                 text=e.msg
             )
 
@@ -887,7 +892,7 @@ class VirtualMachineTemplateWidget(object):
 
         """
         self.dialog.infobox(
-            title=self.obj.name,
+            title=self.title,
             text='Marking {} as virtual machine ...'.format(self.obj.name)
         )
 
@@ -895,7 +900,7 @@ class VirtualMachineTemplateWidget(object):
             self.obj.MarkAsVirtualMachine()
         except Exception as e:
             self.dialog.msgbox(
-                title=self.obj.name,
+                title=self.title,
                 text=e.msg
             )
 
@@ -914,6 +919,7 @@ class VirtualMachineActionWidget(object):
         self.agent = agent
         self.dialog = dialog
         self.obj = obj
+        self.title = '{} ({})'.format(self.obj.name, self.obj.__class__.__name__)
         self.display()
 
     def display(self):
@@ -940,7 +946,7 @@ class VirtualMachineActionWidget(object):
         menu = pvc.widget.menu.Menu(
             dialog=self.dialog,
             items=items,
-            title=self.obj.name,
+            title=self.title,
             text='Select an action to be performed'
         )
 
@@ -952,7 +958,7 @@ class VirtualMachineActionWidget(object):
 
         """
         code = self.dialog.yesno(
-            title='Confirm remove',
+            title='Confirm Remove',
             text='Remove {} from inventory?'.format(self.obj.name)
         )
 
@@ -960,7 +966,7 @@ class VirtualMachineActionWidget(object):
             return
 
         self.dialog.infobox(
-            title=self.obj.name,
+            title=self.title,
             text='Removing {} from inventory ...'.format(self.obj.name)
         )
 
@@ -1045,6 +1051,7 @@ class CreateVirtualMachineWidget(object):
             title='Creating New Virtual Machine',
             text='Creating virtual machine {}'.format(specs['Name'])
         )
+
         gauge.display()
 
     def select_datacenter(self):

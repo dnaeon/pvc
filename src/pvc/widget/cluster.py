@@ -36,6 +36,7 @@ class ClusterWidget(object):
         self.agent = agent
         self.dialog = dialog
         self.obj = obj
+        self.title = '{} ({})'.format(self.obj.name, self.obj.__class__.__name__)
         self.display()
 
     def display(self):
@@ -103,7 +104,7 @@ class ClusterWidget(object):
         menu = pvc.widget.menu.Menu(
             items=items,
             dialog=self.dialog,
-            title=self.obj.name,
+            title=self.title,
             text='Select item from menu'
         )
 
@@ -115,7 +116,7 @@ class ClusterWidget(object):
 
         """
         self.dialog.infobox(
-            title=self.obj.name,
+            title=self.title,
             text='Retrieving information ...'
         )
 
@@ -161,7 +162,7 @@ class ClusterWidget(object):
         form = pvc.widget.form.Form(
             dialog=self.dialog,
             form_elements=elements,
-            title=self.obj.name,
+            title=self.title,
             text='Cluster general information'
         )
 
@@ -175,11 +176,11 @@ class ClusterWidget(object):
         text = (
             'Not implemented yet.\n'
             'See https://github.com/vmware/pyvmomi/issues/229 '
-            'for more information.\n'
+            'for more details.\n'
         )
 
         self.dialog.msgbox(
-            title=self.obj.name,
+            title=self.title,
             text=text
         )
 
@@ -198,6 +199,7 @@ class ClusterActionWidget(object):
         self.agent = agent
         self.dialog = dialog
         self.obj = obj
+        self.title = '{} ({})'.format(self.obj.name, self.obj.__class__.__name__)
         self.display()
 
     def display(self):
@@ -219,7 +221,7 @@ class ClusterActionWidget(object):
         menu = pvc.widget.menu.Menu(
             items=items,
             dialog=self.dialog,
-            title=self.obj.name,
+            title=self.title,
             text='Select an action to be performed'
         )
 
@@ -240,6 +242,7 @@ class ClusterHostWidget(object):
         self.agent = agent
         self.dialog = dialog
         self.obj = obj
+        self.title = '{} ({})'.format(self.obj.name, self.obj.__class__.__name__)
         self.display()
 
     def display(self):
@@ -270,7 +273,7 @@ class ClusterHostWidget(object):
         menu = pvc.widget.menu.Menu(
             items=items,
             dialog=self.dialog,
-            title=self.obj.name,
+            title=self.title,
             text='Select action to be performed'
         )
 
@@ -297,7 +300,7 @@ class ClusterHostWidget(object):
             dialog=self.dialog,
             form_elements=elements,
             mixed_form=True,
-            title='Connect host to cluster',
+            title=self.title,
             text=text.format(self.obj.name)
         )
 
@@ -308,7 +311,7 @@ class ClusterHostWidget(object):
 
         if not all(fields.values()):
             self.dialog.msgbox(
-                title='Error',
+                title=self.title,
                 text='Invalid input provided'
             )
             return
@@ -328,7 +331,7 @@ class ClusterHostWidget(object):
         gauge = pvc.widget.gauge.TaskGauge(
             dialog=self.dialog,
             task=task,
-            title=self.obj.name,
+            title=self.title,
             text='Connecting {} to cluster ...'.format(fields['Hostname'])
         )
 
@@ -340,7 +343,7 @@ class ClusterHostWidget(object):
 
         """
         self.dialog.infobox(
-            title=self.obj.name,
+            title=self.title,
             text='Retrieving information ...'
         )
 
@@ -351,7 +354,7 @@ class ClusterHostWidget(object):
 
         if not items:
             self.dialog.msgbox(
-                title=self.obj.name,
+                title=self.title,
                 text='There are no hosts connected to cluster'
             )
             return
@@ -359,7 +362,7 @@ class ClusterHostWidget(object):
         checklist = pvc.widget.checklist.CheckList(
             items=items,
             dialog=self.dialog,
-            title=self.obj.name,
+            title=self.title,
             text='Select host(s) to be disconnected from the cluster'
         )
 
@@ -375,7 +378,7 @@ class ClusterHostWidget(object):
             'Disconnect host(s) from cluster?\n'
         )
         code = self.dialog.yesno(
-            title='Confirm Disconnect',
+            title=self.title,
             text=text.format('\n'.join(selected))
         )
 
@@ -386,7 +389,7 @@ class ClusterHostWidget(object):
         for host_obj in host_objects:
             task = host_obj.Disconnect()
             gauge = pvc.widget.gauge.TaskGauge(
-                title=self.obj.name,
+                title=self.title,
                 text='Disconnecting {} from cluster ...'.format(host_obj.name),
                 dialog=self.dialog,
                 task=task
@@ -399,7 +402,7 @@ class ClusterHostWidget(object):
 
         """
         self.dialog.infobox(
-            title=self.obj.name,
+            title=self.title,
             text='Retrieving information ...'
         )
 
@@ -410,7 +413,7 @@ class ClusterHostWidget(object):
 
         if not items:
             self.dialog.msgbox(
-                title=self.obj.name,
+                title=self.title,
                 text='There are no disconnected hosts in the cluster'
             )
             return
@@ -418,7 +421,7 @@ class ClusterHostWidget(object):
         checklist = pvc.widget.checklist.CheckList(
             items=items,
             dialog=self.dialog,
-            title=self.obj.name,
+            title=self.title,
             text='Select host(s) to be reconnected to the cluster'
         )
 
@@ -432,7 +435,7 @@ class ClusterHostWidget(object):
         for host_obj in host_objects:
             task = host_obj.Reconnect()
             gauge = pvc.widget.gauge.TaskGauge(
-                title=self.obj.name,
+                title=self.title,
                 text='Reconnecting {} to cluster ...'.format(host_obj.name),
                 dialog=self.dialog,
                 task=task
@@ -454,6 +457,7 @@ class ClusterVirtualMachineWidget(object):
         self.agent = agent
         self.dialog = dialog
         self.obj = obj
+        self.title = '{} ({})'.format(self.obj.name, self.obj.__class__.__name__)
         self.display()
 
     def display(self):
@@ -474,15 +478,15 @@ class ClusterVirtualMachineWidget(object):
         menu = pvc.widget.menu.Menu(
             items=items,
             dialog=self.dialog,
-            title=self.obj.name,
-            text='Select item from menu'
+            title=self.title,
+            text='Select an action to be performed'
         )
 
         menu.display()
 
     def virtual_machine_menu(self):
         self.dialog.infobox(
-            title=self.obj.name,
+            title=self.title,
             text='Retrieving information ...'
         )
 
@@ -500,7 +504,7 @@ class ClusterVirtualMachineWidget(object):
 
         if not properties:
             self.dialog.msgbox(
-                title=self.obj.name,
+                title=self.title,
                 text='No virtual machines found in cluster'
             )
             return
@@ -517,7 +521,7 @@ class ClusterVirtualMachineWidget(object):
         menu = pvc.widget.menu.Menu(
             items=items,
             dialog=self.dialog,
-            title=self.obj.name,
+            title=self.title,
             text='Select a virtual machine from the menu'
         )
 

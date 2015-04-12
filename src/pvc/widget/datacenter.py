@@ -36,6 +36,7 @@ class DatacenterWidget(object):
         self.agent = agent
         self.dialog = dialog
         self.obj = obj
+        self.title = '{} ({})'.format(self.obj.name, self.obj.__class__.__name__)
         self.display()
 
     def display(self):
@@ -108,7 +109,7 @@ class DatacenterWidget(object):
         menu = pvc.widget.menu.Menu(
             items=items,
             dialog=self.dialog,
-            title=self.obj.name,
+            title=self.title,
             text='Select item from menu'
         )
 
@@ -120,7 +121,7 @@ class DatacenterWidget(object):
 
         """
         self.dialog.infobox(
-            title=self.obj.name,
+            title=self.title,
             text='Retrieving information ...'
         )
 
@@ -134,7 +135,7 @@ class DatacenterWidget(object):
         form = pvc.widget.form.Form(
             dialog=self.dialog,
             form_elements=elements,
-            title=self.obj.name,
+            title=self.title,
             text='Datacenter general information'
         )
 
@@ -155,6 +156,7 @@ class DatacenterActionWidget(object):
         self.agent = agent
         self.dialog = dialog
         self.obj = obj
+        self.title = '{} ({})'.format(self.obj.name, self.obj.__class__.__name__)
         self.display()
 
     def display(self):
@@ -176,7 +178,7 @@ class DatacenterActionWidget(object):
         menu = pvc.widget.menu.Menu(
             items=items,
             dialog=self.dialog,
-            title=self.obj.name,
+            title=self.title,
             text='Select an action to be performed'
         )
 
@@ -197,6 +199,7 @@ class DatacenterClusterWidget(object):
         self.agent = agent
         self.dialog = dialog
         self.obj = obj
+        self.title = '{} ({})'.format(self.obj.name, self.obj.__class__.__name__)
         self.display()
 
     def display(self):
@@ -221,8 +224,8 @@ class DatacenterClusterWidget(object):
         menu = pvc.widget.menu.Menu(
             items=items,
             dialog=self.dialog,
-            title=self.obj.name,
-            text='Select action to be performed'
+            title=self.title,
+            text='Select an action to be performed'
         )
 
         menu.display()
@@ -233,8 +236,8 @@ class DatacenterClusterWidget(object):
 
         """
         code, name = self.dialog.inputbox(
-            title='Create Cluster',
-            text='Provide name for the cluster'
+            title=self.title,
+            text='Provide name for the cluster to be created'
         )
 
         if code in (self.dialog.CANCEL, self.dialog.ESC):
@@ -242,12 +245,13 @@ class DatacenterClusterWidget(object):
 
         if not name:
             self.dialog.msgbox(
-                title='Error',
-                text='Invalid input provided'
+                title=self.title,
+                text='Error, invalid input provided'
             )
             return
 
         self.dialog.infobox(
+            title=self.title,
             text='Creating cluster {} ...'.format(name)
         )
 
@@ -258,7 +262,7 @@ class DatacenterClusterWidget(object):
             )
         except Exception as e:
             self.dialog.msgbox(
-                title='Error',
+                title=self.title,
                 text=e.msg
             )
 
@@ -277,6 +281,7 @@ class DatacenterHostSystemWidget(object):
         self.agent = agent
         self.dialog = dialog
         self.obj = obj
+        self.title = '{} ({})'.format(self.obj.name, self.obj.__class__.__name__)
         self.display()
 
     def display(self):
@@ -291,7 +296,7 @@ class DatacenterHostSystemWidget(object):
         menu = pvc.widget.menu.Menu(
             items=items,
             dialog=self.dialog,
-            title=self.obj.name,
+            title=self.title,
             text='Select item from menu'
         )
 
@@ -299,7 +304,7 @@ class DatacenterHostSystemWidget(object):
 
     def host_menu(self):
         self.dialog.infobox(
-            title=self.obj.name,
+            title=self.title,
             text='Retrieving information ...'
         )
 
@@ -317,7 +322,7 @@ class DatacenterHostSystemWidget(object):
 
         if not properties:
             self.dialog.msgbox(
-                title=self.obj.name,
+                title=self.title,
                 text='No hosts found in datacenter'
             )
             return
@@ -334,7 +339,7 @@ class DatacenterHostSystemWidget(object):
         menu = pvc.widget.menu.Menu(
             items=items,
             dialog=self.dialog,
-            title=self.obj.name,
+            title=self.title,
             text='Select a host from the menu'
         )
 
@@ -355,6 +360,7 @@ class DatacenterDatastoreWidget(object):
         self.agent = agent
         self.dialog = dialog
         self.obj = obj
+        self.title = '{} ({})'.format(self.obj.name, self.obj.__class__.__name__)
         self.display()
 
     def display(self):
@@ -370,7 +376,7 @@ class DatacenterDatastoreWidget(object):
         menu = pvc.widget.menu.Menu(
             items=items,
             dialog=self.dialog,
-            title=self.obj.name,
+            title=self.title,
             text='Select item from menu'
         )
 
@@ -391,6 +397,7 @@ class DatacenterNetworkWidget(object):
         self.agent = agent
         self.dialog = dialog
         self.obj = obj
+        self.title = '{} ({})'.format(self.obj.name, self.obj.__class__.__name__)
         self.display()
 
     def display(self):
@@ -406,7 +413,7 @@ class DatacenterNetworkWidget(object):
         menu = pvc.widget.menu.Menu(
             items=items,
             dialog=self.dialog,
-            title=self.obj.name,
+            title=self.title,
             text='Select item from menu'
         )
 
@@ -427,6 +434,7 @@ class DatacenterVirtualMachineWidget(object):
         self.agent = agent
         self.dialog = dialog
         self.obj = obj
+        self.title = '{} ({})'.format(self.obj.name, self.obj.__class__.__name__)
         self.display()
 
     def display(self):
@@ -447,15 +455,15 @@ class DatacenterVirtualMachineWidget(object):
         menu = pvc.widget.menu.Menu(
             items=items,
             dialog=self.dialog,
-            title=self.obj.name,
-            text='Select item from menu'
+            title=self.title,
+            text='Select an action to be performed'
         )
 
         menu.display()
 
     def virtual_machine_menu(self):
         self.dialog.infobox(
-            title=self.obj.name,
+            title=self.title,
             text='Retrieving information ...'
         )
 
@@ -473,7 +481,7 @@ class DatacenterVirtualMachineWidget(object):
 
         if not properties:
             self.dialog.msgbox(
-                title=self.obj.name,
+                title=self.title,
                 text='No virtual machines found in datacenter'
             )
             return
@@ -490,7 +498,7 @@ class DatacenterVirtualMachineWidget(object):
         menu = pvc.widget.menu.Menu(
             items=items,
             dialog=self.dialog,
-            title=self.obj.name,
+            title=self.title,
             text='Select a virtual machine from the menu'
         )
 

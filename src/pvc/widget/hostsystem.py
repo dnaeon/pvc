@@ -39,6 +39,7 @@ class HostSystemWidget(object):
         self.agent = agent
         self.dialog = dialog
         self.obj = obj
+        self.title = '{} ({})'.format(self.obj.name, self.obj.__class__.__name__)
         self.display()
 
     def display(self):
@@ -94,8 +95,8 @@ class HostSystemWidget(object):
         menu = pvc.widget.menu.Menu(
             items=items,
             dialog=self.dialog,
-            title=self.obj.name,
-            text='Select item from menu'
+            title=self.title,
+            text='Select an action to be performed'
         )
 
         menu.display()
@@ -106,7 +107,7 @@ class HostSystemWidget(object):
 
         """
         self.dialog.infobox(
-            title=self.obj.name,
+            title=self.title,
             text='Retrieving information ...'
         )
 
@@ -152,7 +153,7 @@ class HostSystemWidget(object):
         form = pvc.widget.form.Form(
             dialog=self.dialog,
             form_elements=elements,
-            title=self.obj.name,
+            title=self.title,
             text='Host general information'
         )
 
@@ -164,7 +165,7 @@ class HostSystemWidget(object):
 
         """
         self.dialog.infobox(
-            title=self.obj.name,
+            title=self.title,
             text='Retrieving information ...'
         )
 
@@ -190,7 +191,7 @@ class HostSystemWidget(object):
         form = pvc.widget.form.Form(
             dialog=self.dialog,
             form_elements=elements,
-            title=self.obj.name,
+            title=self.title,
             text='Host resource usage information'
         )
 
@@ -211,6 +212,7 @@ class HostSystemVirtualMachineWidget(object):
         self.agent = agent
         self.dialog = dialog
         self.obj = obj
+        self.title = '{} ({})'.format(self.obj.name, self.obj.__class__.__name__)
         self.display()
 
     def display(self):
@@ -232,8 +234,8 @@ class HostSystemVirtualMachineWidget(object):
         menu = pvc.widget.menu.Menu(
             items=items,
             dialog=self.dialog,
-            title=self.obj.name,
-            text='Select action to be performed'
+            title=self.title,
+            text='Select an action to be performed'
         )
 
         menu.display()
@@ -253,6 +255,7 @@ class HostSystemDatastoreWidget(object):
         self.agent = agent
         self.dialog = dialog
         self.obj = obj
+        self.title = '{} ({})'.format(self.obj.name, self.obj.__class__.__name__)
         self.display()
 
     def display(self):
@@ -279,7 +282,7 @@ class HostSystemDatastoreWidget(object):
         menu = pvc.widget.menu.Menu(
             items=items,
             dialog=self.dialog,
-            title=self.obj.name,
+            title=self.title,
             text='Select an action to be performed'
         )
 
@@ -302,8 +305,8 @@ class HostSystemDatastoreWidget(object):
         menu = pvc.widget.menu.Menu(
             items=items,
             dialog=self.dialog,
-            title='Add Storage',
-            text='Select an action to be performed'
+            title=self.title,
+            text='Add storage',
         )
 
         menu.display()
@@ -323,6 +326,7 @@ class HostSystemAddNfsStorage(object):
         self.agent = agent
         self.dialog = dialog
         self.obj = obj
+        self.title = '{} ({})'.format(self.obj.name, self.obj.__class__.__name__)
         self.display()
 
     def display(self):
@@ -336,7 +340,7 @@ class HostSystemAddNfsStorage(object):
         form = pvc.widget.form.Form(
             dialog=self.dialog,
             form_elements=elements,
-            title='Add Storage',
+            title=self.title,
             text='Provide details of the remote NFS volume'
         )
 
@@ -347,7 +351,8 @@ class HostSystemAddNfsStorage(object):
 
         if not all(fields.values()):
             self.dialog.msgbox(
-                text='Invalid input provided'
+                title=self.title,
+                text='Error, invalid input provided'
             )
             return
 
@@ -357,7 +362,7 @@ class HostSystemAddNfsStorage(object):
             access_mode = pyVmomi.vim.HostMountMode.readWrite
 
         self.dialog.infobox(
-            title=self.obj.name,
+            title=self.title,
             text='Creating datastore {} ...'.format(fields['Datastore Name'])
         )
 
@@ -374,7 +379,7 @@ class HostSystemAddNfsStorage(object):
             )
         except Exception as e:
             self.dialog.msgbox(
-                title='Error',
+                title=self.title,
                 text=e.msg
             )
 
@@ -393,16 +398,18 @@ class HostSystemUnmountStorage(object):
         self.agent = agent
         self.dialog = dialog
         self.obj = obj
+        self.title = '{} ({})'.format(self.obj.name, self.obj.__class__.__name__)
         self.display()
 
     def display(self):
         self.dialog.infobox(
+            title=self.title,
             text='Retrieving information ...'
         )
 
         if not self.obj.datastore:
             self.dialog.msgbox(
-                title=self.obj.name,
+                title=self.title,
                 text='There are no datastores mounted on this host'
             )
             return
@@ -417,7 +424,7 @@ class HostSystemUnmountStorage(object):
         checklist = pvc.widget.checklist.CheckList(
             items=items,
             dialog=self.dialog,
-            title=self.obj.name,
+            title=self.title,
             text='Select datastore(s) to be unmounted'
         )
 
@@ -434,7 +441,7 @@ class HostSystemUnmountStorage(object):
         )
 
         code = self.dialog.yesno(
-            title='Confirm Unmount',
+            title=self.title,
             text=text.format('\n'.join(selected))
         )
 
@@ -444,6 +451,7 @@ class HostSystemUnmountStorage(object):
         datastore_objects = [d for d in self.obj.datastore if d.name in selected]
         for datastore_obj in datastore_objects:
             self.dialog.infobox(
+                title=self.title,
                 text='Unmount datastore {} ...'.format(datastore_obj.name)
             )
             self.obj.configManager.datastoreSystem.RemoveDatastore(

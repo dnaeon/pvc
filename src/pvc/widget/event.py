@@ -27,10 +27,12 @@ class EventWidget(object):
         self.agent = agent
         self.dialog = dialog
         self.obj = obj
+        self.title = '{} ({})'.format(self.obj.name, self.obj.__class__.__name__)
         self.display()
 
     def display(self):
         self.dialog.infobox(
+            title=self.title,
             text='Retrieving information ...'
         )
 
@@ -57,7 +59,7 @@ class EventWidget(object):
 
         self.dialog.tailbox(
             filepath=path,
-            title=self.obj.name
+            title=self.title,
         )
 
         collector.signal_stop()

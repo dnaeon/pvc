@@ -23,6 +23,7 @@ class AlarmWidget(object):
         self.agent = agent
         self.dialog = dialog
         self.obj = obj
+        self.title = '{} ({})'.format(self.obj.entity.name, self.obj.__class__.__name__)
         self.display()
 
     def display(self):
@@ -46,14 +47,15 @@ class AlarmWidget(object):
         menu = pvc.widget.menu.Menu(
             items=items,
             dialog=self.dialog,
-            title=self.obj.entity.name,
-            text='Select an alarm action'
+            title=self.title,
+            text='Select an action to be performed'
         )
 
         menu.display()
 
     def details(self):
         self.dialog.infobox(
+            title=self.title,
             text='Retrieving information ...'
         )
 
@@ -91,7 +93,7 @@ class AlarmWidget(object):
         form = pvc.widget.form.Form(
             dialog=self.dialog,
             form_elements=elements,
-            title=self.obj.entity.name,
+            title=self.title,
             text='Alarm details'
         )
 
@@ -106,8 +108,8 @@ class AlarmWidget(object):
 
         """
         self.dialog.infobox(
-            title=self.obj.entity.name,
-            text='Acnowledging alarm ...'
+            title=self.title,
+            text='Acknowledging alarm ...'
         )
 
         am = self.agent.si.content.alarmManager

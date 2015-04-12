@@ -39,6 +39,7 @@ class MainApp(object):
         )
 
         self.dialog.msgbox(
+            title='Welcome',
             text=welcome.format(__version__)
         )
 
@@ -66,7 +67,7 @@ class MainApp(object):
             dialog=self.dialog,
             form_elements=elements,
             mixed_form=True,
-            title='Login details',
+            title='Login Details',
             text=form_text,
         )
 
@@ -83,6 +84,7 @@ class MainApp(object):
                 continue
 
             self.dialog.infobox(
+                title='Establishing Connection',
                 text='Connecting to {} ...'.format(fields['Hostname']),
             )
 
@@ -120,6 +122,7 @@ class MainApp(object):
         home.display()
 
         self.dialog.infobox(
+            title='Disconnecting Connection',
             text='Disconnecting from {} ...'.format(self.agent.host)
         )
         self.agent.disconnect()

@@ -31,6 +31,7 @@ class DatastoreWidget(object):
         self.agent = agent
         self.dialog = dialog
         self.obj = obj
+        self.title = '{} ({})'.format(self.obj.name, self.obj.__class__.__name__)
         self.display()
 
     def display(self):
@@ -86,9 +87,10 @@ class DatastoreWidget(object):
         menu = pvc.widget.menu.Menu(
             items=items,
             dialog=self.dialog,
-            title=self.obj.name,
-            text='Select item from menu'
+            title=self.title,
+            text='Select an action to be performed'
         )
+
         menu.display()
 
     def info(self):
@@ -97,7 +99,7 @@ class DatastoreWidget(object):
 
         """
         self.dialog.infobox(
-            title=self.obj.name,
+            title=self.title,
             text='Retrieving information ...'
         )
 
@@ -131,7 +133,7 @@ class DatastoreWidget(object):
         form = pvc.widget.form.Form(
             dialog=self.dialog,
             form_elements=elements,
-            title=self.obj.name,
+            title=self.title,
             text='Datastore general information'
         )
 
@@ -143,7 +145,7 @@ class DatastoreWidget(object):
 
         """
         self.dialog.infobox(
-            title=self.obj.name,
+            title=self.title,
             text='Retrieving information ...'
         )
 
@@ -166,7 +168,7 @@ class DatastoreWidget(object):
         form = pvc.widget.form.Form(
             dialog=self.dialog,
             form_elements=elements,
-            title=self.obj.name,
+            title=self.title,
             text='Datastore capacity information'
         )
 
@@ -187,6 +189,7 @@ class DatastoreActionWidget(object):
         self.agent = agent
         self.dialog = dialog
         self.obj = obj
+        self.title = '{} ({})'.format(self.obj.name, self.obj.__class__.__name__)
         self.display()
 
     def display(self):
@@ -213,7 +216,7 @@ class DatastoreActionWidget(object):
         menu = pvc.widget.menu.Menu(
             items=items,
             dialog=self.dialog,
-            title=self.obj.name,
+            title=self.title,
             text='Select an action to be performed'
         )
 
@@ -225,6 +228,7 @@ class DatastoreActionWidget(object):
 
         """
         self.dialog.infobox(
+            title=self.title,
             text='Refreshing storage information ...'
         )
 

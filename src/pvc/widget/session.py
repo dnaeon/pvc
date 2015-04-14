@@ -27,6 +27,7 @@ Session module
 
 """
 
+import pvc.widget.debug
 import pvc.widget.menu
 import pvc.widget.form
 
@@ -60,6 +61,12 @@ class SessionWidget(object):
                 tag='Terminate',
                 description='Terminate Session',
                 on_select=self.terminate
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='Debug',
+                description='Start a Python REPL console',
+                on_select=pvc.widget.debug.DebugWidget,
+                on_select_args=(locals(), globals())
             ),
         ]
 

@@ -32,6 +32,7 @@ import pyVmomi
 import pvc.widget.alarm
 import pvc.widget.common
 import pvc.widget.cluster
+import pvc.widget.debug
 import pvc.widget.event
 import pvc.widget.hostsystem
 import pvc.widget.menu
@@ -127,6 +128,12 @@ class DatacenterWidget(object):
                 description='View triggered alarms',
                 on_select=pvc.widget.common.alarm_menu,
                 on_select_args=(self.agent, self.dialog, self.obj)
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='Debug',
+                description='Start a Python REPL console',
+                on_select=pvc.widget.debug.DebugWidget,
+                on_select_args=(locals(), globals())
             ),
         ]
 

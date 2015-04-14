@@ -27,6 +27,7 @@ Alarm Widgets
 
 """
 
+import pvc.widget.debug
 import pvc.widget.form
 import pvc.widget.menu
 
@@ -65,6 +66,12 @@ class AlarmWidget(object):
             pvc.widget.menu.MenuItem(
                 tag='Reset',
                 description='Reset Alarm'
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='Debug',
+                description='Start a Python REPL console',
+                on_select=pvc.widget.debug.DebugWidget,
+                on_select_args=(locals(), globals())
             ),
         ]
 

@@ -37,6 +37,7 @@ import requests
 
 import pvc.widget.alarm
 import pvc.widget.common
+import pvc.widget.debug
 import pvc.widget.event
 import pvc.widget.menu
 import pvc.widget.form
@@ -144,6 +145,12 @@ class VirtualMachineWidget(object):
                 description='Launch Console',
                 on_select=VirtualMachineConsoleWidget,
                 on_select_args=(self.agent, self.dialog, self.obj)
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='Debug',
+                description='Start a Python REPL console',
+                on_select=pvc.widget.debug.DebugWidget,
+                on_select_args=(locals(), globals())
             ),
         ]
 

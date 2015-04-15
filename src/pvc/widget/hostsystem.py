@@ -408,7 +408,7 @@ class HostSystemAddNfsStorage(object):
             self.obj.configManager.datastoreSystem.CreateNasDatastore(
                 spec=spec
             )
-        except Exception as e:
+        except pyVmomi.vim.MethodFault as e:
             self.dialog.msgbox(
                 title=self.title,
                 text=e.msg

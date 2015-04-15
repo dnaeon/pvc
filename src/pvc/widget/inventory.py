@@ -721,7 +721,7 @@ class InventoryDatacenterWidget(object):
 
         try:
             folder.CreateDatacenter(name=name)
-        except Exception as e:
+        except pyVmomi.vim.MethodFault as e:
             self.dialog.msgbox(
                 title='Error',
                 text=e.msg

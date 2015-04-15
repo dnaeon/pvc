@@ -27,6 +27,8 @@ Core Widgets
 
 """
 
+import pyVmomi
+
 import requests
 requests.packages.urllib3.disable_warnings()
 
@@ -129,9 +131,14 @@ class MainApp(object):
                 self.dialog.set_background_title(background_title)
                 return True
             except Exception as e:
+                if isinstance(e, pyVmomi.vim.MethodFault):
+                    msg = e.msg
+                else:
+                    msg = e
+
                 self.dialog.msgbox(
                     title='Login failed',
-                    text='Failed to login to {}\n\n{}\n'.format(self.agent.host, e.msg)
+                    text='Failed to login to {}\n\n{}\n'.format(self.agent.host, msg)
                 )
 
     def run(self):

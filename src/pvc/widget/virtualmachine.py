@@ -56,6 +56,7 @@ __all__ = [
     'VirtualMachinePowerWidget',
     'VirtualMachineExportWidget',
     'CreateVirtualMachineWidget',
+    'VirtualMachineHardwareWidget',
 ]
 
 
@@ -101,8 +102,10 @@ class VirtualMachineWidget(object):
                 on_select_args=(self.agent, self.dialog, self.obj)
             ),
             pvc.widget.menu.MenuItem(
-                tag='Configuration',
-                description='Virtual Machine settings'
+                tag='Hardware',
+                description='Manage virtual hardware',
+                on_select=VirtualMachineHardwareWidget,
+                on_select_args=(self.agent, self.dialog, self.obj)
             ),
             pvc.widget.menu.MenuItem(
                 tag='Datastore',
@@ -1273,3 +1276,50 @@ class CreateVirtualMachineWidget(object):
             return
 
         return fields
+
+
+class VirtualMachineHardwareWidget(object):
+    def __init__(self, agent, dialog, obj):
+        """
+        Widget for managing hardware on a Virtual Machine
+
+        Args:
+            agent          (VConnector): A VConnector instance
+            dialog      (dialog.Dialog): A Dialog instance
+            obj    (vim.VirtualMachine): A VirtualMachine managed entity
+
+        """
+        self.agent = agent
+        self.dialog = dialog
+        self.obj = obj
+        self.title = '{} ({})'.format(self.obj.name, self.obj.__class__.__name__)
+        self.display()
+
+    def display(self):
+        items = [
+            pvc.widget.menu.MenuItem(
+                tag='Add',
+                description='Add virtual hardware',
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='Remove',
+                description='Remove virtual hardware'
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='Change',
+                description='Change virtual hardware'
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='View',
+                description='View virtual hardware',
+            ),
+        ]
+
+        menu = pvc.widget.menu.Menu(
+            items=items,
+            dialog=self.dialog,
+            title=self.title,
+            text='Select an action to be performed'
+        )
+
+        menu.display()

@@ -28,6 +28,7 @@ Debug Widgets
 """
 
 import code
+import readline
 
 __all__ = ['DebugWidget']
 

@@ -141,19 +141,32 @@ class MainApp(object):
                     text='Failed to login to {}\n\n{}\n'.format(self.agent.host, msg)
                 )
 
-    def run(self):
-        self.about()
-        if not self.login():
-            return
+    def disconnect(self):
+        """
+        Disconnect from the remote vSphere host
 
-        home = pvc.widget.home.HomeWidget(
-            agent=self.agent,
-            dialog=self.dialog
-        )
-        home.display()
+        """
+        if not self.agent:
+            return
 
         self.dialog.infobox(
             title='Disconnecting Connection',
             text='Disconnecting from {} ...'.format(self.agent.host)
         )
         self.agent.disconnect()
+
+    def run(self):
+        try:
+            self.about()
+            if not self.login():
+                return
+
+            home = pvc.widget.home.HomeWidget(
+                agent=self.agent,
+                dialog=self.dialog
+            )
+            home.display()
+        except KeyboardInterrupt:
+            pass
+        finally:
+            self.disconnect()

@@ -46,13 +46,3 @@ PVC issue tracker on `Github`_.
 .. _`BSD License`: http://opensource.org/licenses/BSD-2-Clause
 .. _`Github`: https://github.com/dnaeon/pvc
 
-Installation
-============
-
-PVC Documentation is available on the link above; That being
-said you can clone this repo and install with the documented packages.
-
-Installing on OSX:
-
-Installing on Ubuntu Linux:
-

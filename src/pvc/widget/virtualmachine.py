@@ -57,6 +57,7 @@ __all__ = [
     'VirtualMachineExportWidget',
     'CreateVirtualMachineWidget',
     'VirtualMachineHardwareWidget',
+    'VirtualMachineAddHardwareWidget',
 ]
 
 
@@ -1300,6 +1301,8 @@ class VirtualMachineHardwareWidget(object):
             pvc.widget.menu.MenuItem(
                 tag='Add',
                 description='Add virtual hardware',
+                on_select=VirtualMachineAddHardwareWidget,
+                on_select_args=(self.agent, self.dialog, self.obj)
             ),
             pvc.widget.menu.MenuItem(
                 tag='Remove',
@@ -1312,6 +1315,53 @@ class VirtualMachineHardwareWidget(object):
             pvc.widget.menu.MenuItem(
                 tag='View',
                 description='View virtual hardware',
+            ),
+        ]
+
+        menu = pvc.widget.menu.Menu(
+            items=items,
+            dialog=self.dialog,
+            title=self.title,
+            text='Select an action to be performed'
+        )
+
+        menu.display()
+
+
+class VirtualMachineAddHardwareWidget(object):
+    def __init__(self, agent, dialog, obj):
+        """
+        Widget for add new virtual hardware
+
+        Args:
+            agent          (VConnector): A VConnector instance
+            dialog      (dialog.Dialog): A Dialog instance
+            obj    (vim.VirtualMachine): A VirtualMachine managed entity
+
+        """
+        self.agent = agent
+        self.dialog = dialog
+        self.obj = obj
+        self.title = '{} ({})'.format(self.obj.name, self.obj.__class__.__name__)
+        self.display()
+
+    def display(self):
+        items = [
+            pvc.widget.menu.MenuItem(
+                tag='Floppy Drive',
+                description='Add floppy drive',
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='CD/DVD Drive',
+                description='Add CD/DVD drive'
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='Hard Disk',
+                description='Add hard disk'
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='Ethernet Adapter',
+                description='Add ethernet adapter',
             ),
         ]
 

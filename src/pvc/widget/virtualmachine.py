@@ -1351,6 +1351,8 @@ class VirtualMachineAddHardwareWidget(object):
             pvc.widget.menu.MenuItem(
                 tag='Floppy Drive',
                 description='Add floppy drive',
+                on_select=pvc.widget.device.AddFloppyDeviceWidget,
+                on_select_args=(self.agent, self.dialog, self.obj)
             ),
             pvc.widget.menu.MenuItem(
                 tag='CD/DVD Drive',

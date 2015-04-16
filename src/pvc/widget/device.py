@@ -33,7 +33,10 @@ import pvc.widget.gauge
 import pvc.widget.menu
 import pvc.widget.radiolist
 
-__all__ = ['BaseDeviceWidget', 'AddCdromDeviceWidget',]
+__all__ = [
+    'BaseDeviceWidget', 'AddCdromDeviceWidget',
+    'AddFloppyDeviceWidget',
+]
 
 
 class BaseDeviceWidget(object):
@@ -223,3 +226,65 @@ class AddCdromDeviceWidget(BaseDeviceWidget):
             )
 
         return backing_info
+
+
+class AddFloppyDeviceWidget(BaseDeviceWidget):
+    """
+    Widget for adding new floppy drives
+
+    Extends:
+        BaseDeviceWidget class
+
+    Overrides:
+        display() method
+
+    """
+    def display(self):
+        controller = self.choose_controller(
+            controller=pyVmomi.vim.VirtualSIOController
+        )
+
+        if not controller:
+            return
+
+        unit_number = self.next_unit_number(
+            controller=controller
+        )
+
+        backing_info = pyVmomi.vim.VirtualFloppyRemoteDeviceBackingInfo(
+            deviceName='',
+            useAutoDetect=False
+        )
+
+        connect_info = pyVmomi.vim.VirtualDeviceConnectInfo(
+            allowGuestControl=True,
+            connected=False,
+            startConnected=False
+        )
+
+        device = pyVmomi.vim.VirtualFloppy(
+            backing=backing_info,
+            connectable=connect_info,
+            controllerKey=controller.key,
+            key=-1,
+            unitNumber=unit_number
+        )
+
+        device_change = pyVmomi.vim.VirtualDeviceConfigSpec(
+            device=device,
+            operation=pyVmomi.vim.VirtualDeviceConfigSpecOperation.add
+        )
+
+        spec = pyVmomi.vim.VirtualMachineConfigSpec(
+            deviceChange=[device_change]
+        )
+
+        task = self.obj.ReconfigVM_Task(spec=spec)
+        gauge = pvc.widget.gauge.TaskGauge(
+            dialog=self.dialog,
+            task=task,
+            title=self.title,
+            text='Adding floppy drive ...'
+        )
+
+        gauge.display()

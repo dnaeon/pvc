@@ -52,7 +52,6 @@ class BaseDeviceWidget(object):
         self.obj = obj
         self.title = '{} ({})'.format(self.obj.name, self.obj.__class__.__name__)
         self.hardware = self.obj.config.hardware
-        self.display()
 
     def display(self):
         """

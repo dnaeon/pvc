@@ -143,9 +143,7 @@ class AddCdromDeviceWidget(BaseDeviceWidget):
             controller=controller
         )
 
-        backing_info = self.select_backing(
-            name='cdrom-{}-{}'.format(controller.key, unit_number)
-        )
+        backing_info = self.select_backing()
 
         if not backing_info:
             return
@@ -183,12 +181,9 @@ class AddCdromDeviceWidget(BaseDeviceWidget):
 
         gauge.display()
 
-    def select_backing(self, name):
+    def select_backing(self):
         """
         Prompts the user to select device backing
-
-        Args:
-            name (str): Device name to set
 
         Returns:
             A vim.VirtualDeviceDeviceBackingInfo instance on success,
@@ -217,13 +212,13 @@ class AddCdromDeviceWidget(BaseDeviceWidget):
 
         if tag == 'Pass through':
             backing_info = pyVmomi.vim.VirtualCdromRemotePassthroughBackingInfo(
-                deviceName=name,
+                deviceName='',
                 useAutoDetect=False,
                 exclusive=False
             )
         elif tag == 'ATAPI emulation':
             backing_info = pyVmomi.vim.VirtualCdromRemoteAtapiBackingInfo(
-                deviceName=name,
+                deviceName='',
                 useAutoDetect=False
             )
 

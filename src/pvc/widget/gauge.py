@@ -40,10 +40,10 @@ class TaskGauge(object):
         A gauge for displaying progress of a task
 
         Args:
-           dialog    (dialog.Dialog): A Dialog instance
-           task   (pyVmomi.vim.Task): A Task instance
-           interval          (float): Check task state each 'interval' seconds
-           kwargs             (dict): Additional args to be passed to dialog(1)
+           dialog   (dialog.Dialog): A Dialog instance
+           task          (vim.Task): A Task instance
+           interval         (float): Check task state each 'interval' seconds
+           kwargs            (dict): Additional args to be passed to dialog(1)
 
         """
         self.dialog = dialog

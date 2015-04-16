@@ -914,7 +914,7 @@ class VirtualMachineTemplateWidget(object):
 
         try:
             self.obj.MarkAsTemplate()
-        except Exception as e:
+        except pyVmomi.vim.MethodFault as e:
             self.dialog.msgbox(
                 title=self.title,
                 text=e.msg

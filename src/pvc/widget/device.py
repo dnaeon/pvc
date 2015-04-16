@@ -33,7 +33,7 @@ import pvc.widget.gauge
 import pvc.widget.menu
 import pvc.widget.radiolist
 
-__all__ = ['BaseDeviceWidget']
+__all__ = ['BaseDeviceWidget', 'AddCdromDeviceWidget',]
 
 
 class BaseDeviceWidget(object):
@@ -117,3 +117,113 @@ class BaseDeviceWidget(object):
         next_unit_number = max(used) + 1 if used else 0
 
         return next_unit_number
+
+
+class AddCdromDeviceWidget(BaseDeviceWidget):
+    """
+    Widget for adding new CD/DVD drives
+
+    Extends:
+        BaseDeviceWidget class
+
+    Overrides:
+        display() method
+
+    """
+    def display(self):
+        controller = self.choose_controller(
+            controller=pyVmomi.vim.VirtualIDEController
+        )
+
+        if not controller:
+            return
+
+        unit_number = self.next_unit_number(
+            controller=controller
+        )
+
+        backing_info = self.select_backing(
+            name='cdrom-{}-{}'.format(controller.key, unit_number)
+        )
+
+        if not backing_info:
+            return
+
+        connect_info = pyVmomi.vim.VirtualDeviceConnectInfo(
+            allowGuestControl=True,
+            connected=False,
+            startConnected=False
+        )
+
+        device = pyVmomi.vim.VirtualCdrom(
+            backing=backing_info,
+            connectable=connect_info,
+            controllerKey=controller.key,
+            key=-1,
+            unitNumber=unit_number
+        )
+
+        device_change = pyVmomi.vim.VirtualDeviceConfigSpec(
+            device=device,
+            operation=pyVmomi.vim.VirtualDeviceConfigSpecOperation.add
+        )
+
+        spec = pyVmomi.vim.VirtualMachineConfigSpec(
+            deviceChange=[device_change]
+        )
+
+        task = self.obj.ReconfigVM_Task(spec=spec)
+        gauge = pvc.widget.gauge.TaskGauge(
+            dialog=self.dialog,
+            task=task,
+            title=self.title,
+            text='Adding CD/DVD drive ...'
+        )
+
+        gauge.display()
+
+    def select_backing(self, name):
+        """
+        Prompts the user to select device backing
+
+        Args:
+            name (str): Device name to set
+
+        Returns:
+            A vim.VirtualDeviceDeviceBackingInfo instance on success,
+            None otherwise
+
+        """
+        items = [
+            pvc.widget.radiolist.RadioListItem(tag='Pass through'),
+            pvc.widget.radiolist.RadioListItem(tag='ATAPI emulation'),
+        ]
+
+        radiolist = pvc.widget.radiolist.RadioList(
+            items=items,
+            dialog=self.dialog,
+            title=self.title,
+            text='Select device backing'
+        )
+
+        code, tag = radiolist.display()
+        if code in (self.dialog.CANCEL, self.dialog.ESC) or not tag:
+            self.dialog.msgbox(
+                title=self.title,
+                text='Invalid device backing selected'
+            )
+            return
+
+        if tag == 'Pass through':
+            backing_info = pyVmomi.vim.VirtualCdromRemotePassthroughBackingInfo(
+                deviceName=name,
+                useAutoDetect=False,
+                exclusive=False
+            )
+        elif tag == 'ATAPI emulation':
+            backing_info = pyVmomi.vim.VirtualCdromRemoteAtapiBackingInfo(
+                deviceName=name,
+                useAutoDetect=False
+            )
+
+        return backing_info

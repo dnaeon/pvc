@@ -37,6 +37,7 @@ import requests
 
 import pvc.widget.alarm
 import pvc.widget.common
+import pvc.widget.device
 import pvc.widget.debug
 import pvc.widget.event
 import pvc.widget.menu
@@ -1353,7 +1354,9 @@ class VirtualMachineAddHardwareWidget(object):
             ),
             pvc.widget.menu.MenuItem(
                 tag='CD/DVD Drive',
-                description='Add CD/DVD drive'
+                description='Add CD/DVD drive',
+                on_select=pvc.widget.device.AddCdromDeviceWidget,
+                on_select_args=(self.agent, self.dialog, self.obj)
             ),
             pvc.widget.menu.MenuItem(
                 tag='Hard Disk',

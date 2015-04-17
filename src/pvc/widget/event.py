@@ -71,6 +71,11 @@ class EventWidget(object):
         with open(path, 'w'):
             pass
 
+        self.dialog.infobox(
+            title=self.title,
+            text='Starting event collector ...'
+        )
+
         collector = EventCollector(
             agent=self.agent,
             obj=self.obj,
@@ -79,7 +84,7 @@ class EventWidget(object):
         collector.start()
 
         # Give it some time before displaying the widget
-        time.sleep(1)
+        time.sleep(3)
 
         self.dialog.tailbox(
             filepath=path,

@@ -1072,6 +1072,7 @@ class CreateVirtualMachineWidget(object):
             name=specs['Name'],
             numCPUs=int(specs['vCPU(s)']),
             memoryMB=int(specs['Memory Size (MB)']),
+            guestId=specs['Guest ID'],
             files=vmx_file,
             version=vmx_version
         )
@@ -1256,6 +1257,7 @@ class CreateVirtualMachineWidget(object):
             pvc.widget.form.FormElement(label='Name'),
             pvc.widget.form.FormElement(label='vCPU(s)'),
             pvc.widget.form.FormElement(label='Memory Size (MB)'),
+            pvc.widget.form.FormElement(label='Guest ID', item='otherGuest64'),
         ]
 
         form = pvc.widget.form.Form(

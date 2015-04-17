@@ -1367,6 +1367,8 @@ class VirtualMachineAddHardwareWidget(object):
             pvc.widget.menu.MenuItem(
                 tag='Ethernet Adapter',
                 description='Add ethernet adapter',
+                on_select=pvc.widget.device.AddNetworkDeviceWidget,
+                on_select_args=(self.agent, self.dialog, self.obj)
             ),
         ]
 

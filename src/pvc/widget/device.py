@@ -29,13 +29,14 @@ Widgets for managing virtual devices
 
 import pyVmomi
 
+import pvc.widget.common
 import pvc.widget.gauge
 import pvc.widget.menu
 import pvc.widget.radiolist
 
 __all__ = [
     'BaseDeviceWidget', 'AddCdromDeviceWidget',
-    'AddFloppyDeviceWidget',
+    'AddFloppyDeviceWidget', 'AddNetworkDeviceWidget',
 ]
 
 
@@ -288,3 +289,133 @@ class AddFloppyDeviceWidget(BaseDeviceWidget):
         )
 
         gauge.display()
+
+
+class AddNetworkDeviceWidget(BaseDeviceWidget):
+    """
+    Widget for adding network devices
+
+    Extends:
+        BaseDeviceWidget class
+
+    Overrides:
+        display() method
+
+    """
+    def display(self):
+        controller = self.choose_controller(
+            controller=pyVmomi.vim.VirtualPCIController
+        )
+
+        if not controller:
+            return
+
+        unit_number = self.next_unit_number(
+            controller=controller
+        )
+
+        adapter = self.select_ethernet_adapter()
+
+        if not adapter:
+            return
+
+        network = pvc.widget.common.choose_network(
+            agent=self.agent,
+            dialog=self.dialog,
+            obj=self.obj.runtime.host
+        )
+
+        if not network:
+            return
+
+        connect_info = pyVmomi.vim.VirtualDeviceConnectInfo(
+            allowGuestControl=True,
+            connected=True,
+            startConnected=True
+        )
+
+        backing_info = pyVmomi.vim.VirtualEthernetCardNetworkBackingInfo(
+            deviceName=network.name,
+            useAutoDetect=False,
+            network=network
+        )
+
+        device = adapter(
+            backing=backing_info,
+            connectable=connect_info,
+            controllerKey=controller.key,
+            key=-1,
+            unitNumber=unit_number
+        )
+
+        device_change = pyVmomi.vim.VirtualDeviceConfigSpec(
+            device=device,
+            operation=pyVmomi.vim.VirtualDeviceConfigSpecOperation.add
+        )
+
+        spec = pyVmomi.vim.VirtualMachineConfigSpec(
+            deviceChange=[device_change]
+        )
+
+        task = self.obj.ReconfigVM_Task(spec=spec)
+        gauge = pvc.widget.gauge.TaskGauge(
+            dialog=self.dialog,
+            task=task,
+            title=self.title,
+            text='Adding ethernet adapter ...'
+        )
+
+        gauge.display()
+
+    def select_ethernet_adapter(self):
+        """
+        Prompts the user to select an ethernet adapter
+
+        Returns:
+            A vim.VirtualEthernetAdapter type on success,
+            None otherwise
+
+        """
+        self.dialog.infobox(
+            title=self.title,
+            text='Retrieving information ...'
+        )
+
+        # Get the OS descriptor which contains the list of
+        # supported ethernet adapters on the virtual machine
+        for descriptor in self.obj.environmentBrowser.QueryConfigOption().guestOSDescriptor:
+            if hasattr(descriptor, 'supportedEthernetCard'):
+                break
+        else:
+            self.dialog.msgbox(
+                title=self.title,
+                text='No supported ethernet adapters found'
+            )
+            return
+
+        # The descriptor.supportedEthernetCard property
+        # contains a list of vim.VirtualEthernetAdapter types.
+        # In the radiolist we build below we use the
+        # vim.VirtualEthernetAdapter.__name__ property to
+        # present the user with a list of adapters to choose from
+        items = [
+            pvc.widget.radiolist.RadioListItem(
+                tag=card.__name__.split('.')[-1].replace('Virtual', '').upper()
+            ) for card in descriptor.supportedEthernetCard
+        ]
+
+        radiolist = pvc.widget.radiolist.RadioList(
+            items=items,
+            dialog=self.dialog,
+            title=self.title,
+            text='Select virtual ethernet adapter'
+        )
+
+        code, tag = radiolist.display()
+
+        if code in (self.dialog.CANCEL, self.dialog.ESC) or not tag:
+            return
+
+        card_name = '{}{}'.format('vim.vm.device.Virtual', tag.title())
+
+        return [c for c in descriptor.supportedEthernetCard if c.__name__ == card_name].pop()

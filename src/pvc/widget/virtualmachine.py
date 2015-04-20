@@ -1334,7 +1334,7 @@ class VirtualMachineHardwareWidget(object):
 class VirtualMachineAddHardwareWidget(object):
     def __init__(self, agent, dialog, obj):
         """
-        Widget for add new virtual hardware
+        Widget for adding new virtual hardware
 
         Args:
             agent          (VConnector): A VConnector instance
@@ -1350,6 +1350,10 @@ class VirtualMachineAddHardwareWidget(object):
 
     def display(self):
         items = [
+            pvc.widget.menu.MenuItem(
+                tag='Controller',
+                description='Add virtual controller'
+            ),
             pvc.widget.menu.MenuItem(
                 tag='Floppy Drive',
                 description='Add floppy drive',

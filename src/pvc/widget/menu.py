@@ -89,7 +89,7 @@ class Menu(object):
             item = self._registry.get(tag)
             default_item = tag
 
-            if not item.on_select:
-                self.dialog.msgbox('Not implemented')
-            else:
+            if item.on_select:
                 item.selected()
+            else:
+                self.dialog.msgbox('Not implemented')

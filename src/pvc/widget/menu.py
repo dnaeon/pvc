@@ -84,7 +84,7 @@ class Menu(object):
             )
 
             if code in (self.dialog.CANCEL, self.dialog.ESC):
-                break
+                return code
 
             item = self._registry.get(tag)
             default_item = tag

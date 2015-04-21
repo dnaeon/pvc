@@ -58,18 +58,20 @@ class MenuItem(object):
 
 
 class Menu(object):
-    def __init__(self, items, dialog, **kwargs):
+    def __init__(self, items, dialog, return_selected=False, **kwargs):
         """
         Menu class
 
         Args:
-            items           (list): A list of MenuItem instances
-            dialog (dialog.Dialog): A Dialog instance
-            kwargs          (dict): Additional args to be passed to dialog(1)
+            items                    (list): A list of MenuItem instances
+            dialog          (dialog.Dialog): A Dialog instance
+            return_selected          (bool): If True them just return the selected item
+            kwargs                   (dict): Additional args to be passed to dialog(1)
 
         """
         self.items = items
         self.dialog = dialog
+        self.return_selected = return_selected
         self.kwargs = kwargs
         self.choices = [(item.tag, item.description) for item in self.items]
         self._registry = {item.tag: item for item in items}
@@ -88,6 +90,9 @@ class Menu(object):
 
             item = self._registry.get(tag)
             default_item = tag
+
+            if self.return_selected:
+                return item
 
             if item.on_select:
                 item.selected()

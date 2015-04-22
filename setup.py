@@ -25,7 +25,7 @@ else:
 setup(
     name='pvc',
     version=version,
-    description='Python vSphere Client',
+    description='Python vSphere Client with a dialog(1) interface',
     long_description=open('README.rst').read(),
     author='Marin Atanasov Nikolov',
     author_email='dnaeon@gmail.com',

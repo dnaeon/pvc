@@ -28,6 +28,7 @@ Virtual Machine Widgets
 """
 
 import os
+import platform
 import time
 import tarfile
 
@@ -829,8 +830,15 @@ class VirtualMachineConsoleWidget(object):
         ticket = self.agent.si.content.sessionManager.AcquireCloneTicket()
 
         try:
+            if platform.system() == 'Darwin':
+                args=['open', 'vmrc://clone:{}@{}/?moid={}'.format(
+                                                                ticket,
+                                                                self.agent.host,
+                                                                self.obj._moId)]
+            else:
+                args=['vmplayer', '-h', self.agent.host, '-p', ticket, '-M', self.obj._moId]
             Popen(
-                args=['vmplayer', '-h', self.agent.host, '-p', ticket, '-M', self.obj._moId],
+                args=args,
                 stdout=PIPE,
                 stderr=PIPE
             )

@@ -794,9 +794,9 @@ class VirtualMachineConsoleWidget(object):
                 on_select_args=(self.dialog, self.obj)
             ),
             pvc.widget.menu.MenuItem(
-                tag='VMware Player',
-                description='Launch VMware Player Console',
-                on_select=self.vmplayer_console,
+                tag='VMRC',
+                description='Launch VMRC Console',
+                on_select=self.console,
             ),
         ]
 
@@ -809,17 +809,29 @@ class VirtualMachineConsoleWidget(object):
 
         menu.display()
 
-    def vmplayer_console(self):
+    def console(self):
         """
-        Launch a VMware Player console to the Virtual Machine
+        Launch a VMRC console to the Virtual Machine
 
-        In order to establish a remote console session to the
-        Virtual Machine we run VMware Player this way:
+        On GNU/Linux systems we use VMware Player for
+        launching a console to the Virtual Machine.
+
+        On Mac OS X we use VMRC for launching the console.
+
+        VMware Player console is launched using this syntax:
 
             $ vmplayer -h <hostname> -p <ticket> -M <managed-object-id>
 
+        VMRC console is launched using this syntax:
+
+            $ vmrc vmrc://clone:<ticket>@<hostname>/?moid=<managed-object-id>
+
         Where <ticket> is an acquired ticket as returned by a
         previous call to AcquireCloneTicket().
+
+        TODO: Drop support for VMware Player on GNU/Linux as soon as
+              support for VMRC is provided for GNU/Linux systems.
+              See http://kb.vmware.com/kb/2091284 for more details
 
         """
         self.dialog.infobox(

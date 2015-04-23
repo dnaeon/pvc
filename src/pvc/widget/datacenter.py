@@ -291,7 +291,7 @@ class DatacenterClusterWidget(object):
                 name=name,
                 spec=pyVmomi.vim.cluster.ConfigSpecEx()
             )
-        except Exception as e:
+        except pyVmomi.vim.MethodFault as e:
             self.dialog.msgbox(
                 title=self.title,
                 text=e.msg

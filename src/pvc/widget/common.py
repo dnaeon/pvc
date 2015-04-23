@@ -48,6 +48,7 @@ __all__ = [
     'choose_datacenter', 'choose_cluster', 'choose_datastore',
     'inventory_search_by_dns', 'inventory_search_by_ip',
     'inventory_search_by_uuid', 'datacenter_menu', 'remove',
+    'choose_network',
 ]
 
 
@@ -911,6 +912,67 @@ def choose_datastore(agent, dialog, obj):
         return
 
     return [ds['obj'] for ds in properties if ds['name'] == tag].pop()
+
+
+def choose_network(agent, dialog, obj):
+    """
+    Prompts the user to choose a network
+
+    Args:
+        agent         (VConnector): A VConnector instance
+        dialog     (dialog.Dailog): A Dialog instance
+        obj    (vim.ManagedEntity): A Managed Entity
+
+    Returns:
+        A vim.Network managed entity if a network has been
+        chosen
+
+        Return None if no network has been selected or
+        there are no networks existing
+
+    """
+    title = '{} ({})'.format(obj.name, obj.__class__.__name__)
+
+    dialog.infobox(
+        title=title,
+        text='Retrieving information ...'
+    )
+
+    if not hasattr(obj, 'network'):
+        return
+
+    view = agent.get_list_view(obj.network)
+    properties = agent.collect_properties(
+        view_ref=view,
+        obj_type=pyVmomi.vim.Network,
+        path_set=['name', 'summary.accessible'],
+        include_mors=True
+    )
+    view.DestroyView()
+
+    if not properties:
+        return
+
+    items = [
+        pvc.widget.radiolist.RadioListItem(
+            tag=network['name'],
+            description='Accessible' if network['summary.accessible'] else 'Not Accessible',
+        ) for network in properties
+    ]
+
+    radiolist = pvc.widget.radiolist.RadioList(
+        items=items,
+        dialog=dialog,
+        title='Choose Network',
+        text='Choose a network from the list below'
+    )
+
+    code, tag = radiolist.display()
+
+    if code in (dialog.CANCEL, dialog.ESC) or not tag:
+        return
+
+    return [network['obj'] for network in properties if network['name'] == tag].pop()
 
 
 def inventory_search_by_dns(agent, dialog, vm_search):

@@ -31,7 +31,7 @@ __all__ = ['Menu', 'MenuItem']
 
 
 class MenuItem(object):
-    def __init__(self, tag, description, on_select=None, on_select_args=None):
+    def __init__(self, tag, description, on_select=None, on_select_args=(), on_select_kwargs={}):
         """
         A menu item
 
@@ -46,30 +46,30 @@ class MenuItem(object):
         self.description = description
         self.on_select = on_select
         self.on_select_args = on_select_args
+        self.on_select_kwargs = on_select_kwargs
 
         if self.on_select and not callable(self.on_select):
             raise TypeError('Need a callable for item callback')
 
     def selected(self):
-        if self.on_select_args:
-            return self.on_select(*self.on_select_args)
-        else:
-            return self.on_select()
+        return self.on_select(*self.on_select_args, **self.on_select_kwargs)
 
 
 class Menu(object):
-    def __init__(self, items, dialog, **kwargs):
+    def __init__(self, items, dialog, return_selected=False, **kwargs):
         """
         Menu class
 
         Args:
-            items           (list): A list of MenuItem instances
-            dialog (dialog.Dialog): A Dialog instance
-            kwargs          (dict): Additional args to be passed to dialog(1)
+            items                    (list): A list of MenuItem instances
+            dialog          (dialog.Dialog): A Dialog instance
+            return_selected          (bool): If True them just return the selected item
+            kwargs                   (dict): Additional args to be passed to dialog(1)
 
         """
         self.items = items
         self.dialog = dialog
+        self.return_selected = return_selected
         self.kwargs = kwargs
         self.choices = [(item.tag, item.description) for item in self.items]
         self._registry = {item.tag: item for item in items}
@@ -84,12 +84,15 @@ class Menu(object):
             )
 
             if code in (self.dialog.CANCEL, self.dialog.ESC):
-                break
+                return code
 
             item = self._registry.get(tag)
             default_item = tag
 
-            if not item.on_select:
-                self.dialog.msgbox('Not implemented')
-            else:
+            if self.return_selected:
+                return item
+
+            if item.on_select:
                 item.selected()
+            else:
+                self.dialog.msgbox('Not implemented')

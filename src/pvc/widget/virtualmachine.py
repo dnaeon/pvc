@@ -28,6 +28,7 @@ Virtual Machine Widgets
 """
 
 import os
+import platform
 import time
 import tarfile
 
@@ -37,6 +38,7 @@ import requests
 
 import pvc.widget.alarm
 import pvc.widget.common
+import pvc.widget.device
 import pvc.widget.debug
 import pvc.widget.event
 import pvc.widget.menu
@@ -56,6 +58,8 @@ __all__ = [
     'VirtualMachinePowerWidget',
     'VirtualMachineExportWidget',
     'CreateVirtualMachineWidget',
+    'VirtualMachineHardwareWidget',
+    'VirtualMachineAddHardwareWidget',
 ]
 
 
@@ -101,8 +105,10 @@ class VirtualMachineWidget(object):
                 on_select_args=(self.agent, self.dialog, self.obj)
             ),
             pvc.widget.menu.MenuItem(
-                tag='Configuration',
-                description='Virtual Machine settings'
+                tag='Hardware',
+                description='Manage virtual hardware',
+                on_select=VirtualMachineHardwareWidget,
+                on_select_args=(self.agent, self.dialog, self.obj)
             ),
             pvc.widget.menu.MenuItem(
                 tag='Datastore',
@@ -788,9 +794,9 @@ class VirtualMachineConsoleWidget(object):
                 on_select_args=(self.dialog, self.obj)
             ),
             pvc.widget.menu.MenuItem(
-                tag='VMware Player',
-                description='Launch VMware Player Console',
-                on_select=self.vmplayer_console,
+                tag='VMRC',
+                description='Launch VMRC Console',
+                on_select=self.console,
             ),
         ]
 
@@ -803,17 +809,29 @@ class VirtualMachineConsoleWidget(object):
 
         menu.display()
 
-    def vmplayer_console(self):
+    def console(self):
         """
-        Launch a VMware Player console to the Virtual Machine
+        Launch a VMRC console to the Virtual Machine
 
-        In order to establish a remote console session to the
-        Virtual Machine we run VMware Player this way:
+        On GNU/Linux systems we use VMware Player for
+        launching a console to the Virtual Machine.
+
+        On Mac OS X we use VMRC for launching the console.
+
+        VMware Player console is launched using this syntax:
 
             $ vmplayer -h <hostname> -p <ticket> -M <managed-object-id>
 
+        VMRC console is launched using this syntax:
+
+            $ vmrc vmrc://clone:<ticket>@<hostname>/?moid=<managed-object-id>
+
         Where <ticket> is an acquired ticket as returned by a
         previous call to AcquireCloneTicket().
+
+        TODO: Drop support for VMware Player on GNU/Linux as soon as
+              support for VMRC is provided for GNU/Linux systems.
+              See http://kb.vmware.com/kb/2091284 for more details
 
         """
         self.dialog.infobox(
@@ -824,8 +842,15 @@ class VirtualMachineConsoleWidget(object):
         ticket = self.agent.si.content.sessionManager.AcquireCloneTicket()
 
         try:
+            if platform.system() == 'Darwin':
+                args=['open', 'vmrc://clone:{}@{}/?moid={}'.format(
+                                                                ticket,
+                                                                self.agent.host,
+                                                                self.obj._moId)]
+            else:
+                args=['vmplayer', '-h', self.agent.host, '-p', ticket, '-M', self.obj._moId]
             Popen(
-                args=['vmplayer', '-h', self.agent.host, '-p', ticket, '-M', self.obj._moId],
+                args=args,
                 stdout=PIPE,
                 stderr=PIPE
             )
@@ -911,7 +936,7 @@ class VirtualMachineTemplateWidget(object):
 
         try:
             self.obj.MarkAsTemplate()
-        except Exception as e:
+        except pyVmomi.vim.MethodFault as e:
             self.dialog.msgbox(
                 title=self.title,
                 text=e.msg
@@ -929,7 +954,7 @@ class VirtualMachineTemplateWidget(object):
 
         try:
             self.obj.MarkAsVirtualMachine()
-        except Exception as e:
+        except pyVmomi.vim.MethodFault as e:
             self.dialog.msgbox(
                 title=self.title,
                 text=e.msg
@@ -1067,6 +1092,7 @@ class CreateVirtualMachineWidget(object):
             name=specs['Name'],
             numCPUs=int(specs['vCPU(s)']),
             memoryMB=int(specs['Memory Size (MB)']),
+            guestId=specs['Guest ID'],
             files=vmx_file,
             version=vmx_version
         )
@@ -1251,6 +1277,7 @@ class CreateVirtualMachineWidget(object):
             pvc.widget.form.FormElement(label='Name'),
             pvc.widget.form.FormElement(label='vCPU(s)'),
             pvc.widget.form.FormElement(label='Memory Size (MB)'),
+            pvc.widget.form.FormElement(label='Guest ID', item='otherGuest64'),
         ]
 
         form = pvc.widget.form.Form(
@@ -1273,3 +1300,109 @@ class CreateVirtualMachineWidget(object):
             return
 
         return fields
+
+
+class VirtualMachineHardwareWidget(object):
+    def __init__(self, agent, dialog, obj):
+        """
+        Widget for managing hardware on a Virtual Machine
+
+        Args:
+            agent          (VConnector): A VConnector instance
+            dialog      (dialog.Dialog): A Dialog instance
+            obj    (vim.VirtualMachine): A VirtualMachine managed entity
+
+        """
+        self.agent = agent
+        self.dialog = dialog
+        self.obj = obj
+        self.title = '{} ({})'.format(self.obj.name, self.obj.__class__.__name__)
+        self.display()
+
+    def display(self):
+        items = [
+            pvc.widget.menu.MenuItem(
+                tag='Add',
+                description='Add virtual hardware',
+                on_select=VirtualMachineAddHardwareWidget,
+                on_select_args=(self.agent, self.dialog, self.obj)
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='Remove',
+                description='Remove virtual hardware'
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='Change',
+                description='Change virtual hardware'
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='View',
+                description='View virtual hardware',
+            ),
+        ]
+
+        menu = pvc.widget.menu.Menu(
+            items=items,
+            dialog=self.dialog,
+            title=self.title,
+            text='Select an action to be performed'
+        )
+
+        menu.display()
+
+
+class VirtualMachineAddHardwareWidget(object):
+    def __init__(self, agent, dialog, obj):
+        """
+        Widget for adding new virtual hardware
+
+        Args:
+            agent          (VConnector): A VConnector instance
+            dialog      (dialog.Dialog): A Dialog instance
+            obj    (vim.VirtualMachine): A VirtualMachine managed entity
+
+        """
+        self.agent = agent
+        self.dialog = dialog
+        self.obj = obj
+        self.title = '{} ({})'.format(self.obj.name, self.obj.__class__.__name__)
+        self.display()
+
+    def display(self):
+        items = [
+            pvc.widget.menu.MenuItem(
+                tag='Controller',
+                description='Add virtual controller'
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='Floppy Drive',
+                description='Add floppy drive',
+                on_select=pvc.widget.device.AddFloppyDeviceWidget,
+                on_select_args=(self.agent, self.dialog, self.obj)
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='CD/DVD Drive',
+                description='Add CD/DVD drive',
+                on_select=pvc.widget.device.AddCdromDeviceWidget,
+                on_select_args=(self.agent, self.dialog, self.obj)
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='Hard Disk',
+                description='Add hard disk'
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='Ethernet Adapter',
+                description='Add ethernet adapter',
+                on_select=pvc.widget.device.AddNetworkDeviceWidget,
+                on_select_args=(self.agent, self.dialog, self.obj)
+            ),
+        ]
+
+        menu = pvc.widget.menu.Menu(
+            items=items,
+            dialog=self.dialog,
+            title=self.title,
+            text='Select an action to be performed'
+        )
+
+        menu.display()

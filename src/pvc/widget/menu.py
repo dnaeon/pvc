@@ -31,7 +31,7 @@ __all__ = ['Menu', 'MenuItem']
 
 
 class MenuItem(object):
-    def __init__(self, tag, description, on_select=None, on_select_args=None):
+    def __init__(self, tag, description, on_select=None, on_select_args=(), on_select_kwargs={}):
         """
         A menu item
 
@@ -46,15 +46,13 @@ class MenuItem(object):
         self.description = description
         self.on_select = on_select
         self.on_select_args = on_select_args
+        self.on_select_kwargs = on_select_kwargs
 
         if self.on_select and not callable(self.on_select):
             raise TypeError('Need a callable for item callback')
 
     def selected(self):
-        if self.on_select_args:
-            return self.on_select(*self.on_select_args)
-        else:
-            return self.on_select()
+        return self.on_select(*self.on_select_args, **self.on_select_kwargs)
 
 
 class Menu(object):

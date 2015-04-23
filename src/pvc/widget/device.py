@@ -197,13 +197,13 @@ class AddCdromDeviceWidget(BaseDeviceWidget):
         items = [
             pvc.widget.menu.MenuItem(
                 tag='Pass Through',
-                description='',
+                description=pyVmomi.vim.VirtualCdromRemotePassthroughBackingInfo.__name__,
                 on_select=pyVmomi.vim.VirtualCdromRemotePassthroughBackingInfo,
                 on_select_kwargs={'deviceName': '', 'useAutoDetect': False, 'exclusive': False}
             ),
             pvc.widget.menu.MenuItem(
                 tag='ATAPI Emulation',
-                description='',
+                description=pyVmomi.vim.VirtualCdromRemoteAtapiBackingInfo.__name__,
                 on_select=pyVmomi.vim.VirtualCdromRemoteAtapiBackingInfo,
                 on_select_kwargs={'deviceName': '', 'useAutoDetect': False}
             ),
@@ -395,29 +395,30 @@ class AddNetworkDeviceWidget(BaseDeviceWidget):
             )
             return
 
-        # The descriptor.supportedEthernetCard property
-        # contains a list of vim.VirtualEthernetAdapter types.
-        # In the radiolist we build below we use the
-        # vim.VirtualEthernetAdapter.__name__ property to
-        # present the user with a list of adapters to choose from
+        # The on_select() callback for each MenuItem() instance that
+        # we use below is used as a simple echo-like callback that
+        # simply returns the selected virtual ethernet card type
         items = [
-            pvc.widget.radiolist.RadioListItem(
-                tag=card.__name__.split('.')[-1].replace('Virtual', '').upper()
+            pvc.widget.menu.MenuItem(
+                tag=card.__name__.split('.')[-1].replace('Virtual', '').upper(),
+                description=card.__name__,
+                on_select=lambda x: x,
+                on_select_args=(card,)
             ) for card in descriptor.supportedEthernetCard
         ]
 
-        radiolist = pvc.widget.radiolist.RadioList(
+        menu = pvc.widget.menu.Menu(
             items=items,
             dialog=self.dialog,
+            return_selected=True,
             title=self.title,
             text='Select virtual ethernet adapter'
         )
 
-        code, tag = radiolist.display()
-
-        if code in (self.dialog.CANCEL, self.dialog.ESC) or not tag:
+        item = menu.display()
+        if not isinstance(item, pvc.widget.menu.MenuItem):
             return
 
-        card_name = '{}{}'.format('vim.vm.device.Virtual', tag.title())
-
-        return [c for c in descriptor.supportedEthernetCard if c.__name__ == card_name].pop()
+        card = item.selected()
+        
+        return card

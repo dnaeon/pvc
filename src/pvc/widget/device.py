@@ -195,36 +195,38 @@ class AddCdromDeviceWidget(BaseDeviceWidget):
 
         """
         items = [
-            pvc.widget.radiolist.RadioListItem(tag='Pass through'),
-            pvc.widget.radiolist.RadioListItem(tag='ATAPI emulation'),
+            pvc.widget.menu.MenuItem(
+                tag='Pass Through',
+                description='',
+                on_select=pyVmomi.vim.VirtualCdromRemotePassthroughBackingInfo,
+                on_select_kwargs={'deviceName': '', 'useAutoDetect': False, 'exclusive': False}
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='ATAPI Emulation',
+                description='',
+                on_select=pyVmomi.vim.VirtualCdromRemoteAtapiBackingInfo,
+                on_select_kwargs={'deviceName': '', 'useAutoDetect': False}
+            ),
         ]
 
-        radiolist = pvc.widget.radiolist.RadioList(
+        menu = pvc.widget.menu.Menu(
             items=items,
             dialog=self.dialog,
+            return_selected=True,
             title=self.title,
             text='Select device backing'
         )
 
-        code, tag = radiolist.display()
-        if code in (self.dialog.CANCEL, self.dialog.ESC) or not tag:
+        item = menu.display()
+
+        if not isinstance(item, pvc.widget.menu.MenuItem):
             self.dialog.msgbox(
                 title=self.title,
                 text='Invalid device backing selected'
             )
             return
 
-        if tag == 'Pass through':
-            backing_info = pyVmomi.vim.VirtualCdromRemotePassthroughBackingInfo(
-                deviceName='',
-                useAutoDetect=False,
-                exclusive=False
-            )
-        elif tag == 'ATAPI emulation':
-            backing_info = pyVmomi.vim.VirtualCdromRemoteAtapiBackingInfo(
-                deviceName='',
-                useAutoDetect=False
-            )
+        backing_info = item.selected()
 
         return backing_info
 

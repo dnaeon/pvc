@@ -50,6 +50,7 @@ class MainApp(object):
     """
     def __init__(self):
         self.dialog = Dialog(autowidgetsize=True)
+        self.dialog.add_persistent_args(['--no-mouse'])
         self.dialog.set_background_title(
             'Python vSphere Client version {}'.format(__version__)
         )

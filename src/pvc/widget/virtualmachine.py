@@ -1371,10 +1371,6 @@ class VirtualMachineAddHardwareWidget(object):
     def display(self):
         items = [
             pvc.widget.menu.MenuItem(
-                tag='Controller',
-                description='Add virtual controller'
-            ),
-            pvc.widget.menu.MenuItem(
                 tag='Floppy Drive',
                 description='Add floppy drive',
                 on_select=pvc.widget.device.AddFloppyDeviceWidget,
@@ -1394,6 +1390,12 @@ class VirtualMachineAddHardwareWidget(object):
                 tag='Ethernet Adapter',
                 description='Add ethernet adapter',
                 on_select=pvc.widget.device.AddNetworkDeviceWidget,
+                on_select_args=(self.agent, self.dialog, self.obj)
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='Controller',
+                description='Add virtual controller',
+                on_select=pvc.widget.device.AddControllerWidget,
                 on_select_args=(self.agent, self.dialog, self.obj)
             ),
         ]

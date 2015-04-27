@@ -88,28 +88,35 @@ class BaseDeviceWidget(object):
             return
 
         items = [
-            pvc.widget.radiolist.RadioListItem(
-                tag=d.deviceInfo.label
-            ) for d in controllers
+            pvc.widget.menu.MenuItem(
+                tag=c.deviceInfo.label,
+                description='',
+                on_select=lambda x: x,
+                on_select_args=(c,)
+            ) for c in controllers
         ]
 
-        radiolist = pvc.widget.radiolist.RadioList(
+        menu = pvc.widget.menu.Menu(
             items=items,
             dialog=self.dialog,
+            return_selected=True,
             title=self.title,
             text='Select virtual controller'
         )
+        item = menu.display()
 
-        code, tag = radiolist.display()
-
-        if code in (self.dialog.CANCEL, self.dialog.ESC) or not tag:
+        if not isinstance(item, pvc.widget.menu.MenuItem):
             return
 
-        return [d for d in controllers if d.deviceInfo.label == tag].pop()
+        controller = item.selected()
+
+        return controller
 
     def next_unit_number(self, controller):
         """
         Get the next unit number for a controller
+
+        Used when adding new devices to an existing controller
 
         Args:
             controller (vim.VirtualController): A vim.VirtualController instance
@@ -118,11 +125,28 @@ class BaseDeviceWidget(object):
             The next available unit number for the controller
 
         """
-        used = [d.unitNumber for d in self.hardware.device if d.controllerKey == controller.key]
+        used = [c.unitNumber for c in self.hardware.device if c.controllerKey == controller.key]
+        unit_number = max(used) + 1 if used else 0
 
-        next_unit_number = max(used) + 1 if used else 0
+        return unit_number
 
-        return next_unit_number
+    def next_bus_number(self, controller):
+        """
+        Get the next bus number for a controller
+
+        Used when adding new virtual controllers
+
+        Args:
+            controller (vim.VirtualController): A vim.VirtualController instance
+
+        Returns:
+            The next available bus number for the controller
+
+        """
+        used = [c.busNumber for c in self.hardware.device if isinstance(c, controller)]
+        bus_number = max(used) + 1 if used else 0
+
+        return bus_number
 
 
 class AddCdromDeviceWidget(BaseDeviceWidget):

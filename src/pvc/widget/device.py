@@ -37,6 +37,7 @@ import pvc.widget.radiolist
 __all__ = [
     'BaseDeviceWidget', 'AddCdromDeviceWidget',
     'AddFloppyDeviceWidget', 'AddNetworkDeviceWidget',
+    'AddControllerWidget', 'AddSCSIControllerWidget',
 ]
 
 

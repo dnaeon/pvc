@@ -143,7 +143,7 @@ class VncWidget(object):
         ]
         spec = pyVmomi.vim.VirtualMachineConfigSpec(extraConfig=options)
 
-        task = self.obj.Reconfigure(spec=spec)
+        task = self.obj.ReconfigVM_Task(spec=spec)
         gauge = pvc.widget.gauge.TaskGauge(
             title=self.title,
             text='Configuring VNC Settings',
@@ -236,7 +236,7 @@ class VncWidget(object):
         ]
         spec = pyVmomi.vim.VirtualMachineConfigSpec(extraConfig=options)
 
-        task = self.obj.Reconfigure(spec=spec)
+        task = self.obj.ReconfigVM_Task(spec=spec)
         gauge = pvc.widget.gauge.TaskGauge(
             dialog=self.dialog,
             task=task,

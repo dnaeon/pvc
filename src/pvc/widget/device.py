@@ -78,7 +78,7 @@ class BaseDeviceWidget(object):
             selected, None otherwise
 
         """
-        controllers = [d for d in self.hardware.device if isinstance(d, controller)]
+        controllers = [c for c in self.hardware.device if isinstance(c, controller)]
 
         if not controllers:
             self.dialog.msgbox(

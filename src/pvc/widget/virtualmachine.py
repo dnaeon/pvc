@@ -60,6 +60,7 @@ __all__ = [
     'CreateVirtualMachineWidget',
     'VirtualMachineHardwareWidget',
     'VirtualMachineAddHardwareWidget',
+    'MigrateVirtualMachineWidget',
 ]
 
 
@@ -96,6 +97,12 @@ class VirtualMachineWidget(object):
                 tag='Actions',
                 description='Available Actions',
                 on_select=VirtualMachineActionWidget,
+                on_select_args=(self.agent, self.dialog, self.obj)
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='Migrate',
+                description='Migrate Virtual Machine',
+                on_select=MigrateVirtualMachineWidget,
                 on_select_args=(self.agent, self.dialog, self.obj)
             ),
             pvc.widget.menu.MenuItem(
@@ -1397,6 +1404,49 @@ class VirtualMachineAddHardwareWidget(object):
                 description='Add virtual controller',
                 on_select=pvc.widget.device.AddControllerWidget,
                 on_select_args=(self.agent, self.dialog, self.obj)
+            ),
+        ]
+
+        menu = pvc.widget.menu.Menu(
+            items=items,
+            dialog=self.dialog,
+            title=self.title,
+            text='Select an action to be performed'
+        )
+
+        menu.display()
+
+
+class MigrateVirtualMachineWidget(object):
+    def __init__(self, agent, dialog, obj):
+        """
+        Widget for migrating a virtual machine
+
+        Args:
+            agent          (VConnector): A VConnector instance
+            dialog      (dialog.Dialog): A Dialog instance
+            obj    (vim.VirtualMachine): A VirtualMachine managed entity
+
+        """
+        self.agent = agent
+        self.dialog = dialog
+        self.obj = obj
+        self.title = '{} ({})'.format(self.obj.name, self.obj.__class__.__name__)
+        self.display()
+
+    def display(self):
+        items = [
+            pvc.widget.menu.MenuItem(
+                tag='Change Host',
+                description='Migrate VM to another host'
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='Change Datastore',
+                description='Migrate VM to another datastore'
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='Change Host & Datastore',
+                description='Migrate VM to another host & datastore'
             ),
         ]
 

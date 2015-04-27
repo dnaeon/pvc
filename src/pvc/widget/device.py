@@ -447,3 +447,122 @@ class AddNetworkDeviceWidget(BaseDeviceWidget):
         card = item.selected()
         
         return card
+
+
+class AddControllerWidget(object):
+    def __init__(self, agent, dialog, obj):
+        """
+        Widget for adding new virtual controller
+
+        Args:
+            agent          (VConnector): A VConnector instance
+            dialog      (dialog.Dialog): A Dialog instance
+            obj    (vim.VirtualMachine): A VirtualMachine managed entity
+
+        """
+        self.agent = agent
+        self.dialog = dialog
+        self.obj = obj
+        self.title = '{} ({})'.format(self.obj.name, self.obj.__class__.__name__)
+        self.display()
+
+    def display(self):
+        items = [
+            pvc.widget.menu.MenuItem(
+                tag='BusLogic Parallel',
+                description='Add SCSI BusLogic Parallel Controller',
+                on_select=AddSCSIControllerWidget,
+                on_select_args=(self.agent, self.dialog, self.obj, pyVmomi.vim.VirtualBusLogicController)
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='LSI Logic Parallel',
+                description='Add SCSI LSI Logic Parallel Controller',
+                on_select=AddSCSIControllerWidget,
+                on_select_args=(self.agent, self.dialog, self.obj, pyVmomi.vim.VirtualLsiLogicController)
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='LSI Logic SAS',
+                description='Add SCSI LSI Logic SAS Controller',
+                on_select=AddSCSIControllerWidget,
+                on_select_args=(self.agent, self.dialog, self.obj, pyVmomi.vim.VirtualLsiLogicSASController)
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='VMware Paravirtual',
+                description='Add SCSI VMware Paravirtual Controller',
+                on_select=AddSCSIControllerWidget,
+                on_select_args=(self.agent, self.dialog, self.obj, pyVmomi.vim.ParaVirtualSCSIController)
+            ),
+        ]
+
+        menu = pvc.widget.menu.Menu(
+            items=items,
+            dialog=self.dialog,
+            title=self.title,
+            text='Select a virtual controller to add'
+        )
+
+        menu.display()
+
+
+class AddSCSIControllerWidget(BaseDeviceWidget):
+    """
+    Widget for adding virtual SCSI controller
+
+    Extends:
+        BaseDeviceWidget class
+
+    Overrides:
+        display() method
+
+    """
+    def __init__(self, agent, dialog, obj, scsi_controller):
+        """
+        SCSI device widget
+
+        Args:
+            agent                          (VConnector): A VConnector instance
+            dialog                      (dialog.Dialog): A Dialog instance
+            obj                    (vim.VirtualMachine): A VirtualMachine managed entity
+            scsi_controller (vim.VirtualSCSIController): A SCSI controller type
+
+        """
+        self.scsi_controller = scsi_controller
+        super(AddSCSIControllerWidget, self).__init__(agent, dialog, obj)
+
+    def display(self):
+        controller = self.choose_controller(
+            controller=pyVmomi.vim.VirtualPCIController
+        )
+
+        if not controller:
+            return
+
+        unit_number = self.next_unit_number(controller=controller)
+        bus_number = self.next_bus_number(controller=self.scsi_controller)
+        device = self.scsi_controller(
+            controllerKey=controller.key,
+            key=-1,
+            unitNumber=unit_number,
+            busNumber=bus_number,
+            hotAddRemove=True,
+            sharedBus=pyVmomi.vim.VirtualSCSISharing.noSharing
+        )
+
+        device_change = pyVmomi.vim.VirtualDeviceConfigSpec(
+            device=device,
+            operation=pyVmomi.vim.VirtualDeviceConfigSpecOperation.add
+        )
+
+        spec = pyVmomi.vim.VirtualMachineConfigSpec(
+            deviceChange=[device_change]
+        )
+
+        task = self.obj.ReconfigVM_Task(spec=spec)
+        gauge = pvc.widget.gauge.TaskGauge(
+            dialog=self.dialog,
+            task=task,
+            title=self.title,
+            text='Adding SCSI controller ...'
+        )
+
+        gauge.display()

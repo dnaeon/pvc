@@ -1489,10 +1489,11 @@ class VirtualMachineChangeHostWidget(object):
             )
             return
 
+        folder = self.obj.runtime.host.parent.parent
         cluster = pvc.widget.common.choose_cluster(
             agent=self.agent,
             dialog=self.dialog,
-            folder=self.obj.resourcePool.parent.parent
+            folder=folder
         )
 
         if not cluster:

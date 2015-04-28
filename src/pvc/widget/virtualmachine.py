@@ -62,6 +62,7 @@ __all__ = [
     'VirtualMachineAddHardwareWidget',
     'MigrateVirtualMachineWidget',
     'VirtualMachineChangeHostWidget',
+    'VirtualMachineChangeDatastoreWidget',
 ]
 
 
@@ -1441,16 +1442,14 @@ class MigrateVirtualMachineWidget(object):
             pvc.widget.menu.MenuItem(
                 tag='Change Host',
                 description='Migrate VM to another host',
-                on_select=VirtualMachineChangeHostWidget,
+                on_select=VirtualMachineChangeHostWidgetWidget,
                 on_select_args=(self.agent, self.dialog, self.obj)
             ),
             pvc.widget.menu.MenuItem(
                 tag='Change Datastore',
-                description='Migrate VM to another datastore'
-            ),
-            pvc.widget.menu.MenuItem(
-                tag='Change Host & Datastore',
-                description='Migrate VM to another host & datastore'
+                description='Relocate VM to another datastore',
+                on_select=VirtualMachineChangeDatastoreWidget,
+                on_select_args=(self.agent, self.dialog, self.obj)
             ),
         ]
 
@@ -1464,7 +1463,7 @@ class MigrateVirtualMachineWidget(object):
         menu.display()
 
 
-class VirtualMachineChangeHostWidget(object):
+class VirtualMachineChangeHostWidgetWidget(object):
     def __init__(self, agent, dialog, obj):
         """
         Widget for migrating a virtual machine to another host
@@ -1614,5 +1613,137 @@ class VirtualMachineChangeHostWidget(object):
                 text=error_msg.format('\n'.join(error_messages))
             )
             return False  # Migration would not succeed
+
+        return True
+
+
+class VirtualMachineChangeDatastoreWidget(object):
+    def __init__(self, agent, dialog, obj):
+        """
+        Widget for relocating a virtual machine to another datastore
+
+        Args:
+            agent          (VConnector): A VConnector instance
+            dialog      (dialog.Dialog): A Dialog instance
+            obj    (vim.VirtualMachine): A VirtualMachine managed entity
+
+        """
+        self.agent = agent
+        self.dialog = dialog
+        self.obj = obj
+        self.title = '{} ({})'.format(self.obj.name, self.obj.__class__.__name__)
+        self.display()
+
+    def display(self):
+        new_datastore = pvc.widget.common.choose_datastore(
+            agent=self.agent,
+            dialog=self.dialog,
+            obj=self.obj.runtime.host
+        )
+
+        if not new_datastore:
+            self.dialog.msgbox(
+                title=self.title,
+                text='No target datastore selected'
+            )
+            return
+
+        if not self.relocation_would_succeed(datastore=new_datastore):
+            return
+
+        spec = pyVmomi.vim.VirtualMachineRelocateSpec(
+            datastore=new_datastore
+        )
+
+        task = self.obj.RelocateVM_Task(
+            spec=spec,
+            priority=pyVmomi.vim.VirtualMachineMovePriority.defaultPriority
+        )
+
+        gauge = pvc.widget.gauge.TaskGauge(
+            dialog=self.dialog,
+            task=task,
+            title=self.title,
+            text='Relocating Virtual Machine to {} ...'.format(new_datastore.name)
+        )
+
+        gauge.display()
+
+    def relocation_would_succeed(self, datastore):
+        """
+        Runs compatibility tests in order to determine whether a
+        relocation task would succeed or not.
+
+        Args:
+            datastore (vim.Datastore): Target Datastore entity to relocate the VM on
+
+        Returns:
+            True if there are no errors reported by the compatibily tests,
+            False otherwise.
+
+        """
+        spec = pyVmomi.vim.VirtualMachineRelocateSpec(
+            datastore=datastore
+        )
+
+        task = self.agent.si.content.vmProvisioningChecker.CheckRelocate_Task(
+            vm=self.obj,
+            spec=spec
+        )
+
+        gauge = pvc.widget.gauge.TaskGauge(
+            dialog=self.dialog,
+            task=task,
+            title=self.title,
+            text='Running compatibility tests ...'
+        )
+
+        gauge.display()
+
+        warnings = [r for r in task.info.result if r.warning]
+        errors = [r for r in task.info.result if r.error]
+
+        warning_messages = []
+        for r in warnings:
+            for w in r.warning:
+                warning_messages.append(w.msg)
+                warning_messages.extend(['    {}'.format(f.message) for f in w.faultMessage])
+
+        error_messages = []
+        for r in errors:
+            for e in r.error:
+                error_messages.append(e.msg)
+                error_messages.extend(['    {}'.format(f.message) for f in e.faultMessage])
+
+        if warning_messages:
+            warn_msg = (
+                'The following warnings were reported by the '
+                'compatibility tests while testing the '
+                'feasibility of the proposed relocation task.\n\n'
+                '{}'
+            )
+
+            self.dialog.msgbox(
+                title='Relocation Task Warning',
+                text=warn_msg.format('\n'.join(warning_messages))
+            )
+
+        if error_messages:
+            error_msg = (
+                'The following errors were reported by the '
+                'compatibility tests while testing the '
+                'feasibility of the proposed relocation task.\n\n'
+                'As a result of these errors the relocation task '
+                'would not succeed. You are advised to check and '
+                'fix these errors before attempting to relocate the '
+                'Virtual Machine.\n\n'
+                '{}'
+            )
+
+            self.dialog.msgbox(
+                title='Relocation Task Error',
+                text=error_msg.format('\n'.join(error_messages))
+            )
+            return False  # Relocation would not succeed
 
         return True

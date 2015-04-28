@@ -61,6 +61,7 @@ __all__ = [
     'VirtualMachineHardwareWidget',
     'VirtualMachineAddHardwareWidget',
     'MigrateVirtualMachineWidget',
+    'VirtualMachineChangeHostWidget',
 ]
 
 
@@ -1066,6 +1067,7 @@ class CreateVirtualMachineWidget(object):
             self.cluster = self.select_cluster(folder=self.datacenter)
             if not self.cluster:
                 return
+
         if not self.select_host(cluster=self.cluster):
             return
 
@@ -1438,7 +1440,9 @@ class MigrateVirtualMachineWidget(object):
         items = [
             pvc.widget.menu.MenuItem(
                 tag='Change Host',
-                description='Migrate VM to another host'
+                description='Migrate VM to another host',
+                on_select=VirtualMachineChangeHostWidget,
+                on_select_args=(self.agent, self.dialog, self.obj)
             ),
             pvc.widget.menu.MenuItem(
                 tag='Change Datastore',
@@ -1458,3 +1462,156 @@ class MigrateVirtualMachineWidget(object):
         )
 
         menu.display()
+
+
+class VirtualMachineChangeHostWidget(object):
+    def __init__(self, agent, dialog, obj):
+        """
+        Widget for migrating a virtual machine to another host
+
+        Args:
+            agent          (VConnector): A VConnector instance
+            dialog      (dialog.Dialog): A Dialog instance
+            obj    (vim.VirtualMachine): A VirtualMachine managed entity
+
+        """
+        self.agent = agent
+        self.dialog = dialog
+        self.obj = obj
+        self.title = '{} ({})'.format(self.obj.name, self.obj.__class__.__name__)
+        self.display()
+
+    def display(self):
+        if self.obj.config.template:
+            self.dialog.msgbox(
+                title=self.title,
+                text='Virtual Machine is a template, cannot migrate'
+            )
+            return
+
+        cluster = pvc.widget.common.choose_cluster(
+            agent=self.agent,
+            dialog=self.dialog,
+            folder=self.obj.resourcePool.parent.parent
+        )
+
+        if not cluster:
+            return
+
+        if not cluster.host:
+            self.dialog.msgbox(
+                title=self.title,
+                text='No compute resources found in {}'.format(cluster.name)
+            )
+            return
+
+        old_host = self.obj.runtime.host
+        new_host = pvc.widget.common.choose_host(
+            agent=self.agent,
+            dialog=self.dialog,
+            folder=cluster
+        )
+
+        if not new_host:
+            self.dialog.msgbox(
+                title=self.title,
+                text='No valid host selected'
+            )
+            return
+
+        if not self.migration_would_succeed(host=new_host, pool=cluster.resourcePool):
+            return
+
+        task = self.obj.MigrateVM_Task(
+            host=new_host,
+            priority=pyVmomi.vim.VirtualMachineMovePriority.defaultPriority
+        )
+
+        gauge = pvc.widget.gauge.TaskGauge(
+            dialog=self.dialog,
+            task=task,
+            title=self.title,
+            text='Migrating Virtual Machine from {} to {} ...'.format(
+                old_host.name,
+                new_host.name
+            )
+        )
+
+        gauge.display()
+
+    def migration_would_succeed(self, host, pool):
+        """
+        Runs compatibility tests in order to determine whether a
+        migration task would succeed or not.
+
+        Args:
+            host   (vim.HostSystem): A target HostSystem entity to migrate the VM on
+            pool (vim.ResourcePool): A target ResourcePool entity for the VM
+
+        Returns:
+            True if there are no errors reported by the compatibily tests,
+            False otherwise.
+
+        """
+        task = self.agent.si.content.vmProvisioningChecker.CheckMigrate_Task(
+            vm=self.obj,
+            host=host,
+            pool=pool
+        )
+
+        gauge = pvc.widget.gauge.TaskGauge(
+            dialog=self.dialog,
+            task=task,
+            title=self.title,
+            text='Running compatibility tests ...'
+        )
+
+        gauge.display()
+
+        warnings = [r for r in task.info.result if r.warning]
+        errors = [r for r in task.info.result if r.error]
+
+        warning_messages = []
+        for r in warnings:
+            for w in r.warning:
+                warning_messages.append(w.msg)
+                warning_messages.extend(['    {}'.format(f.message) for f in w.faultMessage])
+
+        error_messages = []
+        for r in errors:
+            for e in r.error:
+                error_messages.append(e.msg)
+                error_messages.extend(['    {}'.format(f.message) for f in e.faultMessage])
+
+        if warning_messages:
+            warn_msg = (
+                'The following warnings were reported by the '
+                'compatibility tests while testing the '
+                'feasibility of the proposed migration task.\n\n'
+                '{}'
+            )
+
+            self.dialog.msgbox(
+                title='Migration Task Warning',
+                text=warn_msg.format('\n'.join(warning_messages))
+            )
+
+        if error_messages:
+            error_msg = (
+                'The following errors were reported by the '
+                'compatibility tests while testing the '
+                'feasibility of the proposed migration task.\n\n'
+                'As a result of these errors the migration task '
+                'would not succeed. You are advised to check and '
+                'fix these errors before attempting to migrate the '
+                'Virtual Machine.\n\n'
+                '{}'
+            )
+
+            self.dialog.msgbox(
+                title='Migration Task Error',
+                text=error_msg.format('\n'.join(error_messages))
+            )
+            return False  # Migration would not succeed
+
+        return True

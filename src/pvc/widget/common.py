@@ -48,7 +48,7 @@ __all__ = [
     'choose_datacenter', 'choose_cluster', 'choose_datastore',
     'inventory_search_by_dns', 'inventory_search_by_ip',
     'inventory_search_by_uuid', 'datacenter_menu', 'remove',
-    'choose_network',
+    'choose_network', 'host_service_menu',
 ]
 
 
@@ -343,6 +343,42 @@ def hostmount_menu(agent, dialog, obj):
         dialog=dialog,
         title=title,
         text='',
+    )
+
+    menu.display()
+
+
+def host_service_menu(agent, dialog, obj):
+    """
+    A widget to display a menu of services in a HostSystem
+
+    Args:
+        agent      (VConnector): A VConnector instance
+        dialog  (dialog.Dailog): A Dialog instance
+        obj    (vim.HostSystem): A HostSystem entity
+
+    """
+    title = '{} ({})'.format(obj.name, obj.__class__.__name__)
+
+    dialog.infobox(
+        title=title,
+        text='Retrieving information ...'
+    )
+
+    items = [
+        pvc.widget.menu.MenuItem(
+            tag=service.key,
+            description=service.label,
+            on_select=pvc.widget.hostsystem.HostSystemServiceWidget,
+            on_select_args=(agent, dialog, obj, service)
+        ) for service in obj.config.service.service
+    ]
+
+    menu = pvc.widget.menu.Menu(
+        items=items,
+        dialog=dialog,
+        title=title,
+        text='Choose a service to manage'
     )
 
     menu.display()

@@ -512,6 +512,7 @@ class HostSystemServiceWidget(object):
         self.dialog = dialog
         self.obj = obj
         self.service = service
+        self.service_system = self.obj.configManager.serviceSystem
         self.title = '{} ({})'.format(self.obj.name, self.obj.__class__.__name__)
         self.display()
 
@@ -599,7 +600,12 @@ class HostSystemServiceWidget(object):
         Starts a service
 
         """
-        pass
+        self.dialog.infobox(
+            title=self.title,
+            text='Starting service {} ...'.format(self.service.label)
+        )
+
+        self.service_system.StartService(id=self.service.key)
 
     def stop(self):
         """

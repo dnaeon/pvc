@@ -543,6 +543,11 @@ class HostSystemServiceWidget(object):
                 description='Uninstall Service',
                 on_select=self.uninstall
             ),
+            pvc.widget.menu.MenuItem(
+                tag='Policy',
+                description='Update Service Policy',
+                on_select=self.update_policy
+            ),
         ]
 
         menu = pvc.widget.menu.Menu(
@@ -648,3 +653,54 @@ class HostSystemServiceWidget(object):
                 title=self.title,
                 text=e.msg
             )
+
+    def update_policy(self):
+        """
+        Updates the activation policy of a service
+
+        """
+        items = [
+            pvc.widget.menu.MenuItem(
+                tag='On',
+                description='Enable service at boot-time',
+                on_select=lambda x: x,
+                on_select_args=(pyVmomi.vim.HostServicePolicy.on,)
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='Off',
+                description='Disable service at boot-time',
+                on_select=lambda x: x,
+                on_select_args=(pyVmomi.vim.HostServicePolicy.off,)
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='Automatic',
+                description='Start service only if it has open ports',
+                on_select=lambda x: x,
+                on_select_args=(pyVmomi.vim.HostServicePolicy.automatic,)
+            ),
+        ]
+
+        menu = pvc.widget.menu.Menu(
+            items=items,
+            dialog=self.dialog,
+            return_selected=True,
+            title=self.title,
+            text='Select service activation policy'
+        )
+
+        item = menu.display()
+
+        if not isinstance(item, pvc.widget.menu.MenuItem):
+            return
+
+        policy = item.selected()
+
+        self.dialog.infobox(
+            title=self.title,
+            text='Updating policy for service {} ...'.format(self.service.label)
+        )
+
+        self.service_system.UpdateServicePolicy(
+            id=self.service.key,
+            policy=policy
+        )

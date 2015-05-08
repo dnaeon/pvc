@@ -547,3 +547,45 @@ class HostSystemServiceWidget(object):
         )
 
         menu.display()
+
+    def info(self):
+        """
+        Display info about a service
+
+        """
+        elements = [
+            pvc.widget.form.FormElement(
+                label='Service',
+                item=self.service.key
+            ),
+            pvc.widget.form.FormElement(
+                label='Description',
+                item=self.service.label
+            ),
+            pvc.widget.form.FormElement(
+                label='Running',
+                item=str(self.service.running)
+            ),
+            pvc.widget.form.FormElement(
+                label='Policy',
+                item=self.service.policy
+            ),
+            pvc.widget.form.FormElement(
+                label='Required',
+                item=str(self.service.required)
+            ),
+            pvc.widget.form.FormElement(
+                label='Uninstallable',
+                item=str(self.service.uninstallable)
+            ),
+        ]
+
+        form = pvc.widget.form.Form(
+            dialog=self.dialog,
+            form_elements=elements,
+            title=self.title,
+            text='Service information'
+        )
+
+        form.display()
+

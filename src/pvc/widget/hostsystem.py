@@ -614,7 +614,7 @@ class HostSystemServiceWidget(object):
         """
         self.dialog.infobox(
             title=self.title,
-            text='Stopping service {} ...'.format(self.service.lable)
+            text='Stopping service {} ...'.format(self.service.label)
         )
 
         self.service_system.StopService(id=self.service.key)
@@ -624,7 +624,12 @@ class HostSystemServiceWidget(object):
         Restarts a service
 
         """
-        pass
+        self.dialog.infobox(
+            title=self.title,
+            text='Restarting service {} ...'.format(self.service.label)
+        )
+
+        self.service_system.RestartService(id=self.service.key)
 
     def uninstall(self):
         """"

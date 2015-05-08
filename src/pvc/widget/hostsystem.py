@@ -612,7 +612,12 @@ class HostSystemServiceWidget(object):
         Stops a service
 
         """
-        pass
+        self.dialog.infobox(
+            title=self.title,
+            text='Stopping service {} ...'.format(self.service.lable)
+        )
+
+        self.service_system.StopService(id=self.service.key)
 
     def restart(self):
         """

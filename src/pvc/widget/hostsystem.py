@@ -641,4 +641,10 @@ class HostSystemServiceWidget(object):
             text='Uninstall service {} ...'.format(self.service.label)
         )
 
-        self.service_system.UninstallService(id=self.service.key)
+        try:
+            self.service_system.UninstallService(id=self.service.key)
+        except pyVmomi.vim.MethodFault as e:
+            self.dialog.msgbox(
+                title=self.title,
+                text=e.msg
+            )

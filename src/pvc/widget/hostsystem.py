@@ -116,6 +116,12 @@ class HostSystemWidget(object):
                 on_select_args=(self.agent, self.dialog, self.obj)
             ),
             pvc.widget.menu.MenuItem(
+                tag='Services',
+                description='Manage Services',
+                on_select=pvc.widget.common.host_service_menu,
+                on_select_args=(self.agent, self.dialog, self.obj)
+            ),
+            pvc.widget.menu.MenuItem(
                 tag='Debug',
                 description='Start a Python REPL console',
                 on_select=pvc.widget.debug.DebugWidget,

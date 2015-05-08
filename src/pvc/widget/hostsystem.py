@@ -636,4 +636,9 @@ class HostSystemServiceWidget(object):
         Uninstalls a service
 
         """
-        pass
+        self.dialog.infobox(
+            title=self.title,
+            text='Uninstall service {} ...'.format(self.service.label)
+        )
+
+        self.service_system.UninstallService(id=self.service.key)

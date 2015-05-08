@@ -537,6 +537,11 @@ class HostSystemServiceWidget(object):
                 description='Restart Service',
                 on_select=self.restart
             ),
+            pvc.widget.menu.MenuItem(
+                tag='Uninstall',
+                description='Uninstall Service',
+                on_select=self.uninstall
+            ),
         ]
 
         menu = pvc.widget.menu.Menu(
@@ -589,3 +594,30 @@ class HostSystemServiceWidget(object):
 
         form.display()
 
+    def start(self):
+        """
+        Starts a service
+
+        """
+        pass
+
+    def stop(self):
+        """
+        Stops a service
+
+        """
+        pass
+
+    def restart(self):
+        """
+        Restarts a service
+
+        """
+        pass
+
+    def uninstall(self):
+        """"
+        Uninstalls a service
+
+        """
+        pass

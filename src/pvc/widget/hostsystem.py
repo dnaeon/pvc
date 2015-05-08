@@ -46,7 +46,7 @@ import pvc.widget.virtualmachine
 __all__ = [
     'HostSystemWidget', 'HostSystemDatastoreWidget',
     'HostSystemAddNfsStorage', 'HostSystemUnmountStorage',
-    'HostSystemVirtualMachineWidget',
+    'HostSystemVirtualMachineWidget', 'HostSystemServiceWidget',
 ]
 
 
@@ -488,3 +488,56 @@ class HostSystemUnmountStorage(object):
             self.obj.configManager.datastoreSystem.RemoveDatastore(
                 datastore=datastore_obj
             )
+
+
+class HostSystemServiceWidget(object):
+    def __init__(self, agent, dialog, obj, service):
+        """
+        Widget for managing services on a HostSystem
+
+        Args:
+            agent        (VConnector): A VConnector instance
+            dialog    (dialog.Dialog): A Dialog instance
+            obj      (vim.HostSystem): A HostSystem managed entity
+            service (vim.HostService): A HostService instance
+
+        """
+        self.agent = agent
+        self.dialog = dialog
+        self.obj = obj
+        self.service = service
+        self.title = '{} ({})'.format(self.obj.name, self.obj.__class__.__name__)
+        self.display()
+
+    def display(self):
+        items = [
+            pvc.widget.menu.MenuItem(
+                tag='Info',
+                description='View Service Info',
+                on_select=self.info
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='Start',
+                description='Start Service',
+                on_select=self.start
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='Stop',
+                description='Stop Service',
+                on_select=self.stop
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='Restart',
+                description='Restart Service',
+                on_select=self.restart
+            ),
+        ]
+
+        menu = pvc.widget.menu.Menu(
+            items=items,
+            dialog=self.dialog,
+            title=self.title,
+            text='Select an action to be performed'
+        )
+
+        menu.display()

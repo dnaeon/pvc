@@ -41,15 +41,12 @@ that a successful VNC connection can be established.
 PVC uses ports 5901-5999 for establishing a VNC connection to a
 Virtual Machine.
 
-Refer `How to Create Custom Firewall Rules in ESXi 5.0`_ article
+Refer to `How to Create Custom Firewall Rules in ESXi 5.0`_ article
 for more information on how to manage the firewall rules on your
 VMware ESXi hosts and open the required ports for VNC communication.
 
-Debugging Output
-================
-
 .. _`gnuplot`: http://www.gnuplot.info/
 .. _`VMRC`: https://www.vmware.com/go/download-vmrc
-.. _ `VMware Player`: http://www.vmware.com/products/player
+.. _`VMware Player`: http://www.vmware.com/products/player
 .. _`KB 2091284`: http://kb.vmware.com/kb/2091284
 .. _`How to Create Custom Firewall Rules in ESXi 5.0`: http://www.virtuallyghetto.com/2011/07/how-to-create-custom-firewall-rules-in.html

@@ -90,11 +90,3 @@ as well.
 .. _`gnuplot`: http://www.gnuplot.info/
 .. _`VMware Player`: http://www.vmware.com/products/player
 .. _`virtualenv`: https://virtualenv.pypa.io/en/latest/
-
-
-OS Specific Installation
-========================
-
-Installing on OSX:
-
-Installing on Ubuntu Linux:

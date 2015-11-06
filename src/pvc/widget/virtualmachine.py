@@ -836,7 +836,7 @@ class VirtualMachineConsoleWidget(object):
 
         VMware Player console is launched using this syntax:
 
-            $ vmplayer -h <hostname> -p <ticket> -M <managed-object-id>
+            $ vmplayer -H <hostname> -P <ticket> -M <managed-object-id>
 
         VMRC console is launched using this syntax:
 
@@ -864,7 +864,7 @@ class VirtualMachineConsoleWidget(object):
                                                                 self.agent.host,
                                                                 self.obj._moId)]
             else:
-                args=['vmplayer', '-h', self.agent.host, '-p', ticket, '-M', self.obj._moId]
+                args=['vmplayer', '-H', self.agent.host, '-P', ticket, '-M', self.obj._moId]
             Popen(
                 args=args,
                 stdout=PIPE,

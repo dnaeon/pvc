@@ -64,6 +64,7 @@ __all__ = [
     'VirtualMachineChangeHostWidget',
     'VirtualMachineChangeDatastoreWidget',
     'VirtualMachineCloneWidget',
+    'VirtualMachineSnapshotManagerWidget',
 ]
 
 
@@ -148,6 +149,12 @@ class VirtualMachineWidget(object):
                 tag='Template',
                 description='Template Actions',
                 on_select=VirtualMachineTemplateWidget,
+                on_select_args=(self.agent, self.dialog, self.obj)
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='Snapshot',
+                description='Snapshot Manager',
+                on_select=VirtualMachineSnapshotManagerWidget,
                 on_select_args=(self.agent, self.dialog, self.obj)
             ),
             pvc.widget.menu.MenuItem(
@@ -975,6 +982,51 @@ class VirtualMachineTemplateWidget(object):
                 title=self.title,
                 text=e.msg
             )
+
+
+class VirtualMachineSnapshotManagerWidget(object):
+    def __init__(self, agent, dialog, obj):
+        """
+        Virtual Machine Snapshot Manager Widget
+
+        Args:
+            agent          (VConnector): A VConnector instance
+            dialog      (dialog.Dialog): A Dialog instance
+            obj    (vim.VirtualMachine): A VirtualMachine managed entity
+
+        """
+        self.agent = agent
+        self.dialog = dialog
+        self.obj = obj
+        self.title = '{} ({})'.format(self.obj.name, self.obj.__class__.__name__)
+        self.display()
+
+    def display(self):
+        items = [
+            pvc.widget.menu.MenuItem(
+                tag='Create',
+                description='Create Snapshot',
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='Revert',
+                description='Revert to Snapshot',
+            ),
+            pvc.widget.menu.MenuItem(
+                tag='View',
+                description='View Snapshots',
+                on_select=VirtualMachineSnapshotViewWidget,
+                on_select_args=(self.agent, self.dialog, self.obj),
+            ),
+        ]
+
+        menu = pvc.widget.menu.Menu(
+            items=items,
+            dialog=self.dialog,
+            title=self.title,
+            text='Select an item from the menu'
+        )
+
+        menu.display()
 
 
 class VirtualMachineActionWidget(object):

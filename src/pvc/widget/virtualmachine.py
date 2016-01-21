@@ -1,4 +1,4 @@
-# Copyright (c) 2015 Marin Atanasov Nikolov <dnaeon@gmail.com>
+# Copyright (c) 2015-2016 Marin Atanasov Nikolov <dnaeon@gmail.com>
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -65,6 +65,7 @@ __all__ = [
     'VirtualMachineChangeDatastoreWidget',
     'VirtualMachineCloneWidget',
     'VirtualMachineSnapshotManagerWidget',
+    'VirtualMachineSnapshotViewWidget',
 ]
 
 
@@ -1027,6 +1028,123 @@ class VirtualMachineSnapshotManagerWidget(object):
         )
 
         menu.display()
+
+
+class VirtualMachineSnapshotViewWidget(object):
+    def __init__(self, agent, dialog, obj):
+        """
+        Virtual Machine Snapshot View Widget
+
+        Args:
+            agent          (VConnector): A VConnector instance
+            dialog      (dialog.Dialog): A Dialog instance
+            obj    (vim.VirtualMachine): A VirtualMachine managed entity
+
+        """
+        self.agent = agent
+        self.dialog = dialog
+        self.obj = obj
+        self.title = '{} ({})'.format(self.obj.name, self.obj.__class__.__name__)
+        self.display()
+
+    def display(self):
+        if not self.obj.snapshot:
+            self.dialog.msgbox(
+                title=self.title,
+                text='No snapshots found for {}'.format(self.obj.name)
+            )
+            return
+
+        self.dialog.infobox(
+            title=self.title,
+            text='Retrieving information ...'
+        )
+
+        snapshots = []
+        for root in self.obj.snapshot.rootSnapshotList:
+            snapshots.append(root)
+            for child in root.childSnapshotList:
+                snapshots.append(child)
+
+        # Tree view item tuples are documented in Dialog.treeview method
+        # http://sourceforge.net/p/pythondialog/code/ci/master/tree/dialog.py#l3548
+        items = []
+        for s in snapshots:
+            if s.snapshot == self.obj.snapshot.currentSnapshot:
+                name = '{} (You are here)'.format(s.name)
+            else:
+                name = s.name
+            items.append((s.name, name, False, s.id-1))
+
+        # Mark root snapshot as the selected item from the tree view
+        root = list(items[0])
+        root[2] = True # Mark snapshot item as the selected one
+        items[0] = tuple(root)
+
+        code, tag = self.dialog.treeview(
+            title=self.title,
+            text='Select snapshot for more details',
+            nodes=items
+        )
+
+        if code in (self.dialog.CANCEL, self.dialog.ESC):
+            return
+
+        selected = [s for s in snapshots if s.name == tag].pop()
+        self.details(selected)
+
+    def details(self, snapshot):
+        """
+        Display details about a snapshot
+
+        Args:
+            snapshot: A vim.VirtualMachineSnapshotTree instance
+
+        """
+        self.dialog.infobox(
+            title=self.title,
+            text='Retrieving information ...'
+        )
+
+        elements = [
+            pvc.widget.form.FormElement(
+                label='Name',
+                item=snapshot.name
+            ),
+            pvc.widget.form.FormElement(
+                label='ID',
+                item=str(snapshot.id)
+            ),
+            pvc.widget.form.FormElement(
+                label='Description',
+                item=snapshot.description
+            ),
+            pvc.widget.form.FormElement(
+                label='Created',
+                item=str(snapshot.createTime)
+            ),
+            pvc.widget.form.FormElement(
+                label='State',
+                item=snapshot.state
+            ),
+            pvc.widget.form.FormElement(
+                label='Quiesced',
+                item=str(snapshot.quiesced)
+            ),
+            pvc.widget.form.FormElement(
+                label='Replay Supported',
+                item=str(snapshot.replaySupported)
+            ),
+        ]
+
+        form = pvc.widget.form.Form(
+            dialog=self.dialog,
+            form_elements=elements,
+            title=self.title,
+            text='Snapshot Details'
+        )
+
+        form.display()
 
 
 class VirtualMachineActionWidget(object):

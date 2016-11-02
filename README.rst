@@ -39,6 +39,13 @@ The online documentation of PVC can be found at the link below:
 At the above link you can also find example screenshots of using
 PVC in a VMware vSphere environment.
 
+With Docker
+=============
+It is possible to use a docker using for example:
+
+
+docker run -i -t --rm --dns=8.8.8.8 -h=pvc-v0.1.1 --name pvc marioezquerro/pvc:v0.1.1 /usr/local/bin/pvc-tui
+
 Bugs
 ====
 

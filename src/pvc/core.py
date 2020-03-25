@@ -98,7 +98,6 @@ class MainApp(object):
         elements = [
             pvc.widget.form.FormElement(label='Hostname'),
             pvc.widget.form.FormElement(label='Username'),
-            pvc.widget.form.FormElement(label='Password', attributes=0x1),
         ]
 
         form = pvc.widget.form.Form(
@@ -121,6 +120,17 @@ class MainApp(object):
                 )
                 continue
 
+            code, password = self.dialog.passwordbox(
+                text='Password for {}'.format(fields['Username']),
+                insecure=True,
+            )
+            if code in (self.dialog.CANCEL, self.dialog.ESC):
+                self.dialog.msgbox(
+                    title='Error',
+                    text='You need to provide a password, please try again.\n',
+                )
+                continue
+
             self.dialog.infobox(
                 title='Establishing Connection',
                 text='Connecting to {} ...'.format(fields['Hostname']),
@@ -129,7 +139,7 @@ class MainApp(object):
             self.agent = VConnector(
                 host=fields['Hostname'],
                 user=fields['Username'],
-                pwd=fields['Password'],
+                pwd=password,
             )
 
             try:

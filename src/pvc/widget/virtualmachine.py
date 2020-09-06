@@ -837,26 +837,12 @@ class VirtualMachineConsoleWidget(object):
         """
         Launch a VMRC console to the Virtual Machine
 
-        On GNU/Linux systems we use VMware Player for
-        launching a console to the Virtual Machine.
-
-        On Mac OS X we use VMRC for launching the console.
-
-        VMware Player console is launched using this syntax:
-
-            $ vmplayer -H <hostname> -P <ticket> -M <managed-object-id>
-
         VMRC console is launched using this syntax:
 
             $ vmrc vmrc://clone:<ticket>@<hostname>/?moid=<managed-object-id>
 
         Where <ticket> is an acquired ticket as returned by a
         previous call to AcquireCloneTicket().
-
-        TODO: Drop support for VMware Player on GNU/Linux as soon as
-              support for VMRC is provided for GNU/Linux systems.
-              See http://kb.vmware.com/kb/2091284 for more details
-
         """
         self.dialog.infobox(
             title=self.title,
@@ -864,15 +850,22 @@ class VirtualMachineConsoleWidget(object):
         )
 
         ticket = self.agent.si.content.sessionManager.AcquireCloneTicket()
+        vmrc_cmd = os.environ.get('VMRC_PATH')
+
+        # VMRC not set in the environment, use these defaults.
+        if not vmrc_cmd:
+            if platform.system() == 'Darwin':
+                vmrc_cmd = 'open'
+            else:
+                vmrc_cmd = 'vmrc'
 
         try:
-            if platform.system() == 'Darwin':
-                args=['open', 'vmrc://clone:{}@{}/?moid={}'.format(
-                                                                ticket,
-                                                                self.agent.host,
-                                                                self.obj._moId)]
-            else:
-                args=['vmplayer', '-H', self.agent.host, '-P', ticket, '-M', self.obj._moId]
+            args=[vmrc_cmd, 'vmrc://clone:{}@{}/?moid={}'.format(
+                ticket,
+                self.agent.host,
+                self.obj._moId)
+            ]
+
             Popen(
                 args=args,
                 stdout=PIPE,
